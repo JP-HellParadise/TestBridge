@@ -1,14 +1,14 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "modid": "testbridge",
+  "name": "Test Bridge",
+  "description": "Rewrite Logistics Bridge in attempt.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
-  "authorList": ["CleanroomMC"],
-  "credits": "Authors of this project",
+  "authorList": ["Korewa_Li"],
+  "credits": "Authors of Test Bridge",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

@@ -1,0 +1,9 @@
+{
+  "minVersion": "0.8",
+  "package": "testbridge.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "client": [],
+  "server": []
+}

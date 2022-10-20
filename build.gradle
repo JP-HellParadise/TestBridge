@@ -1,7 +1,12 @@
 buildscript {
     repositories {
-        maven { 
-			// url = 'https://maven.cleanroommc.com'
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+		maven {
+			url = 'https://maven.cleanroommc.com'
+		}
+        maven {
 			url = 'https://maven.minecraftforge.net'
 		}
 		maven { 
@@ -13,9 +18,11 @@ buildscript {
 		if (project.use_mixins.toBoolean()) {
 			classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
 		}
+		classpath "io.franzbecker:gradle-lombok:5.0.0"
     }
 }
 
+apply plugin: "io.franzbecker.gradle-lombok"
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 if (project.use_mixins.toBoolean()) {
@@ -41,6 +48,7 @@ minecraft {
     version = '1.12.2-14.23.5.2847'
     runDir = 'run'
     mappings = 'stable_39'
+	replace("@VERSION@", project.mod_version)
 	def args = []
 	if (project.use_coremod.toBoolean()) {
 		args << '-Dfml.coreMods.load=' + coremod_plugin_class_name
@@ -55,12 +63,20 @@ minecraft {
 }
 
 repositories {
+	mavenCentral()
 	maven { 
-		url = 'https://maven.cleanroommc.com' 
+		url = 'https://maven.cleanroommc.com'
 	}
     maven {
         url = 'https://repo.spongepowered.org/maven'
     }
+	maven {
+		name = "CurseForge"
+		url = 'https://www.cursemaven.com'
+	}
+	maven {
+		url = "https://maven.removeco.de/"
+	}
 }
 
 dependencies {
@@ -71,6 +87,29 @@ dependencies {
 	if (project.use_mixins.toBoolean()) {
 		deobfCompile 'zone.rong:mixinbooter:5.0'
     }
+
+	//Compile things that need deobf
+	deobfCompile project.mcmp_dep
+	deobfCompile project.td_dep
+	deobfCompile project.hei_dep
+	deobfCompile project.lp_dep
+
+	//compileOnly
+	compileOnly project.rf_dep
+	compileOnly project.ae2_dep
+	compileOnly project.ccl_dep
+	compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
+	compileOnly group: 'mcjty.theoneprobe', name: 'TheOneProbe-1.12', version: '1.12-1.4.28-17', classifier: 'api'
+
+	//runtime so that mods loaded on runClient & runServer
+	runtime project.ccl_dep
+	runtime project.rs_dep
+	runtime project.te_dep
+	runtime project.tf_dep
+	runtime project.cofhc_dep
+	runtime project.cofhw_dep
+	runtime project.rf_dep
+	runtime project.ae2_dep
 	
 }
 
@@ -102,13 +141,13 @@ processResources {
 jar {
     manifest {
 		def attribute_map = [:]
-		if (project.use_coremod.toBoolean()) {
-			attribute_map['FMLCorePlugin'] = project.coremod_plugin_class_name
-			if (project.include_mod.toBoolean()) {
-				attribute_map['FMLCorePluginContainsFMLMod'] = true
-				attribute_map['ForceLoadAsMod'] = project.gradle.startParameter.taskNames[0] == "build"
-			}
-		}
+//		if (project.use_coremod.toBoolean()) {
+//			attribute_map['FMLCorePlugin'] = project.coremod_plugin_class_name
+//			if (project.include_mod.toBoolean()) {
+//				attribute_map['FMLCorePluginContainsFMLMod'] = true
+//				attribute_map['ForceLoadAsMod'] = project.gradle.startParameter.taskNames[0] == "build"
+//			}
+//		}
 		if (project.use_mixins.toBoolean()) {
 			attribute_map['TweakClass'] = 'org.spongepowered.asm.launch.MixinTweaker'
 		}
