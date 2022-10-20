@@ -1,4 +1,4 @@
-## Test Addon for LP
+## Test Addon for certain pipe mods
 
 ### Instructions:
 
