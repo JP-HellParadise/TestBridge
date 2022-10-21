@@ -3,6 +3,7 @@
   "package": "testbridge.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "TOPCompat.MixinPipeInfoProvider"
   ],
   "client": [],
   "server": []

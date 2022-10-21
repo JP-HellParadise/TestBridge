@@ -9,6 +9,7 @@ import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 import network.rs485.logisticspipes.SatellitePipe;
+import testbridge.pipes.ResultPipe;
 
 @StaticResolve
 public class SyncResultNamePacket extends StringCoordinatesPacket {
@@ -36,8 +37,8 @@ public class SyncResultNamePacket extends StringCoordinatesPacket {
   public void processPacket(EntityPlayer player) {
     final LogisticsTileGenericPipe pipe = getPipe(player.world, LTGPCompletionCheck.PIPE);
     if (pipe == null || pipe.pipe == null) { return; }
-    if (pipe.pipe instanceof SatellitePipe) {
-      ((SatellitePipe) pipe.pipe).setSatellitePipeName(getString());
+    if (pipe.pipe instanceof ResultPipe) {
+      ((ResultPipe) pipe.pipe).setSatellitePipeName(getString());
     }
   }
 }

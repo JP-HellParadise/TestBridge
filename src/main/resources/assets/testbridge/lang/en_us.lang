@@ -1,5 +1,7 @@
 # Pipes
 
+item.logisticspipes.pipe_result.name=Result Pipe
+
 item.testbridge.resultpipe.name=Result Pipe
 item.testbridge.resultpipe.tip1=Type: Active request destination
 item.testbridge.resultpipe.tip2= - A crafting pipe can receive additional outputs here
@@ -31,14 +33,6 @@ tile.testbridge.cmblock.tip4= - Can use a satellite bus to send inputs.
 # GUI
 
 gui.result.ResultName=Result Name
-gui.result.naming_result.success=Success
-gui.result.naming_result.duplicate_name=Name already used.
-gui.result.naming_result.blank_name=Name can't be blank.
-
-gui.popup.selectsatellite.title=Select Satellite Pipe
-gui.popup.selectsatellite.select=Select
-gui.popup.selectsatellite.exit=Exit
-gui.popup.selectsatellite.unset=Unset
 
 gui.popup.selectresult.title=Select Result Pipe
 gui.popup.selectresult.select=Select
@@ -46,9 +40,6 @@ gui.popup.selectresult.exit=Exit
 gui.popup.selectresult.unset=Unset
 
 # TOP
-
-top.testbridge.pipe.satellite.name=Satellite name: $AQUA%s$RESET.
-top.testbridge.pipe.satellite.no_name=Satellite name $REDnot set$RESET.
 
 top.testbridge.pipe.result.name=Result name: $AQUA%s$RESET.
 top.testbridge.pipe.result.no_name=Result name $REDnot set$RESET.

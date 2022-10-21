@@ -85,7 +85,6 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
     }
   }
 
-
   private void updateInv(boolean force) {
     ArrayList<ItemIdentifierStack> oldList = new ArrayList<>(itemList);
     itemList.clear();

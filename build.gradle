@@ -110,7 +110,8 @@ dependencies {
 	runtime project.cofhw_dep
 	runtime project.rf_dep
 	runtime project.ae2_dep
-	
+	runtime project.top_dep
+
 }
 
 sourceSets {
@@ -151,6 +152,6 @@ jar {
 		if (project.use_mixins.toBoolean()) {
 			attribute_map['TweakClass'] = 'org.spongepowered.asm.launch.MixinTweaker'
 		}
-        attributes(attribute_map)
+		attributes(attribute_map)
     }
 }
