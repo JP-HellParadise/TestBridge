@@ -1,17 +1,15 @@
 # Pipes
 
 item.logisticspipes.pipe_result.name=Result Pipe
+item.logisticspipes.pipe_result.tip1=Type: Active request destination
+item.logisticspipes.pipe_result.tip2= - A crafting pipe can receive additional outputs here
+item.logisticspipes.pipe_result.tip3= - (Only use for Crafting Manager Pipe)
 
-item.testbridge.resultpipe.name=Result Pipe
-item.testbridge.resultpipe.tip1=Type: Active request destination
-item.testbridge.resultpipe.tip2= - A crafting pipe can receive additional outputs here
-item.testbridge.resultpipe.tip3= - (Only use for Crafting Manager Pipe)
-
-item.testbridge.cmpipe.name=Crafting Manager Pipe
-item.testbridge.cmpipe.tip1=Type: Active Requesters + Source
-item.testbridge.cmpipe.tip2= - Can hold 27 modules of Crafter Module.
-item.testbridge.cmpipe.tip3= - Automatically request items to be crafted when queued.
-item.testbridge.cmpipe.tip4= - Can use a satellite pipe to send inputs, a result pipe to receive outputs.
+item.logisticspipes.pipe_cm.name=Crafting Manager Pipe
+item.logisticspipes.pipe_cm.tip1=Type: Active Requesters + Source
+item.logisticspipes.pipe_cm.tip2= - Can hold 27 modules of Crafter Module.
+item.logisticspipes.pipe_cm.tip3= - Automatically request items to be crafted when queued.
+item.logisticspipes.pipe_cm.tip4= - Can use a satellite pipe to send inputs, a result pipe to receive output(s).
 
 # Upgrades
 
@@ -19,25 +17,21 @@ item.testbridge.buffer.name=Buffer Upgrade
 
 # Upgrade info
 
-item.upgrade.info.pipe=Can be applied to $YELLOW{0}$RESET$GRAY pipes
-item.upgrade.info.cmpipe=Crafting Manager
+item.upgrade.info.pipe_cm=Crafting Manager
 
 # Blocks
 
-tile.testbridge.cmblock.name=ME Crafting Manager
-tile.testbridge.cmblock.tip1=Type: Active Requesters + Source
-tile.testbridge.cmblock.tip2= - Can hold 27 Patterns.
-tile.testbridge.cmblock.tip3= - Automatically request items to be crafted when queued.
-tile.testbridge.cmblock.tip4= - Can use a satellite bus to send inputs.
+tile.testbridge.tile_cm.name=ME Crafting Manager
+tile.testbridge.tile_cm.tip1=Type: Active Requesters + Source
+tile.testbridge.tile_cm.tip2= - Can hold 27 Patterns.
+tile.testbridge.tile_cm.tip3= - Automatically request items to be crafted when queued.
+tile.testbridge.tile_cm.tip4= - Can use a satellite bus to send inputs.
 
 # GUI
 
 gui.result.ResultName=Result Name
 
 gui.popup.selectresult.title=Select Result Pipe
-gui.popup.selectresult.select=Select
-gui.popup.selectresult.exit=Exit
-gui.popup.selectresult.unset=Unset
 
 # TOP
 

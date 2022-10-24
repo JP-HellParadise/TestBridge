@@ -1,0 +1,9 @@
+{
+  "minVersion": "0.8",
+  "package": "testbridge.mixins.appliedenergistics2",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "client": [],
+  "server": []
+}

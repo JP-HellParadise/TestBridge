@@ -1,9 +1,8 @@
 {
   "minVersion": "0.8",
-  "package": "testbridge.mixin",
+  "package": "testbridge.mixins.refinedstorage",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "TOPCompat.MixinPipeInfoProvider"
   ],
   "client": [],
   "server": []

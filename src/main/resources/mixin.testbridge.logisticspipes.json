@@ -1,0 +1,10 @@
+{
+  "minVersion": "0.8",
+  "package": "testbridge.mixins.logisticspipes",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "TB_MixinPipeInfoProvider"
+  ],
+  "client": [],
+  "server": []
+}

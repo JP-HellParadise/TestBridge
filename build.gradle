@@ -142,13 +142,13 @@ processResources {
 jar {
     manifest {
 		def attribute_map = [:]
-//		if (project.use_coremod.toBoolean()) {
-//			attribute_map['FMLCorePlugin'] = project.coremod_plugin_class_name
-//			if (project.include_mod.toBoolean()) {
-//				attribute_map['FMLCorePluginContainsFMLMod'] = true
-//				attribute_map['ForceLoadAsMod'] = project.gradle.startParameter.taskNames[0] == "build"
-//			}
-//		}
+		if (project.use_coremod.toBoolean()) {
+			attribute_map['FMLCorePlugin'] = project.coremod_plugin_class_name
+			if (project.include_mod.toBoolean()) {
+				attribute_map['FMLCorePluginContainsFMLMod'] = true
+				attribute_map['ForceLoadAsMod'] = project.gradle.startParameter.taskNames[0] == "build"
+			}
+		}
 		if (project.use_mixins.toBoolean()) {
 			attribute_map['TweakClass'] = 'org.spongepowered.asm.launch.MixinTweaker'
 		}
