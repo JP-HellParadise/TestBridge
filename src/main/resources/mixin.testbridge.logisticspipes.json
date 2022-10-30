@@ -3,7 +3,7 @@
   "package": "testbridge.mixins.logisticspipes",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "TB_MixinPipeInfoProvider"
+    "TB_MixinTOPAddon"
   ],
   "client": [],
   "server": []

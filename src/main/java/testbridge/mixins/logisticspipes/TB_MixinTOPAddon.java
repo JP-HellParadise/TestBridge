@@ -28,7 +28,7 @@ import network.rs485.logisticspipes.compat.TheOneProbeIntegration;
 import testbridge.pipes.ResultPipe;
 
 @Mixin(targets = "network.rs485.logisticspipes.compat.TheOneProbeIntegration$PipeInfoProvider")
-public abstract class TB_MixinPipeInfoProvider {
+public abstract class TB_MixinTOPAddon {
   @Final
   @Unique
   String prefix = "top.testbridge.";
@@ -58,7 +58,7 @@ public abstract class TB_MixinPipeInfoProvider {
   @Shadow(aliases = "TheOneProbeIntegration")
   public TheOneProbeIntegration this$0;
 
-  public void addResultPipeInfo(@Nonnull ResultPipe pipe, IProbeInfo probeInfo) {
+  private void addResultPipeInfo(@Nonnull ResultPipe pipe, IProbeInfo probeInfo) {
     String resultPipeName = pipe.getSatellitePipeName();
     if (!StringsKt.isBlank(resultPipeName)) {
       TheOneProbeIntegration.LPText var4 = this$0.new LPText(prefix + "pipe.result.name");
