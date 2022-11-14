@@ -28,6 +28,8 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
+    - name: Make sure we have permission
+      run: chmod +ux gradlew
     - name: Build with Gradle
       run: ./gradlew build
     - name: Upload a Build Artifact
