@@ -2,6 +2,7 @@ package testbridge.mixins.logisticspipes;
 
 import javax.annotation.Nonnull;
 
+import mcjty.theoneprobe.api.ITheOneProbe;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
@@ -27,11 +28,13 @@ import network.rs485.logisticspipes.compat.TheOneProbeIntegration;
 
 import testbridge.pipes.ResultPipe;
 
+import java.util.function.Function;
+
 @Mixin(targets = "network.rs485.logisticspipes.compat.TheOneProbeIntegration$PipeInfoProvider")
-public abstract class TB_MixinTOPAddon {
+public abstract class TB_MixinTOPAddon implements Function<ITheOneProbe, Void> {
   @Final
   @Unique
-  String prefix = "top.testbridge.";
+  String tb$prefix = "top.testbridge.";
 
   @Inject(
     method = "addProbeInfo",
@@ -41,7 +44,7 @@ public abstract class TB_MixinTOPAddon {
       ordinal = 1,
       shift = At.Shift.AFTER),
     cancellable = true)
-  public void preAddProbeInfo(
+  private void preAddProbeInfo(
       ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data, CallbackInfo ci) {
     if (probeInfo != null && blockState != null && data != null) {
       if (blockState.getBlock() instanceof LogisticsBlockGenericPipe) {
@@ -56,16 +59,17 @@ public abstract class TB_MixinTOPAddon {
   }
 
   @Shadow(aliases = "TheOneProbeIntegration")
-  public TheOneProbeIntegration this$0;
+  private TheOneProbeIntegration this$0;
 
+  @Unique
   private void addResultPipeInfo(@Nonnull ResultPipe pipe, IProbeInfo probeInfo) {
     String resultPipeName = pipe.getSatellitePipeName();
     if (!StringsKt.isBlank(resultPipeName)) {
-      TheOneProbeIntegration.LPText var4 = this$0.new LPText(prefix + "pipe.result.name");
+      TheOneProbeIntegration.LPText var4 = this$0.new LPText(tb$prefix + "pipe.result.name");
       var4.getArguments().add(resultPipeName);
       probeInfo.element(var4);
     } else {
-      probeInfo.element(this$0.new LPText(prefix + "pipe.result.no_name"));
+      probeInfo.element(this$0.new LPText(tb$prefix + "pipe.result.no_name"));
     }
   }
 }

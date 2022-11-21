@@ -1,8 +1,11 @@
 package testbridge.core;
 
+import logisticspipes.items.ItemUpgrade;
 import testbridge.datafixer.TBDataFixer;
 import testbridge.network.GuiHandler;
+import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
+import testbridge.pipes.upgrades.BufferCMUpgrade;
 import testbridge.textures.Textures;
 
 import logisticspipes.LPItems;
@@ -90,11 +93,6 @@ public class TestBridge extends LogisticsPipes {
       log.info("Refined Storage is loaded. Start inject module");
     }
 
-//    if (isTOPLoaded()) {
-//      FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe",
-//          TOPCompat.class.getName());
-//    }
-
     //TODO: preInit
 
     log.info("Pre Initialization took in {} milliseconds", (System.currentTimeMillis() - tM));
@@ -102,7 +100,7 @@ public class TestBridge extends LogisticsPipes {
   }
 
   @Mod.EventHandler
-  public static void _init(FMLInitializationEvent evt) {
+  public void _init(FMLInitializationEvent evt) {
     log.info("==================================================================================");
     log.info("Start Initialization");
     long tM = System.currentTimeMillis();
@@ -132,16 +130,12 @@ public class TestBridge extends LogisticsPipes {
   public void initItems(RegistryEvent.Register<Item> event) {
     IForgeRegistry<Item> registry = event.getRegistry();
 
-//    ItemPipeSignCreator.registerPipeSignTypes();
-//    ItemModule.loadModules(registry);
-//    ItemUpgrade.loadUpgrades(registry);
-    registerPipes(registry);
-  }
-
-  @Override
-  public void registerPipes(IForgeRegistry<Item> registry) {
+    // LP Register
+    // Pipe
     registerPipe(registry, "result", ResultPipe::new);
-
+    registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
+    // Upgrade
+    ItemUpgrade.registerUpgrade(registry, BufferCMUpgrade.getName(), BufferCMUpgrade::new);
   }
 
   @SubscribeEvent
@@ -150,14 +144,6 @@ public class TestBridge extends LogisticsPipes {
     IForgeRegistry<Block> registry = event.getRegistry();
 
     // TODO Block
-  }
-
-  private void registerRecipes() {
-//    RecipeManager.loadRecipes();
-//
-//    resetRecipeList.stream()
-//        .map(Supplier::get)
-//        .forEach(itemItemPair -> registerShapelessResetRecipe(itemItemPair.getValue1(), itemItemPair.getValue2()));
   }
 
   @Mod.EventHandler

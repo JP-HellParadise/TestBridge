@@ -3,8 +3,12 @@
   "package": "testbridge.mixins.logisticspipes",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "TB_MixinTOPAddon"
+    "TB_MixinModuleCGP",
+    "TB_MixinTOPAddon",
+    "recipes.TB_MixinRecipes"
   ],
-  "client": [],
+  "client": [
+    "TB_MixinGuiOpenChassis"
+  ],
   "server": []
 }

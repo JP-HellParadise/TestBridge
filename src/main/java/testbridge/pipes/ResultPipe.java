@@ -1,7 +1,6 @@
 package testbridge.pipes;
 
 import testbridge.core.TestBridge;
-import testbridge.interfaces.IResultPipe;
 import testbridge.network.packets.resultpipe.SyncResultNamePacket;
 import testbridge.network.GuiIDs;
 import testbridge.textures.Textures;
@@ -37,7 +36,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRendererProvider, IChangeListener, IResultPipe, SatellitePipe {
+public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRendererProvider, IChangeListener, SatellitePipe {
 
   //private final ModuleSatellite moduleResult;
 

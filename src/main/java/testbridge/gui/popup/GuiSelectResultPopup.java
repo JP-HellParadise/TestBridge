@@ -21,12 +21,11 @@ import java.util.function.Consumer;
 public class GuiSelectResultPopup extends SubGuiScreen {
 
   String GUI_LANG_KEY = "gui.popup.selectresult.";
-
   private final Consumer<UUID> handleResult;
   private List<Pair<String, UUID>> pipeList = Collections.EMPTY_LIST;
   private final TextListDisplay textList;
 
-  public GuiSelectResultPopup(BlockPos pos, boolean Results, Consumer<UUID> handleResult) {
+  public GuiSelectResultPopup(BlockPos pos,  Consumer<UUID> handleResult) {
     super(150, 170, 0, 0);
     this.handleResult = handleResult;
     this.textList = new TextListDisplay(this, 6, 16, 6, 30, 12, new TextListDisplay.List() {
@@ -46,7 +45,7 @@ public class GuiSelectResultPopup extends SubGuiScreen {
         return 0xFFFFFF;
       }
     });
-    MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestResultPipeListPacket.class).setFlag(Results).setBlockPos(pos));
+    MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestResultPipeListPacket.class).setFlag(true).setBlockPos(pos));
   }
 
   protected void drawTitle() {

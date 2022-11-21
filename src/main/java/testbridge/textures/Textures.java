@@ -11,6 +11,8 @@ public class Textures extends logisticspipes.textures.Textures {
   public Textures() {
 
   }
+
+  public static TextureType TESTBRIDGE_TEXTURE = empty;
   public static TextureType TESTBRIDGE_RESULT_TEXTURE = empty;
 
   // Standalone pipes

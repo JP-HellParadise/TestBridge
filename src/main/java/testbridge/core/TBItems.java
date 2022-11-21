@@ -1,9 +1,25 @@
 package testbridge.core;
 
 import net.minecraft.item.Item;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 
 public class TBItems {
-  @GameRegistry.ObjectHolder("testbridge:pipe_result")
+
+  // Pipes
+  @ObjectHolder("logisticspipes:pipe_result")
   public static Item pipeResult;
+
+  @ObjectHolder("logisticspipes:pipe_crafting_manager")
+  public static Item pipeCraftingManager;
+
+  // Modules
+  @ObjectHolder("logisticspipes:module_crafter")
+  public static Item moduleCrafter;
+
+  // Upgrades
+  @ObjectHolder("logisticspipes:buffer_cm")
+  public static Item upgradeBuffer;
+
+  // Blocks
+
 }
