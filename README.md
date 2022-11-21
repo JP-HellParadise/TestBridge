@@ -1,7 +1,12 @@
-## Test Addon for certain pipe mods
-
-### Instructions:
-
+## Test Addon for certain pipe mods  
+## Features
+- Logistics addon:
+  + Result pipe
+  + Crafting manager pipe
+  + New upgrade for CM pipe  
+- Applied Energistics 2:  WIP  
+- Refined Storage:  WIP  
+### Instructions:  
 1. Clone this repository.
 2. In the local repository, run the command `gradlew setupDecompWorkspace idea`.
 3. Open the `.ipr` file in IDEA.
