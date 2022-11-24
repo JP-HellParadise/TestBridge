@@ -8,7 +8,11 @@ brainded, will have to implement Logistics somehow...
   + New upgrade for CM pipe  
 - Applied Energistics 2:  WIP  
 - Refined Storage:  WIP  
-### Instructions:  
+
+
+
+
+### How to use *this repo*:  
 1. Clone this repository.
 2. In the local repository, run the command `gradlew setupDecompWorkspace idea`.
 3. Open the `.ipr` file in IDEA.
