@@ -6,9 +6,11 @@ import logisticspipes.network.packets.pipe.ChassisPipeModuleContent;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
+import logisticspipes.utils.StaticResolve;
 import net.minecraft.entity.player.EntityPlayer;
 import testbridge.pipes.PipeCraftingManager;
 
+@StaticResolve
 public class CMPipeModuleContent extends InventoryModuleCoordinatesPacket {
   public CMPipeModuleContent(int id) {
     super(id);

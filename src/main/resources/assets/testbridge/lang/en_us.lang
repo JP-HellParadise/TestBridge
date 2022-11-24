@@ -1,35 +1,49 @@
 # Pipes
 
 item.logisticspipes.pipe_result.name=Result Pipe
-item.logisticspipes.pipe_result.tip1=Type: Active request destination
-item.logisticspipes.pipe_result.tip2= - A crafting pipe can receive additional outputs here
-item.logisticspipes.pipe_result.tip3= - (Only use for Crafting Manager Pipe)
+item.logisticspipes.pipe_result.tip1=Type: Item Source
+item.logisticspipes.pipe_result.tip2= - Attaches to an inventory
+item.logisticspipes.pipe_result.tip3= - Sends 16 items into the network to fulfill crafting requests.
+item.logisticspipes.pipe_result.tip4= - Used with a $YELLOWCrafting Manager$RESET.
+item.logisticspipes.pipe_result.tip5=Added by $BLUETest Bridge
 
-item.logisticspipes.pipe_cm.name=Crafting Manager Pipe
-item.logisticspipes.pipe_cm.tip1=Type: Active Requesters + Source
-item.logisticspipes.pipe_cm.tip2= - Can hold 27 modules of Crafter Module.
-item.logisticspipes.pipe_cm.tip3= - Automatically request items to be crafted when queued.
-item.logisticspipes.pipe_cm.tip4= - Can use a satellite pipe to send inputs, a result pipe to receive output(s).
+item.logisticspipes.pipe_crafting_manager.name=Crafting Manager Pipe
+item.logisticspipes.pipe_crafting_manager.tip1=Type: Auto Crafting
+item.logisticspipes.pipe_crafting_manager.tip2= - Will act like Chassis if connected to container and satellite isn't available.
+item.logisticspipes.pipe_crafting_manager.tip3= - Can contain 27 Crafting modules with 2 Upgrade slots each.
+item.logisticspipes.pipe_crafting_manager.tip4= - Install module upgrades by dropping them on the module slot.
+item.logisticspipes.pipe_crafting_manager.tip5= - Used with a $YELLOWResult Pipe$RESET & $YELLOWSatellite Pipe$RESET.
+item.logisticspipes.pipe_crafting_manager.tip6=Added by $BLUETest Bridge
+
 
 # Upgrades
 
-item.testbridge.buffer.name=Buffer Upgrade
+item.logisticspipes.upgrade_buffer_cm.name=Buffer Upgrade
+item.logisticspipes.upgrade_buffer_cm.tip1=Uses attached chest to buffer crafting ingredients.
+item.logisticspipes.upgrade_buffer_cm.tip2=Allows buffering ingredients until the machine is ready.
+item.logisticspipes.upgrade_buffer_cm.tip3=Allows $REDRedstone$RESET Control of crafting.
+item.logisticspipes.upgrade_buffer_cm.tip4=Dark red particles indicate blocked state.
+item.logisticspipes.upgrade_buffer_cm.tip5=Added by $BLUETest Bridge
 
 # Upgrade info
 
-item.upgrade.info.pipe_cm=Crafting Manager
+item.upgrade.info.crafting_manager=Crafting Manager Pipe
 
 # Blocks
 
-tile.testbridge.tile_cm.name=ME Crafting Manager
-tile.testbridge.tile_cm.tip1=Type: Active Requesters + Source
-tile.testbridge.tile_cm.tip2= - Can hold 27 Patterns.
-tile.testbridge.tile_cm.tip3= - Automatically request items to be crafted when queued.
-tile.testbridge.tile_cm.tip4= - Can use a satellite bus to send inputs.
+#tile.testbridge.tile_cm.name=ME Crafting Manager
+#tile.testbridge.tile_cm.tip1=Type: Active Requesters + Source
+#tile.testbridge.tile_cm.tip2= - Can hold 27 Patterns.
+#tile.testbridge.tile_cm.tip3= - Automatically request items to be crafted when queued.
+#tile.testbridge.tile_cm.tip4= - Can use a satellite bus to send inputs.
 
 # GUI
 
 gui.result.ResultName=Result Name
+gui.crafting_manager.satellite=Satellite
+gui.crafting_manager.result=Result
+gui.crafting_manager.CMName=Crafting Manager
+
 
 gui.popup.selectresult.title=Select Result Pipe
 

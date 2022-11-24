@@ -1,7 +1,6 @@
 package testbridge.gui;
 
 import logisticspipes.LPItems;
-import logisticspipes.gui.modules.ModuleBaseGui;
 import logisticspipes.kotlin.Unit;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleCrafter;
@@ -11,6 +10,7 @@ import logisticspipes.network.packets.gui.GuiClosePacket;
 import logisticspipes.network.packets.module.ModulePropertiesUpdate;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.GuiGraphics;
+import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.extention.GuiExtention;
 
@@ -27,7 +27,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import org.lwjgl.opengl.GL11;
@@ -35,65 +34,64 @@ import org.lwjgl.opengl.GL12;
 
 import testbridge.core.TBItems;
 import testbridge.gui.popup.GuiSelectResultPopup;
-import testbridge.modules.CMPipeSetSatResultPacket;
-import testbridge.modules.TB_ModuleCM;
+import testbridge.gui.popup.GuiSelectSatellitePopup;
+import testbridge.network.guis.pipe.CMGuiProvider;
+import testbridge.network.packets.pipe.CMPipeSetSatResultPacket;
 import testbridge.network.packets.craftingmanager.CMGui;
 import testbridge.pipes.PipeCraftingManager;
+import testbridge.pipes.upgrades.ModuleUpgradeManager;
 import testbridge.utils.gui.DummyContainer;
-import testbridge.utils.gui.ModuleSlot;
+import testbridge.utils.gui.CrafterSlot;
 
 import java.io.IOException;
 
-public class GuiCMPipe extends ModuleBaseGui {
+public class GuiCMPipe extends LogisticsBaseGuiScreen {
 
-  private static final String PREFIX = "gui.craftingmanager.";
+  private static final String PREFIX = "gui.crafting_manager.";
 
   //Basic modules slot
   @Getter
-  private final PipeCraftingManager _cmPipe;
-
-  @Getter
-  private final TB_ModuleCM module;
+  private final PipeCraftingManager pipeCM;
 
   private final IInventory _moduleInventory;
+
+  private final Slot[] upgradeslot;
 
   //Advanced stuff
   private final EntityPlayer _player;
   private final PropertyLayer propertyLayer;
 
-  public GuiCMPipe(EntityPlayer player, TB_ModuleCM module, PipeCraftingManager chassis, boolean bufferExclude) {
-    //Classis chassis
-    super(null, module);
-    _cmPipe = chassis;
-    _moduleInventory = chassis.getModuleInventory();
-    _player = player;
+  public GuiCMPipe(EntityPlayer _player, PipeCraftingManager pipeCM, boolean bufferExclude) {
+    super(null);
+    this.pipeCM = pipeCM;
+    _moduleInventory = pipeCM.getModuleInventory();
+    this._player = _player;
+
+    // Create dummy container
+    DummyContainer dummy = new DummyContainer(_player.inventory, _moduleInventory);
+    dummy.addNormalSlotsForPlayerInventory(8, 16 + 18 * 3 + 15);
+    for (int i = 0; i < 3; i++)
+      for (int j = 0; j < 9; j++)
+        dummy.addCMModuleSlot(9*i+j, _moduleInventory, 8 + 18*j, 16 + 18*i, this.pipeCM);
+
+    // Create upgrade slot
+    upgradeslot = new Slot[2 * pipeCM.getChassisSize()];
+    for (int i = 0; i < pipeCM.getChassisSize(); i++) {
+      final int fI = i;
+      ModuleUpgradeManager upgradeManager = this.pipeCM.getModuleUpgradeManager(i);
+      upgradeslot[i * 2]  = dummy.addUpgradeSlot(0, upgradeManager, 0, - (i - pipeCM.getChassisSize()) * 18, 9 + i * 20, itemStack -> CMGuiProvider.checkStack(itemStack, this.pipeCM, fI));
+      upgradeslot[i * 2 + 1] = dummy.addUpgradeSlot(1, upgradeManager, 1, - (i - pipeCM.getChassisSize()) * 18, 9 + i * 20, itemStack -> CMGuiProvider.checkStack(itemStack, this.pipeCM, fI));
+    }
+
+    this.pipeCM.getModules().bufferModeIsExclude.setValue(bufferExclude);
+
+    propertyLayer = new PropertyLayer(this.pipeCM.getModules().getProperties());
+    propertyLayer.addObserver(this.pipeCM.getModules().bufferModeIsExclude, this::updateBufferModeButton);
+
+    inventorySlots = dummy;
 
     xSize = 177;
     ySize = 167;
-
-    DummyContainer dummy = new DummyContainer(player.inventory, _moduleInventory);
-    dummy.addNormalSlotsForPlayerInventory(8, 16 + 18 * 3 + 15);
-
-    for (int i = 0; i < 3; i++)
-      for (int j = 0; j < 9; j++)
-        dummy.addCMModuleSlot(9*i+j, _moduleInventory, 8 + 18*j, 16 + 18*i, _cmPipe);
-
-    inventorySlots = dummy;
-
-    //Advanced stuff
-    this.module = module;
-
-    module.bufferModeIsExclude.setValue(bufferExclude);
-
-    propertyLayer = new PropertyLayer(module.getProperties());
-    propertyLayer.addObserver(module.bufferModeIsExclude, this::updateBufferModeButton);
-
-    inventorySlots = dummy;
-  }
-
-  private boolean isCrafterOnHand(Slot slotID) {
-    ItemStack onHand = this.mc.player.inventory.getItemStack();
-    return (onHand.getItem() == Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName())));
   }
 
   protected void windowClick(int id, int btn, ClickType clickType) {
@@ -102,54 +100,49 @@ public class GuiCMPipe extends ModuleBaseGui {
 
   @Override
   protected void mouseClicked(int X, int Y, int mouseButton) throws IOException {
-    // Fetch current interactive slot and get slot id
     Slot currentSlot = getSlotUnderMouse();
-    if (!(currentSlot instanceof ModuleSlot) || mouseButton == 0) {
-      super.mouseClicked(X, Y, mouseButton);
-      return;
-    }
-    int slotID = currentSlot.getSlotIndex();
-    LogisticsModule module = _cmPipe.getSubModule(slotID);
-    if (mouseButton == 1) {
-      if (module instanceof ModuleCrafter && isCrafterOnHand(currentSlot)) {
-        ModernPacket packet = PacketHandler.getPacket(CMGui.class).setSlotID(slotID).setPosX(_cmPipe.getX()).setPosY(_cmPipe.getY()).setPosZ(_cmPipe.getZ());
+    // TODO: Make those module upgradable
+    if (mouseButton == 1 && currentSlot instanceof CrafterSlot) {
+      int slotID = currentSlot.getSlotIndex();
+      LogisticsModule module = pipeCM.getSubModule(slotID);
+      if ( module instanceof ModuleCrafter) {
+        ModernPacket packet = PacketHandler.getPacket(CMGui.class).setSlotID(slotID).setPosX(pipeCM.getX()).setPosY(pipeCM.getY()).setPosZ(pipeCM.getZ());
         MainProxy.sendPacketToServer(packet);
       }
-    }
+    } else super.mouseClicked(X, Y, mouseButton);
   }
 
   @Override
   public void initGui() {
     super.initGui();
 
-    GuiButton normalButtonArray = new SmallGuiButton(0, guiLeft - 40 / 2 - 18, guiTop + 158, 37, 10, TextUtil.translate(PREFIX + "Select"));
-
     buttonList.clear();
     extentionControllerLeft.clear();
 
-    CMExtention extention = new CMExtention("gui.craftingManager.satellite" , TB_ModuleCM.clientSideSatResultNames.CM$satelliteName, new ItemStack(LPItems.pipeSatellite));
-    extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(normalButtonArray)));
+    // TODO: Extention dont show up as expected.
+    CMExtention extention = new CMExtention("gui.satellite.SatelliteName", new ItemStack(LPItems.pipeSatellite), 0);
+    extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(1, guiLeft - 40 / 2 - 18, guiTop + 23, 37, 10, TextUtil.translate(PREFIX + "Select")))));
     extentionControllerLeft.addExtention(extention);
-    extention = new CMExtention("gui.craftingManager.result" , TB_ModuleCM.clientSideSatResultNames.resultName, new ItemStack(TBItems.pipeResult));
-    extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(normalButtonArray)));
+    extention = new CMExtention("gui.result.ResultName" , new ItemStack(TBItems.pipeResult), 1);
+    extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(2, guiLeft - 40 / 2 - 18, guiTop + 23, 37, 10, TextUtil.translate(PREFIX + "Select")))));
     extentionControllerLeft.addExtention(extention);
-
   }
 
+  @Override
   protected void actionPerformed(GuiButton guibutton) throws IOException {
     switch (guibutton.id) {
-      case 0:
-        openSubGuiForSatResultSelection(0);
+      case 1:
+        openSubGuiForSatResultSelection(1);
         break;
       case 2:
-        openSubGuiForSatResultSelection(1);
+        openSubGuiForSatResultSelection(2);
         break;
 //      case 24:
 //        bufferModeIsExcludeOverlay.write(BooleanProperty::toggle);
 //        break;
 //      case 25:
 //        bufferModeIsExcludeOverlay.set(false);
-//        MainProxy.sendPacketToServer(PacketHandler.getPacket(CPipeCleanupImport.class).setModulePos(craftingModule));
+//        MainProxy.sendPacketToServer(PacketHandler.getPacket(CMPipeBuffer.class).setModulePos(craftingModule));
 //        break;
       default:
         super.actionPerformed(guibutton);
@@ -159,8 +152,8 @@ public class GuiCMPipe extends ModuleBaseGui {
   @Override
   protected void drawGuiContainerForegroundLayer(int par1, int par2) {
     super.drawGuiContainerForegroundLayer(par1, par2);
-    drawCenteredString("Crafting Manager", xSize / 2, 5, 0x404040);
-    mc.fontRenderer.drawString("Inventory", 3, ySize - 93, 0x404040);
+    drawCenteredString(TextUtil.translate(GuiCMPipe.PREFIX + "name"), xSize / 2, 5, 0x404040);
+    mc.fontRenderer.drawString(TextUtil.translate("key.categories.inventory"), 7, ySize - 93, 0x404040);
   }
 
   @Override
@@ -170,23 +163,30 @@ public class GuiCMPipe extends ModuleBaseGui {
       for (int j = 0; j < 9; j++)
         GuiGraphics.drawSlotBackground(mc, guiLeft + 7 + 18 * j, guiTop + 15 + 18 * i);
     GuiGraphics.drawPlayerInventoryBackground(mc, guiLeft + 8, guiTop + ySize - 82);
+
+    super.renderExtentions();
   }
 
   private void openSubGuiForSatResultSelection(int id) {
-    if (module.getSlot().isInWorld()) {
-      this.setSubGui(new GuiSelectResultPopup(module.getBlockPos(), uuid ->
-          MainProxy.sendPacketToServer(PacketHandler.getPacket(CMPipeSetSatResultPacket.class).setPipeID(uuid).setInteger(id).setModulePos(module))));
+    if (pipeCM.getModules().getSlot().isInWorld()) {
+      if (id == 1) {
+        this.setSubGui(new GuiSelectSatellitePopup(pipeCM.getModules().getBlockPos(), uuid ->
+            MainProxy.sendPacketToServer(PacketHandler.getPacket(CMPipeSetSatResultPacket.class).setPipeID(uuid).setInteger(id).setModulePos(pipeCM.getModules()))));
+      } else {
+        this.setSubGui(new GuiSelectResultPopup(pipeCM.getModules().getBlockPos(), uuid ->
+            MainProxy.sendPacketToServer(PacketHandler.getPacket(CMPipeSetSatResultPacket.class).setPipeID(uuid).setInteger(id).setModulePos(pipeCM.getModules()))));
+      }
     }
   }
 
   @Override
   public void onGuiClosed() {
-    MainProxy.sendPacketToServer(PacketHandler.getPacket(GuiClosePacket.class).setTilePos(_cmPipe.container));
+    MainProxy.sendPacketToServer(PacketHandler.getPacket(GuiClosePacket.class).setTilePos(pipeCM.container));
     super.onGuiClosed();
     propertyLayer.unregister();
     if (this.mc.player != null && !propertyLayer.getProperties().isEmpty()) {
       // send update to server, when there are changed properties
-      MainProxy.sendPacketToServer(ModulePropertiesUpdate.fromPropertyHolder(propertyLayer).setModulePos(module));
+      MainProxy.sendPacketToServer(ModulePropertiesUpdate.fromPropertyHolder(propertyLayer).setModulePos(pipeCM.getModules()));
     }
   }
 
@@ -197,12 +197,12 @@ public class GuiCMPipe extends ModuleBaseGui {
   private final class CMExtention extends GuiExtention {
     private final ItemStack showItem;
     private final String translationKey;
-    private final String pipeID;
+    private final int guiButton;
 
-    public CMExtention(String translationKey, String pipeID, ItemStack showItem) {
+    public CMExtention(String translationKey, ItemStack showItem, int guiButton) {
       this.translationKey = translationKey;
-      this.pipeID = pipeID;
       this.showItem = showItem;
+      this.guiButton = guiButton;
     }
 
     @Override
@@ -227,16 +227,14 @@ public class GuiCMPipe extends ModuleBaseGui {
         itemRender.renderItemOverlayIntoGUI(fontRenderer, showItem, left + 5, top + 5, "");
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
-        mc.fontRenderer.drawStringWithShadow("2", left + 22 - fontRenderer.getStringWidth("2"), top + 14, 16777215);
-      }
-      itemRender.zLevel = 0.0F;
-
-      if (isFullyExtended()) {
+        itemRender.zLevel = 0.0F;
+      } else {
         mc.fontRenderer.drawString(TextUtil.translate(translationKey), left + 9, top + 8, 0x404040);
-        if (pipeID == null || pipeID.isEmpty()) {
-          mc.fontRenderer.drawString(TextUtil.translate(GuiCMPipe.PREFIX + "Off"), left + 40 / 2 - 5, top + 145, 0x404040);
+        String pipeID = guiButton == 0 ? pipeCM.getModules().clientSideSatResultNames.satelliteName : pipeCM.getModules().clientSideSatResultNames.resultName;
+        if (pipeID.isEmpty()) {
+          mc.fontRenderer.drawString(TextUtil.translate("gui.crafting.Off"), left + 40 / 2 - 5, top + 23, 0x404040);
         } else {
-          mc.fontRenderer.drawString(pipeID, left + 40 / 2 + 3 - (fontRenderer.getStringWidth(pipeID) / 2), top + 145, 0x404040);
+          mc.fontRenderer.drawString(pipeID, left + 40 / 2 + 3 - (fontRenderer.getStringWidth(pipeID) / 2), top + 23, 0x404040);
         }
       }
     }

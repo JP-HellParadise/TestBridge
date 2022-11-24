@@ -1,6 +1,5 @@
 package testbridge.network.packets.pipe;
 
-import logisticspipes.network.packets.pipe.CraftingPipeUpdatePacket;
 import net.minecraft.entity.player.EntityPlayer;
 
 import lombok.Getter;
@@ -16,7 +15,11 @@ import network.rs485.logisticspipes.util.LPDataOutput;
 import testbridge.modules.TB_ModuleCM;
 
 @StaticResolve
-public class CMPipeUpdatePacket extends CraftingPipeUpdatePacket {
+public class CMPipeUpdatePacket extends ModuleCoordinatesPacket {
+
+	@Getter
+	@Setter
+	private String satelliteName = "";
 
 	@Getter
 	@Setter
@@ -38,25 +41,19 @@ public class CMPipeUpdatePacket extends CraftingPipeUpdatePacket {
 	@Override
 	public void writeData(LPDataOutput output) {
 		super.writeData(output);
-		output.writeUTF(super.getSatelliteName());
+		output.writeUTF(satelliteName);
  		output.writeUTF(resultName);
 	}
 
 	@Override
 	public void readData(LPDataInput input) {
 		super.readData(input);
-		super.setSatelliteName(input.readUTF());
+		satelliteName= input.readUTF();
 		resultName = input.readUTF();
 	}
 
 	@Override
 	public ModernPacket template() {
-		return new CraftingPipeUpdatePacket(getId());
-	}
-
-	@Override
-	public CMPipeUpdatePacket setSatelliteName(String satelliteName) {
-		super.setSatelliteName(satelliteName);
-		return this;
+		return new CMPipeUpdatePacket(getId());
 	}
 }

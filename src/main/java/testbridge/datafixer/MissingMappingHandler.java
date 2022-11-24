@@ -19,6 +19,7 @@ public class MissingMappingHandler {
   private Map<String, String> itemIDMap = ImmutableMap.<String, String>builder()
       //pipe
       .put("item.resultpipe", "pipe_result")
+      .put("item.crafting_manager", "pipe_crafting_manager")
       .build();
 
 //  private Map<String, String> blockIDMap = ImmutableMap.<String, String>builder()

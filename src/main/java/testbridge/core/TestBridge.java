@@ -1,11 +1,13 @@
 package testbridge.core;
 
 import logisticspipes.items.ItemUpgrade;
+import net.minecraftforge.fml.common.SidedProxy;
 import testbridge.datafixer.TBDataFixer;
 import testbridge.network.GuiHandler;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 import testbridge.pipes.upgrades.BufferCMUpgrade;
+import testbridge.proxy.CommonProxy;
 import testbridge.textures.Textures;
 
 import logisticspipes.LPItems;
@@ -33,7 +35,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.Method;
 
 @Mod(modid = TestBridge.ID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "", acceptedMinecraftVersions = "1.12.2")
 public class TestBridge extends LogisticsPipes {
@@ -53,6 +54,11 @@ public class TestBridge extends LogisticsPipes {
   @Mod.Instance("testbridge")
   public static TestBridge instance;
 
+  @SidedProxy(
+      clientSide = "testbridge.proxy.ClientProxy",
+      serverSide = "testbridge.proxy.CommonProxy")
+  public static CommonProxy proxy;
+
   public static final Logger log = LogManager.getLogger(NAME);
 
   //Creative tab
@@ -63,8 +69,6 @@ public class TestBridge extends LogisticsPipes {
       return new ItemStack(LPItems.pipeBasic);
     }
   };
-
-  private static Method registerTexture;
 
   public static Textures textures = new Textures();
 
@@ -80,18 +84,14 @@ public class TestBridge extends LogisticsPipes {
     log.info("==================================================================================");
     log.info("Test Bridge: Start Pre Initialization");
     long tM = System.currentTimeMillis();
+
+    proxy.preInit(event);
+
     AELoaded = Loader.isModLoaded("appliedenergistics2");
     RSLoaded = Loader.isModLoaded("refinedstorage");
     TOPLoaded = Loader.isModLoaded("theoneprobe");
 
 
-      if (isAELoaded()) {
-      log.info("Applied Energistics 2 is loaded. Start inject module");
-    }
-
-    if (isRSLoaded()) {
-      log.info("Refined Storage is loaded. Start inject module");
-    }
 
     //TODO: preInit
 

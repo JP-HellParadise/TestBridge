@@ -1,5 +1,10 @@
 package testbridge.pipes;
 
+import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
+import logisticspipes.modules.ModuleSatellite;
+import logisticspipes.pipes.PipeItemsSatelliteLogistics;
+import logisticspipes.request.RequestTree;
+import lombok.Getter;
 import testbridge.core.TestBridge;
 import testbridge.network.packets.resultpipe.SyncResultNamePacket;
 import testbridge.network.GuiIDs;
@@ -42,38 +47,37 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
 
   public final LinkedList<ItemIdentifierStack> oldList = new LinkedList<>();
   public static final Set<ResultPipe> AllResults = Collections.newSetFromMap(new WeakHashMap<>());
-  public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-  private final LinkedList<ItemIdentifierStack> itemList = new LinkedList<>();
-  private final HUDSatellite HUD = new HUDSatellite(this);
-
-  private boolean doContentUpdate = true;
-
-  private String resultPipeName = "";
 
   // called only on server shutdown
   public static void cleanup() {
     ResultPipe.AllResults.clear();
   }
 
+  public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
+  private final HUDSatellite HUD = new HUDSatellite(this);
+  private boolean doContentUpdate = true;
+
+  private String resultPipeName = "";
+
   public ResultPipe(Item item) {
     super(item);
-    this.throttleTime = 40;
-//    this.moduleSatellite = new ModuleSatellite();
-//    moduleResult.registerHandler(this, this);
-//    moduleResult.registerPosition(LogisticsModule.ModulePositionType.IN_PIPE, 0);
+    throttleTime = 40;
     _orderItemManager = new LogisticsItemOrderManager(this, this);
+  }
+
+
+  private void checkContentUpdate() {
+    LinkedList<ItemIdentifierStack> all = _orderItemManager.getContentList(getWorld());
+    if (!oldList.equals(all)) {
+      oldList.clear();
+      oldList.addAll(all);
+      MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(all).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
+    }
   }
 
   @Override
   public TextureType getCenterTexture() {
     return Textures.TESTBRIDGE_RESULT_TEXTURE;
-  }
-
-  @Nullable
-  @Override
-  public LogisticsModule getLogisticsModule() {
-    return null;
-//  return moduleResult;
   }
 
   @Override
@@ -84,19 +88,10 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
     }
   }
 
-  private void updateInv(boolean force) {
-    ArrayList<ItemIdentifierStack> oldList = new ArrayList<>(itemList);
-    itemList.clear();
-    itemList.addAll(
-        getAvailableAdjacent().inventories().stream()
-            .map(LPNeighborTileEntityKt::getInventoryUtil)
-            .filter(Objects::nonNull)
-            .flatMap(invUtil -> invUtil.getItemsAndCount().entrySet().stream().map(itemIdentifierAndCount -> new ItemIdentifierStack(itemIdentifierAndCount.getKey(), itemIdentifierAndCount.getValue())))
-            .collect(Collectors.toList())
-    );
-    if (!oldList.equals(itemList) || force) {
-      MainProxy.sendToPlayerList(PacketHandler.getPacket(ChestContent.class).setIdentList(itemList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
-    }
+  @Nullable
+  @Override
+  public LogisticsModule getLogisticsModule() {
+    return null;
   }
 
   @Override
@@ -115,28 +110,14 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   }
 
   @Override
-  public void onWrenchClicked(EntityPlayer entityplayer) {
-    // Send the result id when opening gui
-    final ModernPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-    MainProxy.sendPacketToPlayer(packet, entityplayer);
-    entityplayer.openGui(TestBridge.instance, GuiIDs.GUI_ResultPipe_ID, getWorld(), getX(), getY(), getZ());
-  }
-
-  @Override
   public void playerStartWatching(EntityPlayer player, int mode) {
     if (mode == 1) {
       localModeWatchers.add(player);
-      final ModernPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString((this).resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
+      final ModernPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
       MainProxy.sendPacketToPlayer(packet, player);
-      updateInv(true);
     } else {
       super.playerStartWatching(player, mode);
     }
-  }
-
-  @Override
-  public IHeadUpDisplayRenderer getRenderer() {
-    return HUD;
   }
 
   @Override
@@ -146,30 +127,20 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   }
 
   @Override
-  public void listenedChanged() {
-    doContentUpdate = true;
-  }
-
-  private void checkContentUpdate() {
-    doContentUpdate = false;
-    LinkedList<ItemIdentifierStack> all = _orderItemManager.getContentList(getWorld());
-    if (!oldList.equals(all)) {
-      oldList.clear();
-      oldList.addAll(all);
-      MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(all).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
-    }
+  public IHeadUpDisplayRenderer getRenderer() {
+    return HUD;
   }
 
   @Override
-  public void readFromNBT(@Nonnull NBTTagCompound nbttagcompound) {
+  public void readFromNBT(NBTTagCompound nbttagcompound) {
     super.readFromNBT(nbttagcompound);
-    if (nbttagcompound.hasKey("resultId")) {
-      this.resultPipeName = Integer.toString(nbttagcompound.getInteger("resultId"));
+    if (nbttagcompound.hasKey("resultid")) {
+      this.resultPipeName = Integer.toString(nbttagcompound.getInteger("resultid"));
     } else {
       this.resultPipeName = nbttagcompound.getString("resultPipeName");
     }
     if (MainProxy.isServer(getWorld())) {
-      this.ensureAllSatelliteStatus();
+      ensureAllSatelliteStatus();
     }
   }
 
@@ -177,29 +148,6 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   public void writeToNBT(NBTTagCompound nbttagcompound) {
     nbttagcompound.setString("resultPipeName", this.resultPipeName);
     super.writeToNBT(nbttagcompound);
-  }
-
-  @Nonnull
-  @Override
-  public Set<SatellitePipe> getSatellitesOfType() {
-    return Collections.unmodifiableSet(AllResults);
-  }
-
-  @Override
-  public String getSatellitePipeName() {
-    return this.resultPipeName;
-  }
-
-  @Override
-  public void setSatellitePipeName(@Nonnull String resultPipeName) {
-    this.resultPipeName = resultPipeName;
-  }
-
-  @Override
-  public void updateWatchers() {
-    CoordinatesPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setTilePos(this.getContainer());
-    MainProxy.sendToPlayerList(packet, localModeWatchers);
-    MainProxy.sendPacketToAllWatchingChunk(this.getContainer(), packet);
   }
 
   @Override
@@ -212,10 +160,51 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
     }
   }
 
+  @Override
+  public void updateWatchers() {
+    CoordinatesPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setTilePos(this.getContainer());
+    MainProxy.sendToPlayerList(packet, localModeWatchers);
+    MainProxy.sendPacketToAllWatchingChunk(this.getContainer(), packet);
+  }
+
+  @Override
+  public void onAllowedRemoval() {
+    if (MainProxy.isClient(getWorld())) {
+      return;
+    }
+    ResultPipe.AllResults.remove(this);
+  }
+
+  @Override
+  public void onWrenchClicked(EntityPlayer entityplayer) {
+    // Send the result id when opening gui
+    final ModernPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
+    MainProxy.sendPacketToPlayer(packet, entityplayer);
+    entityplayer.openGui(TestBridge.instance, GuiIDs.GUI_ResultPipe_ID, getWorld(), getX(), getY(), getZ());
+  }
+
+  @Nonnull
+  public Set<SatellitePipe> getSatellitesOfType() {
+    return Collections.unmodifiableSet(AllResults);
+  }
+
+  @Override
+  public String getSatellitePipeName() {
+    return resultPipeName;
+  }
+
+  public void setSatellitePipeName(@Nonnull String resultPipeName) {
+    this.resultPipeName = resultPipeName;
+  }
+
   @Nonnull
   @Override
   public List<ItemIdentifierStack> getItemList() {
-    return itemList;
+    return new LinkedList<>();
   }
 
+  @Override
+  public void listenedChanged() {
+
+  }
 }

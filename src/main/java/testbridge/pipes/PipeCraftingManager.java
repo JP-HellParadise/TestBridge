@@ -12,8 +12,6 @@ import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
 import logisticspipes.network.packets.orderer.OrdererManagerContent;
 import logisticspipes.network.packets.pipe.SendQueueContent;
 import logisticspipes.pipefxhandlers.Particles;
@@ -58,13 +56,11 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
 import network.rs485.logisticspipes.connection.*;
-import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.SlottedModule;
 
 import testbridge.gui.GuiCMPipe;
-import testbridge.gui.hud.HudCMPipe;
-import testbridge.logicrecon.CMTransportLayer;
+import testbridge.logistics.CMTransportLayer;
 import testbridge.modules.TB_ModuleCM;
 import testbridge.network.packets.pipe.CMOrientationPacket;
 import testbridge.network.packets.pipe.CMPipeModuleContent;
@@ -78,14 +74,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@CCType(name = "TBCraftingManagerPipe")
+@CCType(name = "TestBridge:CraftingManager")
 public class PipeCraftingManager extends CoreRoutedPipe
     implements ICraftItems, ISimpleInventoryEventHandler, ISendRoutedItem,
-    IHeadUpDisplayRendererProvider, IChassisPipe, IChangeListener, ISendQueueContentRecieiver {
+    IChassisPipe, IChangeListener, ISendQueueContentRecieiver {
 
-  private final TB_ModuleCM _module;
+  @Getter
+  private final TB_ModuleCM moduleCM;
   private final ItemIdentifierInventory _moduleInventory;
-
   private final NonNullList<ModuleUpgradeManager> slotUpgradeManagers = NonNullList.create();
 
   private boolean init = false;
@@ -93,15 +89,13 @@ public class PipeCraftingManager extends CoreRoutedPipe
   // HUD
   public final LinkedList<ItemIdentifierStack> displayList = new LinkedList<>();
   public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-  private final HudCMPipe hud;
 
   private boolean doContentUpdate = true;
 
   @Nullable
   private SingleAdjacent pointedAdjacent = null;
 
-  @Override
-  @CCCommand(description = "Returns the size of this Chassie pipe")
+  @CCCommand(description = "Returns the size of this container pipe")
   public int getChassisSize() {
     return 27;
   }
@@ -110,11 +104,12 @@ public class PipeCraftingManager extends CoreRoutedPipe
     super(item);
     _moduleInventory = new ItemIdentifierInventory(getChassisSize(), "Crafting Manager pipe", 1);
     _moduleInventory.addListener(this);
-
-    _module = new TB_ModuleCM(getChassisSize(), this);
-    _module.registerHandler(this, this);
-    hud = new HudCMPipe(this, _moduleInventory);
-    throttleTime = 40;
+    assert slotUpgradeManagers.size() == 0; // starting at index 0
+    for (int i = 0; i < getChassisSize(); i++) {
+      addModuleUpgradeManager();
+    }
+    moduleCM = new TB_ModuleCM(getChassisSize(), this);
+    moduleCM.registerHandler(this, this);
     _orderItemManager = new LogisticsItemOrderManager(this, this); // null by default when not needed
   }
 
@@ -203,7 +198,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
           this, newNeighbor.getValue1().getDirection(), newNeighbor.getValue2());
       packet.setDir(newNeighbor.getValue1().getDirection());
     }
-    MainProxy.sendPacketToAllWatchingChunk(_module, packet.setTilePos(container));
+    MainProxy.sendPacketToAllWatchingChunk(moduleCM, packet.setTilePos(container));
     refreshRender(true);
   }
 
@@ -217,7 +212,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
   }
 
   private void updateModuleInventory() {
-    _module.slottedModules().forEach(slottedModule -> {
+    moduleCM.slottedModules().forEach(slottedModule -> {
       if (slottedModule.isEmpty()) {
         _moduleInventory.clearInventorySlotContents(slottedModule.getSlot());
         return;
@@ -251,34 +246,34 @@ public class PipeCraftingManager extends CoreRoutedPipe
 
   @Override
   public TextureType getCenterTexture() {
-    return Textures.TESTBRIDGE_TEXTURE;
+    return Textures.TESTBRIDGE_CMPIPE_TEXTURE;
   }
 
   @Override
   public TextureType getRoutedTexture(EnumFacing connection) {
     if (getRouter().isSubPoweredExit(connection)) {
-      return Textures.TESTBRIDGE_TEXTURE;
+      return Textures.LOGISTICSPIPE_SUBPOWER_TEXTURE;
     }
-    return Textures.TESTBRIDGE_TEXTURE;
+    return Textures.LOGISTICSPIPE_CHASSI_ROUTED_TEXTURE;
   }
 
   @Override
   public TextureType getNonRoutedTexture(EnumFacing connection) {
     if (pointedAdjacent != null && connection.equals(pointedAdjacent.getDir())) {
-      return Textures.TESTBRIDGE_TEXTURE;
+      return Textures.LOGISTICSPIPE_CHASSI_DIRECTION_TEXTURE;
     }
     if (isPowerProvider(connection)) {
-      return Textures.TESTBRIDGE_TEXTURE;
+      return Textures.LOGISTICSPIPE_POWERED_TEXTURE;
     }
-    return Textures.TESTBRIDGE_TEXTURE;
+    return Textures.LOGISTICSPIPE_CHASSI_NOTROUTED_TEXTURE;
   }
 
   @Override
-  public void readFromNBT(@Nonnull NBTTagCompound nbttagcompound) {
-    super.readFromNBT(nbttagcompound);
-    _moduleInventory.readFromNBT(nbttagcompound, "crafting_manager");
-    _module.readFromNBT(nbttagcompound);
-    int tmp = nbttagcompound.getInteger("Orientation");
+  public void readFromNBT(@Nonnull NBTTagCompound tag) {
+    super.readFromNBT(tag);
+    _moduleInventory.readFromNBT(tag, "crafting_manager");
+    moduleCM.readFromNBT(tag);
+    int tmp = tag.getInteger("Orientation");
     if (tmp != -1) {
       setPointedOrientation(EnumFacingUtil.getOrientation(tmp % 6));
     }
@@ -286,13 +281,13 @@ public class PipeCraftingManager extends CoreRoutedPipe
     for (int i = 0; i < getChassisSize(); i++) {
       // TODO: remove after 1.12.2 update, backwards compatibility
       final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(i);
-      if (idStack != null && !_module.hasModule(i)) {
+      if (idStack != null && !moduleCM.hasModule(i)) {
         final Item stackItem = idStack.getItem().item;
         if (stackItem instanceof ItemModule) {
           final ItemModule moduleItem = (ItemModule) stackItem;
           LogisticsModule module = moduleItem.getModule(null, this, this);
           if (module != null) {
-            _module.installModule(i, module);
+            moduleCM.installModule(i, module);
           }
         }
       }
@@ -300,10 +295,10 @@ public class PipeCraftingManager extends CoreRoutedPipe
       if (i >= slotUpgradeManagers.size()) {
         addModuleUpgradeManager();
       }
-      slotUpgradeManagers.get(i).readFromNBT(nbttagcompound, Integer.toString(i));
+      slotUpgradeManagers.get(i).readFromNBT(tag, Integer.toString(i));
     }
     // register slotted modules
-    _module.slottedModules()
+    moduleCM.slottedModules()
            .filter(slottedModule -> !slottedModule.isEmpty())
            .forEach(slottedModule -> {
             LogisticsModule logisticsModule = Objects.requireNonNull(slottedModule.getModule());
@@ -322,11 +317,11 @@ public class PipeCraftingManager extends CoreRoutedPipe
     super.writeToNBT(nbttagcompound);
     updateModuleInventory();
     _moduleInventory.writeToNBT(nbttagcompound, "crafting_manager");
-    _module.writeToNBT(nbttagcompound);
+    moduleCM.writeToNBT(nbttagcompound);
     nbttagcompound.setInteger("Orientation", pointedAdjacent == null ? -1 : pointedAdjacent.getDir().ordinal());
-//    for (int i = 0; i < getChassisSize(); i++) {
-//      slotUpgradeManagers.get(i).writeToNBT(nbttagcompound, Integer.toString(i));
-//    }
+    for (int i = 0; i < getChassisSize(); i++) {
+      slotUpgradeManagers.get(i).writeToNBT(nbttagcompound, Integer.toString(i));
+    }
   }
 
   @Override
@@ -343,9 +338,9 @@ public class PipeCraftingManager extends CoreRoutedPipe
       updateModuleInventory();
       _moduleInventory.dropContents(getWorld(), getX(), getY(), getZ());
 
-//      for (int i = 0; i < getChassisSize(); i++) {
-//        getModuleUpgradeManager(i).dropUpgrades();
-//      }
+      for (int i = 0; i < getChassisSize(); i++) {
+        getModuleUpgradeManager(i).dropUpgrades();
+      }
     }
   }
 
@@ -353,7 +348,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
   public void enabledUpdateEntity() {
     super.enabledUpdateEntity();
     if (doContentUpdate) {
-      checkContentUpdate();
+//      checkContentUpdate();
     }
   }
 
@@ -369,7 +364,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
       } else {
         if (LogisticsPipes.isDEBUG() && info != null) {
           System.out.println(item);
-          new RuntimeException("[ItemArrived] Information weren't ment for a chassi pipe").printStackTrace();
+          new RuntimeException("[ItemArrived] Information weren't ment for a crafting manager pipe").printStackTrace();
         }
       }
     }
@@ -387,7 +382,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
       } else {
         if (LogisticsPipes.isDEBUG()) {
           System.out.println(item);
-          new RuntimeException("[ItemLost] Information weren't ment for a chassi pipe").printStackTrace();
+          new RuntimeException("[ItemLost] Information weren't ment for a crafting manager pipe").printStackTrace();
         }
       }
     }
@@ -404,22 +399,22 @@ public class PipeCraftingManager extends CoreRoutedPipe
     for (int i = 0; i < inventory.getSizeInventory(); i++) {
       ItemStack stack = inventory.getStackInSlot(i);
       if (stack.isEmpty()) {
-        if (_module.hasModule(i)) {
-          _module.removeModule(i);
+        if (moduleCM.hasModule(i)) {
+          moduleCM.removeModule(i);
           reInitGui = true;
         }
         continue;
       }
 
       final Item stackItem = stack.getItem();
-      if (stackItem instanceof ItemModule && isCraftingModule(stack)) {
+      if (stackItem instanceof ItemModule) {
         final ItemModule moduleItem = (ItemModule) stackItem;
-        LogisticsModule current = _module.getModule(i);
+        LogisticsModule current = moduleCM.getModule(i);
         LogisticsModule next = moduleItem.getModuleForItem(stack, current, this, this);
         Objects.requireNonNull(next, "getModuleForItem returned null for " + stack);
         next.registerPosition(LogisticsModule.ModulePositionType.SLOT, i);
         if (current != next) {
-          _module.installModule(i, next);
+          moduleCM.installModule(i, next);
           if (!MainProxy.isClient(getWorld())) {
             ItemModuleInformationManager.readInformation(stack, next);
           }
@@ -457,7 +452,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
 
   @Override
   public final @Nullable LogisticsModule getLogisticsModule() {
-    return _module;
+    return moduleCM;
   }
 
   @Nonnull
@@ -522,21 +517,6 @@ public class PipeCraftingManager extends CoreRoutedPipe
   /*** IProvideItems ***/
   @Override
   public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {
-    if (!isEnabled()) {
-      return;
-    }
-    for (IFilter filter : filters) {
-      if (filter.isBlocked() == filter.isFilteredItem(tree.getRequestType()) || filter.blockProvider()) {
-        return;
-      }
-    }
-    for (int i = 0; i < getChassisSize(); i++) {
-      LogisticsModule x = getSubModule(i);
-      if (x instanceof ILegacyActiveModule) {
-        ILegacyActiveModule y = (ILegacyActiveModule) x;
-        y.canProvide(tree, root, filters);
-      }
-    }
   }
 
   @Override
@@ -578,30 +558,12 @@ public class PipeCraftingManager extends CoreRoutedPipe
   }
 
   @Override
-  public IHeadUpDisplayRenderer getRenderer() {
-    return hud;
-  }
-
-  @Override
-  public void startWatching() {
-    MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
-  }
-
-  @Override
-  public void stopWatching() {
-    MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
-    hud.stopWatching();
-  }
-
-  @Override
   public void playerStartWatching(EntityPlayer player, int mode) {
     if (mode == 1) {
       updateModuleInventory();
-      localModeWatchers.add(player);
       MainProxy.sendPacketToPlayer(PacketHandler.getPacket(CMPipeModuleContent.class).setIdentList(ItemIdentifierStack.getListFromInventory(_moduleInventory)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
-      MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(oldList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
       MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SendQueueContent.class).setIdentList(ItemIdentifierStack.getListSendQueue(_sendQueue)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
-      _module.startWatching(player);
+      MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(oldList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
     } else {
       super.playerStartWatching(player, mode);
     }
@@ -611,7 +573,6 @@ public class PipeCraftingManager extends CoreRoutedPipe
   public void playerStopWatching(EntityPlayer player, int mode) {
     super.playerStopWatching(player, mode);
     localModeWatchers.remove(player);
-    _module.stopWatching(player);
   }
 
   @Override
@@ -619,20 +580,10 @@ public class PipeCraftingManager extends CoreRoutedPipe
     doContentUpdate = true;
   }
 
-  private void checkContentUpdate() {
-    doContentUpdate = false;
-    LinkedList<ItemIdentifierStack> all = _orderItemManager.getContentList(getWorld());
-    if (!oldList.equals(all)) {
-      oldList.clear();
-      oldList.addAll(all);
-      MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(all).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
-    }
-  }
-
   @Override
   public void finishInit() {
     super.finishInit();
-    _module.finishInit();
+    moduleCM.finishInit();
   }
 
   public void handleModuleItemIdentifierList(Collection<ItemIdentifierStack> _allItems) {
@@ -662,13 +613,13 @@ public class PipeCraftingManager extends CoreRoutedPipe
   }
 
   public TB_ModuleCM getModules() {
-    return _module;
+    return moduleCM;
   }
 
   @Override
   public void setTile(TileEntity tile) {
     super.setTile(tile);
-    _module.slottedModules().forEach(SlottedModule::registerPosition);
+    moduleCM.slottedModules().forEach(SlottedModule::registerPosition);
   }
 
   @Override
@@ -678,38 +629,9 @@ public class PipeCraftingManager extends CoreRoutedPipe
 
   @Override
   public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemidCollection) {
-    _module.collectSpecificInterests(itemidCollection);
     // if we don't have a pointed inventory we can't be interested in anything
     if (getPointedAdjacentOrNoAdjacent().inventories().isEmpty()) {
       return;
-    }
-
-    for (int moduleIndex = 0; moduleIndex < getChassisSize(); moduleIndex++) {
-      LogisticsModule module = getSubModule(moduleIndex);
-      if (module != null && module.interestedInAttachedInventory()) {
-        final ISlotUpgradeManager upgradeManager = getUpgradeManager(module.getSlot(), module.getPositionInt());
-        IInventoryUtil inv = PipeServiceProviderUtilKt.availableSneakyInventories(this, upgradeManager).stream().findFirst().orElse(null);
-        if (inv == null) {
-          continue;
-        }
-        Set<ItemIdentifier> items = inv.getItems();
-        itemidCollection.addAll(items);
-
-        //also add tag-less variants ... we should probably add a module.interestedIgnoringNBT at some point
-        items.stream().map(ItemIdentifier::getIgnoringNBT).forEach(itemidCollection::add);
-
-        boolean modulesInterestedInUndamged = false;
-        for (int i = 0; i < getChassisSize(); i++) {
-          if (getSubModule(moduleIndex).interestedInUndamagedID()) {
-            modulesInterestedInUndamged = true;
-            break;
-          }
-        }
-        if (modulesInterestedInUndamged) {
-          items.stream().map(ItemIdentifier::getUndamaged).forEach(itemidCollection::add);
-        }
-        break; // no need to check other modules for interest in the inventory, when we know that 1 already is.
-      }
     }
     for (int i = 0; i < getChassisSize(); i++) {
       LogisticsModule module = getSubModule(i);
@@ -721,16 +643,6 @@ public class PipeCraftingManager extends CoreRoutedPipe
 
   @Override
   public boolean hasGenericInterests() {
-    if (getPointedAdjacentOrNoAdjacent().inventories().isEmpty()) {
-      return false;
-    }
-    for (int i = 0; i < getChassisSize(); i++) {
-      LogisticsModule x = getSubModule(i);
-
-      if (x != null && x.hasGenericInterests()) {
-        return true;
-      }
-    }
     return false;
   }
 
@@ -801,7 +713,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
 
   @Nullable
   public LogisticsModule getSubModule(int slot) {
-    return _module.getModule(slot);
+    return moduleCM.getModule(slot);
   }
 
   public static class CMTargetInformation implements IAdditionalTargetInformation {

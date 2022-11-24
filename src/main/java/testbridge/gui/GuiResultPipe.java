@@ -24,7 +24,6 @@ import testbridge.network.packets.resultpipe.ResultSetNamePacket;
 import testbridge.pipes.ResultPipe;
 
 public class GuiResultPipe extends LogisticsBaseGuiScreen {
-
   @Nonnull
   private final ResultPipe resultPipe;
 

@@ -1,7 +1,5 @@
 package testbridge.utils.gui;
 
-import logisticspipes.interfaces.IGuiOpenControler;
-
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.utils.ReflectionHelper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,12 +26,8 @@ public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
     super(playerInventory, dummyInventory);
   }
 
-  public DummyContainer(EntityPlayer player, IInventory dummyInventory, IGuiOpenControler... controler) {
-    super(player, dummyInventory, controler);
-  }
-
   public void addCMModuleSlot(int slotId, IInventory inventory, int xCoord, int yCoord, PipeCraftingManager pipe) {
-    transferTop.add(addSlotToContainer(new ModuleSlot(inventory, slotId, xCoord, yCoord, pipe)));
+    transferTop.add(addSlotToContainer(new CrafterSlot(inventory, slotId, xCoord, yCoord, pipe)));
   }
 
   @Nonnull
@@ -307,9 +301,9 @@ public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
   }
 
   private void handleSwitch(Slot slot2, @Nonnull ItemStack out, @Nonnull ItemStack in, EntityPlayer player) {
-    if (slot2 instanceof ModuleSlot) {
-      TB_ModuleCM cmpipe = (TB_ModuleCM) ((ModuleSlot) slot2).get_pipe().getLogisticsModule();
-      int moduleIndex = ((ModuleSlot) slot2).get_moduleIndex();
+    if (slot2 instanceof CrafterSlot) {
+      TB_ModuleCM cmpipe = (TB_ModuleCM) ((CrafterSlot) slot2).get_pipe().getLogisticsModule();
+      int moduleIndex = ((CrafterSlot) slot2).get_moduleIndex();
       if (out.getItem() == TBItems.moduleCrafter) {
         if (cmpipe.hasModule(moduleIndex)) {
           ItemModuleInformationManager.saveInformation(out, cmpipe.getModule(moduleIndex));

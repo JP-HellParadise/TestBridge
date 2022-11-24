@@ -5,6 +5,7 @@
   "mixins": [
     "TB_MixinModuleCGP",
     "TB_MixinTOPAddon",
+    "recipes.TB_MixinModuleCoordinatesPacket",
     "recipes.TB_MixinRecipes"
   ],
   "client": [

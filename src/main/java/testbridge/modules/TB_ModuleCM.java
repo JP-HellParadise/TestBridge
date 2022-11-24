@@ -10,8 +10,6 @@ import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.hud.HUDStartModuleWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopModuleWatchingPacket;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
@@ -27,7 +25,6 @@ import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.*;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -41,18 +38,15 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class TB_ModuleCM extends LogisticsModule implements IHUDModuleHandler, IModuleWatchReciver, IGuiOpenControler, Gui {
+public class TB_ModuleCM extends LogisticsModule implements Gui {
 
-  public final UUIDProperty CM$satelliteUUID = new UUIDProperty(null, "CM$satelliteUUID");
+  public final UUIDProperty satelliteUUID = new UUIDProperty(null, "satelliteUUID");
   public final UUIDProperty resultUUID = new UUIDProperty(null, "resultUUID");
   public final BooleanProperty bufferModeIsExclude = new BooleanProperty(true, "bufferModeIsExclude");
 
   private final List<Property<?>> properties;
 
-  protected final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-  protected final PlayerCollectionList guiWatcher = new PlayerCollectionList();
-
-  public static ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
+  public ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
 
   @Nullable
   private IRequestItems _invRequester;
@@ -60,14 +54,14 @@ public class TB_ModuleCM extends LogisticsModule implements IHUDModuleHandler, I
   private UpdateSatResultFromIDs updateSatResultFromIDs = null;
 
   // Logistics Chassis
-  private final PipeCraftingManager parentChassis;
+  private final PipeCraftingManager parentPipe;
   private final SlottedModuleListProperty modules;
 
-  public TB_ModuleCM(int moduleCount, PipeCraftingManager parentChassis) {
+  public TB_ModuleCM(int moduleCount, PipeCraftingManager parentPipe) {
     modules = new SlottedModuleListProperty(moduleCount, "modules");
-    this.parentChassis = parentChassis;
+    this.parentPipe = parentPipe;
     properties = ImmutableList.<Property<?>>builder()
-        .add(CM$satelliteUUID)
+        .add(satelliteUUID)
         .add(resultUUID)
         .add(bufferModeIsExclude)
         .addAll(Collections.singletonList(modules))
@@ -142,16 +136,16 @@ public class TB_ModuleCM extends LogisticsModule implements IHUDModuleHandler, I
       return null;
     }
     //Always deny items when we can't put the item anywhere
-    final ISlotUpgradeManager upgradeManager = parentChassis.getUpgradeManager(ModulePositionType.SLOT,
+    final ISlotUpgradeManager upgradeManager = parentPipe.getUpgradeManager(ModulePositionType.SLOT,
         ((PipeCraftingManager.CMTargetInformation) bestresult.addInfo).getModuleSlot());
-    IInventoryUtil invUtil = PipeServiceProviderUtilKt.availableSneakyInventories(parentChassis, upgradeManager)
+    IInventoryUtil invUtil = PipeServiceProviderUtilKt.availableSneakyInventories(parentPipe, upgradeManager)
         .stream().findFirst().orElse(null);
     if (invUtil == null) {
       return null;
     }
     int roomForItem;
     if (includeInTransit) {
-      int onRoute = parentChassis.countOnRoute(item);
+      int onRoute = parentPipe.countOnRoute(item);
       final ItemStack copy = stack.copy();
       copy.setCount(onRoute + item.getMaxStackSize());
       roomForItem = invUtil.roomForItem(copy);
@@ -198,24 +192,26 @@ public class TB_ModuleCM extends LogisticsModule implements IHUDModuleHandler, I
   @Override
   public void tick() {
     final IPipeServiceProvider service = _service;
-    if (service != null) {
-      if (updateSatResultFromIDs != null && service.isNthTick(100)) {
-        if (updateSatResultFromIDs.CM$satelliteId != -1) {
-          UUID uuid = getUUIDForSatelliteName(Integer.toString(updateSatResultFromIDs.CM$satelliteId));
-          if (uuid != null) {
-            updateSatResultFromIDs.CM$satelliteId = -1;
-            CM$satelliteUUID.setValue(uuid);
-          }
+    if (service == null) return;
+//    enabledUpdateEntity();
+    if (updateSatResultFromIDs != null && service.isNthTick(100)) {
+      if (updateSatResultFromIDs.satelliteId != -1) {
+        UUID uuid = getUUIDForSatelliteName(Integer.toString(updateSatResultFromIDs.satelliteId));
+        if (uuid != null) {
+          updateSatResultFromIDs.satelliteId = -1;
+          satelliteUUID.setValue(uuid);
         }
       }
-      if (updateSatResultFromIDs != null && service.isNthTick(100)) {
-        if (updateSatResultFromIDs.CM$satelliteId != -1) {
-          UUID uuid = getUUIDForResultName(Integer.toString(updateSatResultFromIDs.resultId));
-          if (uuid != null) {
-            updateSatResultFromIDs.resultId = -1;
-            resultUUID.setValue(uuid);
-          }
+      if (updateSatResultFromIDs.resultId != -1) {
+        UUID uuid = getUUIDForResultName(Integer.toString(updateSatResultFromIDs.resultId));
+        if (uuid != null) {
+          updateSatResultFromIDs.resultId = -1;
+          resultUUID.setValue(uuid);
         }
+      }
+      if (updateSatResultFromIDs.satelliteId == -1
+          && updateSatResultFromIDs.resultId == -1) {
+        updateSatResultFromIDs = null;
       }
     }
     for (SlottedModule slottedModule : modules) {
@@ -270,7 +266,7 @@ public class TB_ModuleCM extends LogisticsModule implements IHUDModuleHandler, I
   @Override
   public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
     return NewGuiHandler.getGui(CMGuiProvider.class)
-        .setFlag(parentChassis.getUpgradeManager().hasUpgradeModuleUpgrade());
+        .setFlag(parentPipe.getUpgradeManager().hasUpgradeModuleUpgrade());
   }
 
   @Nonnull
@@ -285,10 +281,9 @@ public class TB_ModuleCM extends LogisticsModule implements IHUDModuleHandler, I
     // Showing update sat and result info
     if (tag.hasKey("satelliteid") || tag.hasKey("resultid")) {
       updateSatResultFromIDs = new UpdateSatResultFromIDs();
-      updateSatResultFromIDs.CM$satelliteId = tag.getInteger("satelliteid");
+      updateSatResultFromIDs.satelliteId = tag.getInteger("satelliteid");
       updateSatResultFromIDs.resultId = tag.getInteger("resultid");
     }
-
     // Stream crafter modules
     modules.stream()
         .filter(slottedModule -> !slottedModule.isEmpty() && tag.hasKey("slot" + slottedModule.getSlot()))
@@ -298,7 +293,7 @@ public class TB_ModuleCM extends LogisticsModule implements IHUDModuleHandler, I
 
   public ModernPacket getCMPipePacket() {
     return PacketHandler.getPacket(CMPipeUpdatePacket.class)
-        .setSatelliteName(getSatResultNameForUUID(CM$satelliteUUID.getValue()))
+        .setSatelliteName(getSatResultNameForUUID(satelliteUUID.getValue()))
         .setResultName(getSatResultNameForUUID(resultUUID.getValue()))
         .setModulePos(this);
   }
@@ -322,48 +317,22 @@ public class TB_ModuleCM extends LogisticsModule implements IHUDModuleHandler, I
 
   public void handleCMUpdatePacket(CMPipeUpdatePacket packet) {
     if (MainProxy.isClient(getWorld())) {
-      clientSideSatResultNames.CM$satelliteName = packet.getSatelliteName();
+      clientSideSatResultNames.satelliteName = packet.getSatelliteName();
       clientSideSatResultNames.resultName = packet.getResultName();
     } else {
       throw new UnsupportedOperationException();
     }
   }
 
-  @Override
-  public void startHUDWatching() {
-    MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartModuleWatchingPacket.class).setModulePos(this));
-  }
-
-  @Override
-  public void stopHUDWatching() {
-    MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopModuleWatchingPacket.class).setModulePos(this));
-  }
-
-  @Override
-  public void startWatching(EntityPlayer player) {
-    localModeWatchers.add(player);
-  }
-
-  @Override
-  public void stopWatching(EntityPlayer player) {
-    localModeWatchers.remove(player);
-  }
-
-  @Override
-  public IHUDModuleRenderer getHUDRenderer() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
   private void updateSatResultsOnClient() {
-    MainProxy.sendToPlayerList(getCMPipePacket(), guiWatcher);
+    MainProxy.sendToPlayerList(getCMPipePacket(), parentPipe.localModeWatchers);
   }
 
   public void setSatelliteUUID(@Nullable UUID pipeID) {
     if (pipeID == null) {
-      CM$satelliteUUID.zero();
+      satelliteUUID.zero();
     } else {
-      CM$satelliteUUID.setValue(pipeID);
+      satelliteUUID.setValue(pipeID);
     }
     updateSatResultsOnClient();
     updateSatResultFromIDs = null;
@@ -379,24 +348,14 @@ public class TB_ModuleCM extends LogisticsModule implements IHUDModuleHandler, I
     updateSatResultFromIDs = null;
   }
 
-  @Override
-  public void guiOpenedByPlayer(EntityPlayer player) {
-    guiWatcher.add(player);
-  }
-
-  @Override
-  public void guiClosedByPlayer(EntityPlayer player) {
-    guiWatcher.remove(player);
-  }
-
   private static class UpdateSatResultFromIDs {
-    public int CM$satelliteId;
+    public int satelliteId;
     public int resultId;
   }
 
   public static class ClientSideSatResultNames {
     public @Nonnull
-    String CM$satelliteName = "";
+    String satelliteName = "";
     public @Nonnull
     String resultName = "";
   }

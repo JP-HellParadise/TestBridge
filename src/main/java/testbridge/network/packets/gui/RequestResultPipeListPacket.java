@@ -1,15 +1,18 @@
 package testbridge.network.packets.gui;
 
-import testbridge.pipes.ResultPipe;
+import logisticspipes.network.abstractpackets.BooleanCoordinatesPacket;
+import logisticspipes.utils.StaticResolve;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.gui.RequestSatellitePipeListPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.utils.tuples.Pair;
+
 import net.minecraft.entity.player.EntityPlayer;
+
+import testbridge.pipes.ResultPipe;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,7 +20,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class RequestResultPipeListPacket extends RequestSatellitePipeListPacket {
+@StaticResolve
+public class RequestResultPipeListPacket extends BooleanCoordinatesPacket {
 
   public RequestResultPipeListPacket(int id) {
     super(id);

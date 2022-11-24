@@ -1,4 +1,4 @@
-package testbridge.logicrecon;
+package testbridge.logistics;
 
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.TransportLayer;

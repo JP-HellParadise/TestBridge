@@ -1,6 +1,9 @@
 package testbridge.utils.gui;
 
+import logisticspipes.LPItems;
+import logisticspipes.items.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
+import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.utils.gui.RestrictedSlot;
 
 import lombok.Getter;
@@ -8,20 +11,20 @@ import lombok.Getter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import testbridge.core.TBItems;
 import testbridge.pipes.PipeCraftingManager;
 
 import javax.annotation.Nonnull;
 
-public class ModuleSlot extends RestrictedSlot {
+public class CrafterSlot extends RestrictedSlot {
   @Getter
   private final PipeCraftingManager _pipe;
   @Getter
   private final int _moduleIndex;
 
-  public ModuleSlot(IInventory iinventory, int i, int j, int k, PipeCraftingManager pipe) {
-    super(iinventory, i, j, k, TBItems.moduleCrafter);
+  public CrafterSlot(IInventory iinventory, int i, int j, int k, PipeCraftingManager pipe) {
+    super(iinventory, i, j, k, ItemModule.class);
     _pipe = pipe;
     _moduleIndex = i;
   }
@@ -31,5 +34,10 @@ public class ModuleSlot extends RestrictedSlot {
   public ItemStack onTake(@Nonnull EntityPlayer player, @Nonnull ItemStack itemStack) {
     ItemModuleInformationManager.saveInformation(itemStack, _pipe.getSubModule(_moduleIndex));
     return super.onTake(player, itemStack);
+  }
+
+  @Override
+  public boolean isItemValid(@Nonnull ItemStack par1ItemStack) {
+    return par1ItemStack.getItem() == Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
   }
 }
