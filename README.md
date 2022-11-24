@@ -1,5 +1,6 @@
 ## Test Addon for certain pipe mods  
-## Current stage: brainded  
+## Current stage: 
+brainded, will have to implement Logistics somehow...
 ## Features
 - Logistics addon:
   + Result pipe
