@@ -1,4 +1,4 @@
-package testbridge.mixins.logisticspipes;
+package testbridge.mixins.logisticspipes.network;
 
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.NewGuiHandler;

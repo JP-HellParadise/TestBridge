@@ -1,4 +1,4 @@
-package testbridge.mixins.logisticspipes;
+package testbridge.mixins.logisticspipes.compat;
 
 import javax.annotation.Nonnull;
 

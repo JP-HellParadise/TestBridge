@@ -12,9 +12,7 @@ import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.packets.orderer.OrdererManagerContent;
 import logisticspipes.network.packets.pipe.SendQueueContent;
-import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -60,8 +58,9 @@ import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.SlottedModule;
 
 import testbridge.gui.GuiCMPipe;
-import testbridge.logistics.CMTransportLayer;
+import testbridge.logisticspipes.CMTransportLayer;
 import testbridge.modules.TB_ModuleCM;
+import testbridge.modules.TB_ModuleCrafter;
 import testbridge.network.packets.pipe.CMOrientationPacket;
 import testbridge.network.packets.pipe.CMPipeModuleContent;
 import testbridge.network.packets.pipe.RequestCMOrientationPacket;
@@ -79,7 +78,6 @@ public class PipeCraftingManager extends CoreRoutedPipe
     implements ICraftItems, ISimpleInventoryEventHandler, ISendRoutedItem,
     IChassisPipe, IChangeListener, ISendQueueContentRecieiver {
 
-  @Getter
   private final TB_ModuleCM moduleCM;
   private final ItemIdentifierInventory _moduleInventory;
   private final NonNullList<ModuleUpgradeManager> slotUpgradeManagers = NonNullList.create();
@@ -113,6 +111,9 @@ public class PipeCraftingManager extends CoreRoutedPipe
     _orderItemManager = new LogisticsItemOrderManager(this, this); // null by default when not needed
   }
 
+  /**
+   * Returns the pointed adjacent EnumFacing or null, if this pipe does not have an attached inventory.
+   */
   @Nullable
   @Override
   public EnumFacing getPointedOrientation() {
@@ -131,7 +132,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
   }
 
   /**
-   * Returns just the adjacent this chassis points at or no adjacent.
+   * Returns just the adjacent this pipe points at or no adjacent.
    */
   @Nonnull
   @Override
@@ -217,7 +218,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
         _moduleInventory.clearInventorySlotContents(slottedModule.getSlot());
         return;
       }
-      final LogisticsModule module = Objects.requireNonNull(slottedModule.getModule());
+      final LogisticsModule module = getModuleForItem(slottedModule.getModule(), this, this);
       final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(slottedModule.getSlot());
       ItemStack moduleStack;
       if (idStack != null) {
@@ -285,7 +286,8 @@ public class PipeCraftingManager extends CoreRoutedPipe
         final Item stackItem = idStack.getItem().item;
         if (stackItem instanceof ItemModule) {
           final ItemModule moduleItem = (ItemModule) stackItem;
-          LogisticsModule module = moduleItem.getModule(null, this, this);
+          LogisticsModule og_module = moduleItem.getModule(null, this, this);
+          LogisticsModule module = getModuleForItem(og_module, this, this);
           if (module != null) {
             moduleCM.installModule(i, module);
           }
@@ -301,8 +303,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
     moduleCM.slottedModules()
            .filter(slottedModule -> !slottedModule.isEmpty())
            .forEach(slottedModule -> {
-            LogisticsModule logisticsModule = Objects.requireNonNull(slottedModule.getModule());
-            // FIXME: rely on getModuleForItem instead
+            LogisticsModule logisticsModule = getModuleForItem(slottedModule.getModule(), this, this);;
            logisticsModule.registerHandler(this, this);
            slottedModule.registerPosition();
            });
@@ -408,10 +409,8 @@ public class PipeCraftingManager extends CoreRoutedPipe
 
       final Item stackItem = stack.getItem();
       if (stackItem instanceof ItemModule) {
-        final ItemModule moduleItem = (ItemModule) stackItem;
         LogisticsModule current = moduleCM.getModule(i);
-        LogisticsModule next = moduleItem.getModuleForItem(stack, current, this, this);
-        Objects.requireNonNull(next, "getModuleForItem returned null for " + stack);
+        LogisticsModule next = getModuleForItem(stack, moduleCM.getModule(i), this, this);
         next.registerPosition(LogisticsModule.ModulePositionType.SLOT, i);
         if (current != next) {
           moduleCM.installModule(i, next);
@@ -513,67 +512,66 @@ public class PipeCraftingManager extends CoreRoutedPipe
     return false;
   }
 
-
-  /*** IProvideItems ***/
   @Override
-  public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {
-  }
+  public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {}
 
   @Override
   public LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination, IAdditionalTargetInformation info) {
-    if (!isEnabled()) {
-      return null;
-    }
-    for (int i = 0; i < getChassisSize(); i++) {
-      LogisticsModule x = getSubModule(i);
-      if (x instanceof ILegacyActiveModule) {
-        ILegacyActiveModule y = (ILegacyActiveModule) x;
-        LogisticsOrder result = y.fullFill(promise, destination, info);
-        if (result != null) {
-          spawnParticle(Particles.WhiteParticle, 2);
-          return result;
-        }
-      }
-    }
     return null;
   }
 
   @Override
-  public void getAllItems(Map<ItemIdentifier, Integer> list, List<IFilter> filter) {
-    if (!isEnabled()) {
-      return;
-    }
-    for (int i = 0; i < getChassisSize(); i++) {
-      LogisticsModule x = getSubModule(i);
-      if (x instanceof ILegacyActiveModule) {
-        ILegacyActiveModule y = (ILegacyActiveModule) x;
-        y.getAllItems(list, filter);
-      }
-    }
-  }
+  public void getAllItems(Map<ItemIdentifier, Integer> list, List<IFilter> filter) {}
 
   @Override
   public ItemSendMode getItemSendMode() {
     return ItemSendMode.Normal;
   }
 
-  @Override
-  public void playerStartWatching(EntityPlayer player, int mode) {
-    if (mode == 1) {
-      updateModuleInventory();
-      MainProxy.sendPacketToPlayer(PacketHandler.getPacket(CMPipeModuleContent.class).setIdentList(ItemIdentifierStack.getListFromInventory(_moduleInventory)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
-      MainProxy.sendPacketToPlayer(PacketHandler.getPacket(SendQueueContent.class).setIdentList(ItemIdentifierStack.getListSendQueue(_sendQueue)).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
-      MainProxy.sendPacketToPlayer(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(oldList).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), player);
-    } else {
-      super.playerStartWatching(player, mode);
+  @Nonnull
+  public LogisticsModule getModuleForItem(
+      @Nullable LogisticsModule currentModule,
+      @Nullable IWorldProvider world,
+      @Nullable IPipeServiceProvider service
+  ) {
+
+    if (currentModule != null) {
+      if (TB_ModuleCrafter.class.equals(currentModule.getClass())) {
+        return currentModule;
+      }
     }
+    TB_ModuleCrafter newmodule = new TB_ModuleCrafter();
+    if (newmodule == null) {
+      return null;
+    }
+    newmodule.registerHandler(world, service);
+    return newmodule;
+  }
+
+  @Nullable
+  public LogisticsModule getModuleForItem(
+      @Nonnull ItemStack itemStack,
+      @Nullable LogisticsModule currentModule,
+      @Nullable IWorldProvider world,
+      @Nullable IPipeServiceProvider service
+  ) {
+
+    if (itemStack.isEmpty()) {
+      return null;
+    }
+
+    if (!isCraftingModule(itemStack)) {
+      return null;
+    }
+
+    return getModuleForItem(currentModule, world, service);
   }
 
   @Override
-  public void playerStopWatching(EntityPlayer player, int mode) {
-    super.playerStopWatching(player, mode);
-    localModeWatchers.remove(player);
-  }
+  public void playerStartWatching(EntityPlayer player, int mode) {}
+
+  @Override
+  public void playerStopWatching(EntityPlayer player, int mode) {}
 
   @Override
   public void listenedChanged() {
@@ -607,10 +605,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
   }
 
   @Override
-  public void handleSendQueueItemIdentifierList(Collection<ItemIdentifierStack> _allItems) {
-    displayList.clear();
-    displayList.addAll(_allItems);
-  }
+  public void handleSendQueueItemIdentifierList(Collection<ItemIdentifierStack> _allItems) {}
 
   public TB_ModuleCM getModules() {
     return moduleCM;
