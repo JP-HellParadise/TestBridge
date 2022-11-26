@@ -1,16 +1,15 @@
 package testbridge.network;
 
-import testbridge.gui.GuiResultPipe;
-
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-import logisticspipes.utils.gui.DummyContainer;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import network.rs485.logisticspipes.SatellitePipe;
+
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.utils.gui.DummyContainer;
+
 import testbridge.pipes.ResultPipe;
+import testbridge.gui.GuiResultPipe;
 
 public class GuiHandler extends logisticspipes.network.GuiHandler{
 

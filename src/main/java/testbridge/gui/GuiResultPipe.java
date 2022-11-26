@@ -3,13 +3,12 @@ package testbridge.gui;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import org.lwjgl.input.Keyboard;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
-
-import org.lwjgl.input.Keyboard;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.pipes.SatelliteNamingResult;
@@ -17,6 +16,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.GuiGraphics;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.SmallGuiButton;
+import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 
 import network.rs485.logisticspipes.util.TextUtil;
 

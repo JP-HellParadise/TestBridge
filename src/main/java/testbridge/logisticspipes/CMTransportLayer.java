@@ -1,12 +1,12 @@
 package testbridge.logisticspipes;
 
+import net.minecraft.util.EnumFacing;
+
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
-
-import net.minecraft.util.EnumFacing;
 
 import testbridge.pipes.PipeCraftingManager;
 

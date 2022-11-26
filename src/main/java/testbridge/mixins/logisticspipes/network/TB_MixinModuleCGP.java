@@ -1,17 +1,18 @@
 package testbridge.mixins.logisticspipes.network;
 
-import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
-
-import logisticspipes.pipes.PipeLogisticsChassis;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import net.minecraft.world.World;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import logisticspipes.modules.LogisticsModule;
+import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
+import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+
 import testbridge.pipes.PipeCraftingManager;
 
 @Mixin(ModuleCoordinatesGuiProvider.class)

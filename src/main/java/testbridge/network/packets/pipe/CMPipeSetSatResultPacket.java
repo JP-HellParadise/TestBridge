@@ -1,19 +1,20 @@
 package testbridge.network.packets.pipe;
 
-import logisticspipes.network.abstractpackets.IntegerModuleCoordinatesPacket;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.utils.StaticResolve;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import net.minecraft.entity.player.EntityPlayer;
 
-import testbridge.modules.TB_ModuleCM;
+import logisticspipes.network.abstractpackets.IntegerModuleCoordinatesPacket;
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.utils.StaticResolve;
 
-import java.util.UUID;
+import network.rs485.logisticspipes.util.LPDataInput;
+import network.rs485.logisticspipes.util.LPDataOutput;
+
+import testbridge.modules.TB_ModuleCM;
 
 @StaticResolve
 public class CMPipeSetSatResultPacket extends IntegerModuleCoordinatesPacket {

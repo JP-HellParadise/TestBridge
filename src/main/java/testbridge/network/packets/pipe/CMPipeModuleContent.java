@@ -1,13 +1,12 @@
 package testbridge.network.packets.pipe;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 import logisticspipes.network.abstractpackets.InventoryModuleCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.pipe.ChassisPipeModuleContent;
-import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-
 import logisticspipes.utils.StaticResolve;
-import net.minecraft.entity.player.EntityPlayer;
+
 import testbridge.pipes.PipeCraftingManager;
 
 @StaticResolve

@@ -10,7 +10,6 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 
-import network.rs485.logisticspipes.SatellitePipe;
 import testbridge.pipes.ResultPipe;
 
 @StaticResolve

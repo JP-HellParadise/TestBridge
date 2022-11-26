@@ -1,22 +1,22 @@
 package testbridge.utils.gui;
 
-import logisticspipes.logisticspipes.ItemModuleInformationManager;
-import logisticspipes.utils.ReflectionHelper;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-
 import net.minecraft.item.ItemStack;
+
+import logisticspipes.logisticspipes.ItemModuleInformationManager;
+import logisticspipes.utils.ReflectionHelper;
 
 import testbridge.core.TBItems;
 import testbridge.modules.TB_ModuleCM;
 import testbridge.pipes.PipeCraftingManager;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
 

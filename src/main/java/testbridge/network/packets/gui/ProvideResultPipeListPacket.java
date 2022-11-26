@@ -1,12 +1,7 @@
 package testbridge.network.packets.gui;
 
-import logisticspipes.utils.StaticResolve;
-import logisticspipes.utils.tuples.Pair;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
-import logisticspipes.utils.gui.SubGuiScreen;
-import network.rs485.logisticspipes.util.LPDataInput;
-import network.rs485.logisticspipes.util.LPDataOutput;
+import java.util.List;
+import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,10 +9,16 @@ import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 
-import testbridge.gui.popup.GuiSelectResultPopup;
+import logisticspipes.utils.StaticResolve;
+import logisticspipes.utils.tuples.Pair;
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import logisticspipes.utils.gui.SubGuiScreen;
 
-import java.util.List;
-import java.util.UUID;
+import network.rs485.logisticspipes.util.LPDataInput;
+import network.rs485.logisticspipes.util.LPDataOutput;
+
+import testbridge.gui.popup.GuiSelectResultPopup;
 
 @StaticResolve
 public class ProvideResultPipeListPacket extends ModernPacket {

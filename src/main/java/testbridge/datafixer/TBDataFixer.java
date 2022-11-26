@@ -1,9 +1,10 @@
 package testbridge.datafixer;
 
-import testbridge.core.TestBridge;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+
+import testbridge.core.TestBridge;
 
 public class TBDataFixer {
 

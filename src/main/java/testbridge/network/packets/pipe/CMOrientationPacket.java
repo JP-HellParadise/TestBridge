@@ -1,19 +1,19 @@
 package testbridge.network.packets.pipe;
 
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import javax.annotation.Nullable;
 
-import logisticspipes.utils.StaticResolve;
 import lombok.Getter;
 import lombok.Setter;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 
-import testbridge.pipes.PipeCraftingManager;
+import logisticspipes.network.abstractpackets.CoordinatesPacket;
+import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
+import logisticspipes.utils.StaticResolve;
 
-import javax.annotation.Nullable;
+import testbridge.pipes.PipeCraftingManager;
 
 @StaticResolve
 public class CMOrientationPacket extends CoordinatesPacket {

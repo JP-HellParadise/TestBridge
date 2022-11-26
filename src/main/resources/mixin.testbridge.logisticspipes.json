@@ -6,7 +6,7 @@
     "compat.TB_MixinTOPAddon",
     "modules.TB_AccessorModuleCrafter",
     "network.TB_MixinModuleCGP",
-    "recipes.TB_MixinModuleCoordinatesPacket",
+    "network.TB_MixinModuleCoordinatesPacket",
     "recipes.TB_MixinRecipes"
   ],
   "client": [

@@ -1,18 +1,19 @@
 package testbridge.pipes.upgrades;
 
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.IBlockAccess;
+
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.pipes.upgrades.*;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.SimpleStackInventory;
-import network.rs485.logisticspipes.world.DoubleCoordinates;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.IBlockAccess;
+import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 import testbridge.pipes.PipeCraftingManager;
 

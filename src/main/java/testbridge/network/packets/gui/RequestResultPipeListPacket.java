@@ -1,5 +1,13 @@
 package testbridge.network.packets.gui;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import net.minecraft.entity.player.EntityPlayer;
+
 import logisticspipes.network.abstractpackets.BooleanCoordinatesPacket;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.network.PacketHandler;
@@ -10,15 +18,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.utils.tuples.Pair;
 
-import net.minecraft.entity.player.EntityPlayer;
-
 import testbridge.pipes.ResultPipe;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @StaticResolve
 public class RequestResultPipeListPacket extends BooleanCoordinatesPacket {

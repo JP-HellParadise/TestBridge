@@ -1,5 +1,11 @@
 package testbridge.network.guis.pipe;
 
+import javax.annotation.Nonnull;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.BooleanModuleCoordinatesGuiProvider;
@@ -8,16 +14,10 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-
 import testbridge.gui.GuiCMPipe;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.upgrades.ModuleUpgradeManager;
 import testbridge.utils.gui.DummyContainer;
-
-import javax.annotation.Nonnull;
 
 @StaticResolve
 public class CMGuiProvider extends BooleanModuleCoordinatesGuiProvider {

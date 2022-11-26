@@ -1,5 +1,21 @@
 package testbridge.gui;
 
+import java.io.IOException;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
+import lombok.Getter;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+
 import logisticspipes.LPItems;
 import logisticspipes.kotlin.Unit;
 import logisticspipes.modules.LogisticsModule;
@@ -18,20 +34,6 @@ import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyLayer;
 import network.rs485.logisticspipes.util.TextUtil;
 
-import lombok.Getter;
-
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
 import testbridge.core.TBItems;
 import testbridge.gui.popup.GuiSelectResultPopup;
 import testbridge.gui.popup.GuiSelectSatellitePopup;
@@ -42,8 +44,6 @@ import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.upgrades.ModuleUpgradeManager;
 import testbridge.utils.gui.DummyContainer;
 import testbridge.utils.gui.CrafterSlot;
-
-import java.io.IOException;
 
 public class GuiCMPipe extends LogisticsBaseGuiScreen {
 

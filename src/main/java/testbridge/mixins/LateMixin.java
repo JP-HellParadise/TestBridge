@@ -1,11 +1,13 @@
 package testbridge.mixins;
 
-import com.google.common.collect.ImmutableList;
-import net.minecraftforge.fml.common.Loader;
-import zone.rong.mixinbooter.ILateMixinLoader;
-
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.ImmutableList;
+
+import net.minecraftforge.fml.common.Loader;
+
+import zone.rong.mixinbooter.ILateMixinLoader;
 
 public class LateMixin implements ILateMixinLoader {
 

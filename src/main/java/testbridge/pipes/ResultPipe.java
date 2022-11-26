@@ -1,16 +1,17 @@
 package testbridge.pipes;
 
-import logisticspipes.utils.tuples.Pair;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import network.rs485.logisticspipes.connection.*;
-import network.rs485.logisticspipes.pipes.IChassisPipe;
-import testbridge.core.TestBridge;
-import testbridge.network.packets.pipe.CMOrientationPacket;
-import testbridge.network.packets.resultpipe.SyncResultNamePacket;
-import testbridge.network.GuiIDs;
-import testbridge.textures.Textures;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
 
 import logisticspipes.gui.hud.HUDSatellite;
 import logisticspipes.interfaces.IChangeListener;
@@ -27,20 +28,19 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
-
+import network.rs485.logisticspipes.connection.*;
+import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.SatellitePipe;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import testbridge.core.TestBridge;
+import testbridge.network.packets.pipe.CMOrientationPacket;
+import testbridge.network.packets.resultpipe.SyncResultNamePacket;
+import testbridge.network.GuiIDs;
+import testbridge.textures.Textures;
 
 public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRendererProvider, IChangeListener, SatellitePipe, IChassisPipe {
   public final LinkedList<ItemIdentifierStack> oldList = new LinkedList<>();

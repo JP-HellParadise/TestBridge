@@ -1,10 +1,11 @@
 package testbridge.utils;
 
-import logisticspipes.utils.tuples.Pair;
-import lombok.SneakyThrows;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.SneakyThrows;
+
+import logisticspipes.utils.tuples.Pair;
 
 public class ReflectionHelper extends logisticspipes.utils.ReflectionHelper {
 

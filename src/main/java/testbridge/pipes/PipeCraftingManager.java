@@ -218,7 +218,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
         _moduleInventory.clearInventorySlotContents(slottedModule.getSlot());
         return;
       }
-      final LogisticsModule module = getModuleForItem(slottedModule.getModule(), this, this);
+      final LogisticsModule module = Objects.requireNonNull(slottedModule.getModule());
       final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(slottedModule.getSlot());
       ItemStack moduleStack;
       if (idStack != null) {
@@ -286,8 +286,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
         final Item stackItem = idStack.getItem().item;
         if (stackItem instanceof ItemModule) {
           final ItemModule moduleItem = (ItemModule) stackItem;
-          LogisticsModule og_module = moduleItem.getModule(null, this, this);
-          LogisticsModule module = getModuleForItem(og_module, this, this);
+          LogisticsModule module = moduleItem.getModule(null, this, this);
           if (module != null) {
             moduleCM.installModule(i, module);
           }
@@ -540,12 +539,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
         return currentModule;
       }
     }
-    TB_ModuleCrafter newmodule = new TB_ModuleCrafter();
-    if (newmodule == null) {
-      return null;
-    }
-    newmodule.registerHandler(world, service);
-    return newmodule;
+    return new TB_ModuleCrafter();
   }
 
   @Nullable
@@ -564,7 +558,9 @@ public class PipeCraftingManager extends CoreRoutedPipe
       return null;
     }
 
-    return getModuleForItem(currentModule, world, service);
+    LogisticsModule logisticsModule = getModuleForItem(currentModule, world, service);
+    logisticsModule.registerHandler(this, this);
+    return logisticsModule;
   }
 
   @Override

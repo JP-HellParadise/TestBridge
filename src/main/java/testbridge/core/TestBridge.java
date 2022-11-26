@@ -1,25 +1,11 @@
 package testbridge.core;
 
-import logisticspipes.items.ItemUpgrade;
-import net.minecraftforge.fml.common.SidedProxy;
-import testbridge.datafixer.TBDataFixer;
-import testbridge.network.GuiHandler;
-import testbridge.pipes.PipeCraftingManager;
-import testbridge.pipes.ResultPipe;
-import testbridge.pipes.upgrades.BufferCMUpgrade;
-import testbridge.proxy.CommonProxy;
-import testbridge.textures.Textures;
+import javax.annotation.Nonnull;
 
-import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
-import net.minecraftforge.fml.common.Loader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import lombok.Getter;
-
-import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -30,11 +16,25 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.SidedProxy;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraft.block.Block;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import logisticspipes.LPItems;
+import logisticspipes.LogisticsPipes;
+import logisticspipes.items.ItemUpgrade;
+
+import testbridge.datafixer.TBDataFixer;
+import testbridge.network.GuiHandler;
+import testbridge.pipes.PipeCraftingManager;
+import testbridge.pipes.ResultPipe;
+import testbridge.pipes.upgrades.BufferCMUpgrade;
+import testbridge.proxy.CommonProxy;
+import testbridge.textures.Textures;
 
 @Mod(modid = TestBridge.ID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "", acceptedMinecraftVersions = "1.12.2")
 public class TestBridge extends LogisticsPipes {

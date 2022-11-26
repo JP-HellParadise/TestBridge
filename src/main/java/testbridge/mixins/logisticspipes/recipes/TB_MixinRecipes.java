@@ -1,22 +1,23 @@
 package testbridge.mixins.logisticspipes.recipes;
 
-import logisticspipes.LPItems;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity.ProgrammCategories;
-import logisticspipes.recipes.CraftingPartRecipes;
-import logisticspipes.recipes.CraftingParts;
-import logisticspipes.recipes.PipeChippedCraftingRecipes;
-
-import logisticspipes.recipes.RecipeManager;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-
 import net.minecraft.util.ResourceLocation;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import logisticspipes.LPItems;
+import logisticspipes.blocks.LogisticsProgramCompilerTileEntity.ProgrammCategories;
+import logisticspipes.recipes.CraftingPartRecipes;
+import logisticspipes.recipes.CraftingParts;
+import logisticspipes.recipes.PipeChippedCraftingRecipes;
+import logisticspipes.recipes.RecipeManager;
+
 import testbridge.core.TBItems;
 
 @Mixin(value = PipeChippedCraftingRecipes.class, remap = false)

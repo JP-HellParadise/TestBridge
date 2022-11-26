@@ -1,8 +1,5 @@
 package testbridge.network.packets.resultpipe;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.client.FMLClientHandler;
 

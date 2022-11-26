@@ -1,6 +1,7 @@
 package testbridge.textures;
 
 import logisticspipes.proxy.MainProxy;
+
 import testbridge.core.TestBridge;
 
 public class Textures extends logisticspipes.textures.Textures {

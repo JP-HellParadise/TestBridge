@@ -1,21 +1,21 @@
 package testbridge.utils.gui;
 
+import javax.annotation.Nonnull;
+
+import lombok.Getter;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+
 import logisticspipes.LPItems;
 import logisticspipes.items.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.utils.gui.RestrictedSlot;
 
-import lombok.Getter;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import testbridge.pipes.PipeCraftingManager;
-
-import javax.annotation.Nonnull;
 
 public class CrafterSlot extends RestrictedSlot {
   @Getter

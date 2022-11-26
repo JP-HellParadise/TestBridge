@@ -1,6 +1,14 @@
 package testbridge.modules;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Stream;
+
 import com.google.common.collect.ImmutableList;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 import logisticspipes.interfaces.*;
 import logisticspipes.interfaces.routing.IRequestItems;
@@ -16,7 +24,6 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.objects.CCSinkResponder;
 import logisticspipes.routing.IRouter;
-import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -25,18 +32,10 @@ import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.*;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeUpdatePacket;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.stream.Stream;
 
 public class TB_ModuleCM extends LogisticsModule implements Gui {
 
@@ -64,8 +63,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
         .add(satelliteUUID)
         .add(resultUUID)
         .add(bufferModeIsExclude)
-        .addAll(Collections.singletonList(modules))
-        .build();;
+        .build();
     registerPosition(ModulePositionType.IN_PIPE, 0);
   }
 
@@ -82,7 +80,10 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   @Nonnull
   @Override
   public List<Property<?>> getProperties() {
-    return properties;
+    return ImmutableList.<Property<?>>builder()
+        .addAll(Collections.singletonList(modules))
+        .addAll(this.properties)
+        .build();
   }
 
   public void installModule(int slot, LogisticsModule module) {

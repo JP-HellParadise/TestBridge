@@ -1,7 +1,8 @@
 package testbridge.core;
 
-import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
+
+import net.minecraft.item.Item;
 
 public class TBItems {
 

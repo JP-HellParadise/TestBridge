@@ -1,6 +1,14 @@
 package testbridge.gui.popup;
 
-import testbridge.network.packets.gui.RequestResultPipeListPacket;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.util.math.BlockPos;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.GuiGraphics;
@@ -8,15 +16,10 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
 import logisticspipes.utils.tuples.Pair;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.util.math.BlockPos;
+
 import network.rs485.logisticspipes.util.TextUtil;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
+import testbridge.network.packets.gui.RequestResultPipeListPacket;
 
 public class GuiSelectResultPopup extends SubGuiScreen {
 
