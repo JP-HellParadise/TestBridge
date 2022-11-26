@@ -34,7 +34,7 @@ import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 import testbridge.pipes.upgrades.BufferCMUpgrade;
 import testbridge.proxy.CommonProxy;
-import testbridge.textures.Textures;
+import testbridge.textures.TB_Textures;
 
 @Mod(modid = TestBridge.ID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "", acceptedMinecraftVersions = "1.12.2")
 public class TestBridge extends LogisticsPipes {
@@ -70,7 +70,7 @@ public class TestBridge extends LogisticsPipes {
     }
   };
 
-  public static Textures textures = new Textures();
+  public static TB_Textures TBTextures = new TB_Textures();
 
   @Getter
   private static boolean AELoaded;

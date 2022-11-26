@@ -59,12 +59,13 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   public TB_ModuleCM(int moduleCount, PipeCraftingManager parentPipe) {
     modules = new SlottedModuleListProperty(moduleCount, "modules");
     this.parentPipe = parentPipe;
+    registerPosition(ModulePositionType.IN_PIPE, 0);
     properties = ImmutableList.<Property<?>>builder()
+        .addAll(Collections.singletonList(modules))
         .add(satelliteUUID)
         .add(resultUUID)
         .add(bufferModeIsExclude)
         .build();
-    registerPosition(ModulePositionType.IN_PIPE, 0);
   }
 
   public static String getName() {
@@ -80,10 +81,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   @Nonnull
   @Override
   public List<Property<?>> getProperties() {
-    return ImmutableList.<Property<?>>builder()
-        .addAll(Collections.singletonList(modules))
-        .addAll(this.properties)
-        .build();
+    return properties;
   }
 
   public void installModule(int slot, LogisticsModule module) {
@@ -279,17 +277,17 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   @Override
 	public void readFromNBT(@Nonnull NBTTagCompound tag) {
 		super.readFromNBT(tag);
+    // Stream crafter modules
+    modules.stream()
+        .filter(slottedModule -> !slottedModule.isEmpty() && tag.hasKey("slot" + slottedModule.getSlot()))
+        .forEach(slottedModule -> Objects.requireNonNull(slottedModule.getModule())
+            .readFromNBT(tag.getCompoundTag("slot" + slottedModule.getSlot())));
     // Showing update sat and result info
     if (tag.hasKey("satelliteid") || tag.hasKey("resultid")) {
       updateSatResultFromIDs = new UpdateSatResultFromIDs();
       updateSatResultFromIDs.satelliteId = tag.getInteger("satelliteid");
       updateSatResultFromIDs.resultId = tag.getInteger("resultid");
     }
-    // Stream crafter modules
-    modules.stream()
-        .filter(slottedModule -> !slottedModule.isEmpty() && tag.hasKey("slot" + slottedModule.getSlot()))
-        .forEach(slottedModule -> Objects.requireNonNull(slottedModule.getModule())
-            .readFromNBT(tag.getCompoundTag("slot" + slottedModule.getSlot())));
 	}
 
   public ModernPacket getCMPipePacket() {

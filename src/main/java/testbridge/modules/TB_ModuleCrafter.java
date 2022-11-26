@@ -46,6 +46,7 @@ import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 
 import testbridge.pipes.PipeCraftingManager;
+import testbridge.pipes.PipeCraftingManager.CMTargetInformation;
 
 public class TB_ModuleCrafter extends ModuleCrafter {
   private WeakReference<TileEntity> lastAccessedCrafter;
@@ -56,6 +57,13 @@ public class TB_ModuleCrafter extends ModuleCrafter {
   public void registerHandler(IWorldProvider world, IPipeServiceProvider service) {
     super.registerHandler(world, service);
     pipeCM = (PipeCraftingManager) service;
+  }
+
+  @Override
+  public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+    super.registerPosition(slot, positionInt);
+    _sinkReply = new SinkReply(SinkReply.FixedPriority.ItemSink, 0, true, false, 1, 0,
+        new CMTargetInformation(getPositionInt()));
   }
 
   /**
@@ -246,11 +254,11 @@ public class TB_ModuleCrafter extends ModuleCrafter {
         }
 
         if (service.getItemOrderManager().isFirstOrderWatched()) {
-          TileEntity tile = (TileEntity)this.lastAccessedCrafter.get();
+          TileEntity tile = (TileEntity) this.lastAccessedCrafter.get();
           if (tile != null) {
             service.getItemOrderManager().setMachineProgress(SimpleServiceLocator.machineProgressProvider.getProgressForTile(tile));
           } else {
-            service.getItemOrderManager().setMachineProgress((byte)0);
+            service.getItemOrderManager().setMachineProgress((byte) 0);
           }
         }
       } else {
@@ -258,122 +266,124 @@ public class TB_ModuleCrafter extends ModuleCrafter {
       }
 
       if (service.isNthTick(6)) {
-        IPipeServiceProvider resultService = getCMResultRouter(pipeCM).getPipe();
-        List<NeighborTileEntity<TileEntity>> adjacentInventories = resultService.getAvailableAdjacent().inventories();
-        if (!service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
-          ISlotUpgradeManager upgradeManager = (ISlotUpgradeManager) Objects.requireNonNull(this.getUpgradeManager());
-          if (upgradeManager.getCrafterCleanup() > 0) {
-            adjacentInventories.stream().map((neighbor) -> {
-              return this.extractFiltered(neighbor, this.cleanupInventory, (Boolean)this.cleanupModeIsExclude.getValue(), upgradeManager.getCrafterCleanup() * 3);
-            }).filter((stack) -> {
-              return !stack.isEmpty();
-            }).findFirst().ifPresent((extractedx) -> {
-              service.queueRoutedItem(SimpleServiceLocator.routedItemHelper.createNewTravelItem(extractedx), EnumFacing.UP);
-              service.getCacheHolder().trigger(CacheHolder.CacheTypes.Inventory);
-            });
-          }
-
-        } else if (adjacentInventories.size() < 1) {
-          if (service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
-            service.getItemOrderManager().sendFailed();
-          }
-
-        } else {
-          List<ItemIdentifierStack> wanteditem = this.getCraftedItems();
-          if (wanteditem != null && !wanteditem.isEmpty()) {
-            resultService.spawnParticle(Particles.VioletParticle, 2);
-            int itemsleft = this.itemsToExtract();
-            int stacksleft = this.stacksToExtract();
-
-            label123:
-            while(itemsleft > 0 && stacksleft > 0 && service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
-              LogisticsItemOrder nextOrder = (LogisticsItemOrder)service.getItemOrderManager().peekAtTopRequest(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA});
-              int maxtosend = Math.min(itemsleft, nextOrder.getResource().stack.getStackSize());
-              maxtosend = Math.min(nextOrder.getResource().getItem().getMaxStackSize(), maxtosend);
-              ItemStack extracted = ItemStack.EMPTY;
-              NeighborTileEntity<TileEntity> adjacent = null;
-              Iterator var10 = adjacentInventories.iterator();
-
-              while(var10.hasNext()) {
-                NeighborTileEntity<TileEntity> adjacentCrafter = (NeighborTileEntity)var10.next();
-                adjacent = adjacentCrafter;
-                extracted = this.extract(adjacentCrafter, nextOrder.getResource(), maxtosend);
-                if (!extracted.isEmpty()) {
-                  break;
-                }
-              }
-
-              if (extracted.isEmpty()) {
-                service.getItemOrderManager().deferSend();
-                break;
-              }
-
-              service.getCacheHolder().trigger(CacheHolder.CacheTypes.Inventory);
-              Objects.requireNonNull(adjacent);
-              this.lastAccessedCrafter = new WeakReference(adjacent.getTileEntity());
-              ItemIdentifier extractedID = ItemIdentifier.get(extracted);
-
-              while(true) {
-                while(true) {
-                  if (extracted.isEmpty()) {
-                    continue label123;
-                  }
-
-                  if (this.isExtractedMismatch(nextOrder, extractedID)) {
-                    LogisticsItemOrder startOrder = nextOrder;
-                    if (service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
-                      do {
-                        service.getItemOrderManager().deferSend();
-                        nextOrder = (LogisticsItemOrder)service.getItemOrderManager().peekAtTopRequest(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA});
-                      } while(this.isExtractedMismatch(nextOrder, extractedID) && startOrder != nextOrder);
-                    }
-
-                    if (startOrder == nextOrder) {
-                      int numtosend = Math.min(extracted.getCount(), extractedID.getMaxStackSize());
-                      if (numtosend == 0) {
-                        continue label123;
-                      }
-
-                      --stacksleft;
-                      itemsleft -= numtosend;
-                      ItemStack stackToSend = extracted.splitStack(numtosend);
-                      service.sendStack(stackToSend, -1, CoreRoutedPipe.ItemSendMode.Normal, (IAdditionalTargetInformation)null, adjacent.getDirection());
-                      continue;
-                    }
-                  }
-
-                  int numtosend = Math.min(extracted.getCount(), extractedID.getMaxStackSize());
-                  numtosend = Math.min(numtosend, nextOrder.getResource().stack.getStackSize());
-                  if (numtosend == 0) {
-                    continue label123;
-                  }
-
-                  --stacksleft;
-                  itemsleft -= numtosend;
-                  ItemStack stackToSend = extracted.splitStack(numtosend);
-                  if (nextOrder.getDestination() != null) {
-                    SinkReply reply = LogisticsManager.canSink(stackToSend, nextOrder.getDestination().getRouter(), (IRouter)null, true, ItemIdentifier.get(stackToSend), (SinkReply)null, true, false);
-                    boolean defersend = reply == null || reply.bufferMode != SinkReply.BufferMode.NONE || reply.maxNumberOfItems < 1;
-                    IRoutedItem item = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stackToSend);
-                    item.setDestination(nextOrder.getDestination().getRouter().getSimpleID());
-                    item.setTransportMode(IRoutedItem.TransportMode.Active);
-                    item.setAdditionalTargetInformation(nextOrder.getInformation());
-                    service.queueRoutedItem(item, adjacent.getDirection());
-                    service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), defersend, item);
-                  } else {
-                    service.sendStack(stackToSend, -1, CoreRoutedPipe.ItemSendMode.Normal, nextOrder.getInformation(), adjacent.getDirection());
-                    service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), false, (IRoutedItem)null);
-                  }
-
-                  if (service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
-                    nextOrder = (LogisticsItemOrder)service.getItemOrderManager().peekAtTopRequest(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA});
-                  }
-                }
-              }
+        try {
+          IPipeServiceProvider resultService = getCMResultRouter(pipeCM).getPipe();
+          List<NeighborTileEntity<TileEntity>> adjacentInventories = resultService.getAvailableAdjacent().inventories();
+          if (!service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
+            ISlotUpgradeManager upgradeManager = (ISlotUpgradeManager) Objects.requireNonNull(this.getUpgradeManager());
+            if (upgradeManager.getCrafterCleanup() > 0) {
+              adjacentInventories.stream().map((neighbor) -> {
+                return this.extractFiltered(neighbor, this.cleanupInventory, (Boolean) this.cleanupModeIsExclude.getValue(), upgradeManager.getCrafterCleanup() * 3);
+              }).filter((stack) -> {
+                return !stack.isEmpty();
+              }).findFirst().ifPresent((extractedx) -> {
+                service.queueRoutedItem(SimpleServiceLocator.routedItemHelper.createNewTravelItem(extractedx), EnumFacing.UP);
+                service.getCacheHolder().trigger(CacheHolder.CacheTypes.Inventory);
+              });
             }
 
+          } else if (adjacentInventories.size() < 1) {
+            if (service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
+              service.getItemOrderManager().sendFailed();
+            }
+
+          } else {
+            List<ItemIdentifierStack> wanteditem = this.getCraftedItems();
+            if (wanteditem != null && !wanteditem.isEmpty()) {
+              resultService.spawnParticle(Particles.VioletParticle, 2);
+              int itemsleft = this.itemsToExtract();
+              int stacksleft = this.stacksToExtract();
+
+              label123:
+              while (itemsleft > 0 && stacksleft > 0 && service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
+                LogisticsItemOrder nextOrder = (LogisticsItemOrder) service.getItemOrderManager().peekAtTopRequest(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA});
+                int maxtosend = Math.min(itemsleft, nextOrder.getResource().stack.getStackSize());
+                maxtosend = Math.min(nextOrder.getResource().getItem().getMaxStackSize(), maxtosend);
+                ItemStack extracted = ItemStack.EMPTY;
+                NeighborTileEntity<TileEntity> adjacent = null;
+                Iterator var10 = adjacentInventories.iterator();
+
+                while (var10.hasNext()) {
+                  NeighborTileEntity<TileEntity> adjacentCrafter = (NeighborTileEntity) var10.next();
+                  adjacent = adjacentCrafter;
+                  extracted = this.extract(adjacentCrafter, nextOrder.getResource(), maxtosend);
+                  if (!extracted.isEmpty()) {
+                    break;
+                  }
+                }
+
+                if (extracted.isEmpty()) {
+                  service.getItemOrderManager().deferSend();
+                  break;
+                }
+
+                service.getCacheHolder().trigger(CacheHolder.CacheTypes.Inventory);
+                Objects.requireNonNull(adjacent);
+                this.lastAccessedCrafter = new WeakReference(adjacent.getTileEntity());
+                ItemIdentifier extractedID = ItemIdentifier.get(extracted);
+
+                while (true) {
+                  while (true) {
+                    if (extracted.isEmpty()) {
+                      continue label123;
+                    }
+
+                    if (this.isExtractedMismatch(nextOrder, extractedID)) {
+                      LogisticsItemOrder startOrder = nextOrder;
+                      if (service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
+                        do {
+                          service.getItemOrderManager().deferSend();
+                          nextOrder = (LogisticsItemOrder) service.getItemOrderManager().peekAtTopRequest(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA});
+                        } while (this.isExtractedMismatch(nextOrder, extractedID) && startOrder != nextOrder);
+                      }
+
+                      if (startOrder == nextOrder) {
+                        int numtosend = Math.min(extracted.getCount(), extractedID.getMaxStackSize());
+                        if (numtosend == 0) {
+                          continue label123;
+                        }
+
+                        --stacksleft;
+                        itemsleft -= numtosend;
+                        ItemStack stackToSend = extracted.splitStack(numtosend);
+                        service.sendStack(stackToSend, -1, CoreRoutedPipe.ItemSendMode.Normal, (IAdditionalTargetInformation) null, adjacent.getDirection());
+                        continue;
+                      }
+                    }
+
+                    int numtosend = Math.min(extracted.getCount(), extractedID.getMaxStackSize());
+                    numtosend = Math.min(numtosend, nextOrder.getResource().stack.getStackSize());
+                    if (numtosend == 0) {
+                      continue label123;
+                    }
+
+                    --stacksleft;
+                    itemsleft -= numtosend;
+                    ItemStack stackToSend = extracted.splitStack(numtosend);
+                    if (nextOrder.getDestination() != null) {
+                      SinkReply reply = LogisticsManager.canSink(stackToSend, nextOrder.getDestination().getRouter(), (IRouter) null, true, ItemIdentifier.get(stackToSend), (SinkReply) null, true, false);
+                      boolean defersend = reply == null || reply.bufferMode != SinkReply.BufferMode.NONE || reply.maxNumberOfItems < 1;
+                      IRoutedItem item = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stackToSend);
+                      item.setDestination(nextOrder.getDestination().getRouter().getSimpleID());
+                      item.setTransportMode(IRoutedItem.TransportMode.Active);
+                      item.setAdditionalTargetInformation(nextOrder.getInformation());
+                      service.queueRoutedItem(item, adjacent.getDirection());
+                      service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), defersend, item);
+                    } else {
+                      service.sendStack(stackToSend, -1, CoreRoutedPipe.ItemSendMode.Normal, nextOrder.getInformation(), adjacent.getDirection());
+                      service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), false, (IRoutedItem) null);
+                    }
+
+                    if (service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
+                      nextOrder = (LogisticsItemOrder) service.getItemOrderManager().peekAtTopRequest(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA});
+                    }
+                  }
+                }
+              }
+
+            }
           }
-        }
+        } catch (NullPointerException ignored) {}
       }
     }
   }

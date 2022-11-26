@@ -20,7 +20,7 @@ public class ClientProxy extends CommonProxy {
 
   @Override
   public void registerTextures() {
-    TestBridge.textures.registerBlockIcons(Minecraft.getMinecraft().getTextureMapBlocks());
+    TestBridge.TBTextures.registerBlockIcons(Minecraft.getMinecraft().getTextureMapBlocks());
   }
 
 }

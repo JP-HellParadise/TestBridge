@@ -40,7 +40,7 @@ import testbridge.core.TestBridge;
 import testbridge.network.packets.pipe.CMOrientationPacket;
 import testbridge.network.packets.resultpipe.SyncResultNamePacket;
 import testbridge.network.GuiIDs;
-import testbridge.textures.Textures;
+import testbridge.textures.TB_Textures;
 
 public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRendererProvider, IChangeListener, SatellitePipe, IChassisPipe {
   public final LinkedList<ItemIdentifierStack> oldList = new LinkedList<>();
@@ -77,7 +77,7 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
 
   @Override
   public TextureType getCenterTexture() {
-    return Textures.TESTBRIDGE_RESULT_TEXTURE;
+    return TB_Textures.TESTBRIDGE_RESULT_TEXTURE;
   }
 
   @Override
