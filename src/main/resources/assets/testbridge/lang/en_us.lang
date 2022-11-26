@@ -40,10 +40,11 @@ item.upgrade.info.crafting_manager=Crafting Manager Pipe
 # GUI
 
 gui.result.ResultName=Result Name
+
+gui.crafting_manager.Select=Select
 gui.crafting_manager.satellite=Satellite
 gui.crafting_manager.result=Result
 gui.crafting_manager.CMName=Crafting Manager
-
 
 gui.popup.selectresult.title=Select Result Pipe
 
