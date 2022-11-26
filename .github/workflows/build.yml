@@ -9,9 +9,9 @@ name: Build Artifact
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "hell" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "hell" ]
 
 permissions:
   contents: read
