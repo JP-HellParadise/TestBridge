@@ -8,10 +8,11 @@ Begin PoC stage, will have to implement more thing before get this to alpha stag
   + New upgrade for CM pipe  
 - Applied Energistics 2:  WIP  
 - Refined Storage:  WIP  
-
-
-
-
+  
+P/s: All code and resource pack reserved to owner.
+  
+  
+  
 ### How to use *this repo*:  
 1. Clone this repository.
 2. In the local repository, run the command `gradlew setupDecompWorkspace idea`.
