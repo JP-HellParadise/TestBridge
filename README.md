@@ -9,8 +9,7 @@ Begin PoC stage, will have to implement more thing before get this to alpha stag
 - Applied Energistics 2:  WIP  
 - Refined Storage:  WIP  
   
-P/s: All code and resource pack reserved to owner.
-  
+    
   
   
 ### How to use *this repo*:  
