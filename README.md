@@ -1,7 +1,15 @@
 ## Test Addon for certain pipe mods
-
-### Instructions:
-
+## Current stage:
+Begin PoC stage, will have to implement more thing before get this to alpha stage.  
+![](/Stuff/concept.gif)
+## Features
+- Logistics addon:
+    + Result pipe
+    + Crafting manager pipe
+    + New upgrade for CM pipe
+- Applied Energistics 2:  WIP
+- Refined Storage:  WIP  
+### How to use *this repo*:
 1. Clone this repository.
 2. In the local repository, run the command `gradlew setupDecompWorkspace idea`.
 3. Open the `.ipr` file in IDEA.
