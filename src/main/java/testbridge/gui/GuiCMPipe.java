@@ -152,7 +152,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
   @Override
   protected void drawGuiContainerForegroundLayer(int par1, int par2) {
     super.drawGuiContainerForegroundLayer(par1, par2);
-    drawCenteredString(TextUtil.translate(GuiCMPipe.PREFIX + "name"), xSize / 2, 5, 0x404040);
+    drawCenteredString(TextUtil.translate(GuiCMPipe.PREFIX + "CMName"), xSize / 2, 5, 0x404040);
     mc.fontRenderer.drawString(TextUtil.translate("key.categories.inventory"), 7, ySize - 93, 0x404040);
   }
 
