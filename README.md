@@ -1,6 +1,6 @@
 ## Test Addon for certain pipe mods  
 ## Current stage: 
-brainded, will have to implement Logistics somehow...
+Begin PoC stage, will have to implement more thing before get this to alpha stage.
 ## Features
 - Logistics addon:
   + Result pipe
