@@ -4,7 +4,6 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "compat.TB_MixinTOPAddon",
-    "modules.TB_AccessorModuleCrafter",
     "network.TB_MixinModuleCGP",
     "network.TB_MixinModuleCoordinatesPacket",
     "recipes.TB_MixinRecipes"

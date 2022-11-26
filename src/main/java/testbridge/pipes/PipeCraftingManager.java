@@ -1,5 +1,26 @@
 package testbridge.pipes;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import lombok.Getter;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.fml.client.FMLClientHandler;
+
 import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.config.Configs;
@@ -38,21 +59,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.tuples.Pair;
 
-import lombok.Getter;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.fml.client.FMLClientHandler;
-
 import network.rs485.logisticspipes.connection.*;
 import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.SlottedModule;
@@ -66,12 +72,6 @@ import testbridge.network.packets.pipe.CMPipeModuleContent;
 import testbridge.network.packets.pipe.RequestCMOrientationPacket;
 import testbridge.pipes.upgrades.ModuleUpgradeManager;
 import testbridge.textures.Textures;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @CCType(name = "TestBridge:CraftingManager")
 public class PipeCraftingManager extends CoreRoutedPipe
