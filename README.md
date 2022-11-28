@@ -1,4 +1,5 @@
 ## Test Addon for certain pipe mods
+[![Github Action](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml/badge.svg)](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml)
 ## Features
 - Logistics Pipe:
     + Result pipe
