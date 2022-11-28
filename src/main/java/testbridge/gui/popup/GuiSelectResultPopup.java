@@ -1,6 +1,14 @@
 package testbridge.gui.popup;
 
-import testbridge.network.packets.gui.RequestResultPipeListPacket;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.util.math.BlockPos;
+
 import logisticspipes.network.PacketHandler;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.GuiGraphics;
@@ -8,15 +16,10 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
 import logisticspipes.utils.tuples.Pair;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.util.math.BlockPos;
+
 import network.rs485.logisticspipes.util.TextUtil;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
+import testbridge.network.packets.gui.RequestResultPipeListPacket;
 
 public class GuiSelectResultPopup extends SubGuiScreen {
 
@@ -26,7 +29,7 @@ public class GuiSelectResultPopup extends SubGuiScreen {
   private List<Pair<String, UUID>> pipeList = Collections.EMPTY_LIST;
   private final TextListDisplay textList;
 
-  public GuiSelectResultPopup(BlockPos pos, boolean fluidSatellites, Consumer<UUID> handleResult) {
+  public GuiSelectResultPopup(BlockPos pos,  Consumer<UUID> handleResult) {
     super(150, 170, 0, 0);
     this.handleResult = handleResult;
     this.textList = new TextListDisplay(this, 6, 16, 6, 30, 12, new TextListDisplay.List() {
@@ -46,7 +49,7 @@ public class GuiSelectResultPopup extends SubGuiScreen {
         return 0xFFFFFF;
       }
     });
-    MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestResultPipeListPacket.class).setFlag(fluidSatellites).setBlockPos(pos));
+    MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestResultPipeListPacket.class).setFlag(true).setBlockPos(pos));
   }
 
   protected void drawTitle() {
@@ -57,9 +60,9 @@ public class GuiSelectResultPopup extends SubGuiScreen {
   public void initGui() {
     super.initGui();
     buttonList.clear();
-    buttonList.add(new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, TextUtil.translate(GUI_LANG_KEY + "select")));
-    buttonList.add(new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, TextUtil.translate(GUI_LANG_KEY + "exit")));
-    buttonList.add(new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, TextUtil.translate(GUI_LANG_KEY + "unset")));
+    buttonList.add(new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, TextUtil.translate(GuiSelectSatellitePopup.GUI_LANG_KEY + "select")));
+    buttonList.add(new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, TextUtil.translate(GuiSelectSatellitePopup.GUI_LANG_KEY + "exit")));
+    buttonList.add(new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, TextUtil.translate(GuiSelectSatellitePopup.GUI_LANG_KEY + "unset")));
     buttonList.add(new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\"));
     buttonList.add(new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/"));
   }

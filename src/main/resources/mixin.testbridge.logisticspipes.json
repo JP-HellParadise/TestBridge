@@ -1,0 +1,17 @@
+{
+  "minVersion": "0.8",
+  "package": "testbridge.mixins.logisticspipes",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "compat.TB_MixinTOPAddon",
+    "network.TB_MixinModuleCGP",
+    "network.TB_MixinModuleCoordinatesPacket",
+    "pipes.upgrades.TB_ItemExtraction",
+    "pipes.upgrades.TB_ItemStackExtraction",
+    "recipes.TB_MixinRecipes"
+  ],
+  "client": [
+    "network.TB_MixinGuiOpenChassis"
+  ],
+  "server": []
+}

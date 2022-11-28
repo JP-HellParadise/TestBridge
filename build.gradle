@@ -1,17 +1,17 @@
 buildscript {
     repositories {
-		maven {
-			url "https://plugins.gradle.org/m2/"
-		}
-		maven {
-			url = 'https://maven.cleanroommc.com'
-		}
-        maven {
-			url = 'https://maven.minecraftforge.net'
-		}
-		maven { 
-			url = 'https://repo.spongepowered.org/maven' 
-		}
+			maven {
+				url "https://plugins.gradle.org/m2/"
+			}
+			maven {
+				url = 'https://maven.cleanroommc.com'
+			}
+			maven {
+				url = 'https://maven.minecraftforge.net'
+			}
+			maven {
+				url = 'https://repo.spongepowered.org/maven'
+			}
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3.4'
@@ -57,6 +57,7 @@ minecraft {
 		args << '-Dmixin.hotSwap=true'
 		args << '-Dmixin.checks.interfaces=true'
 		args << '-Dmixin.debug.export=true'
+		args << '-XXaltjvm=dcevm'
 	}
 	clientJvmArgs.addAll(args)
 	serverJvmArgs.addAll(args)
@@ -76,6 +77,9 @@ repositories {
 	}
 	maven {
 		url = "https://maven.removeco.de/"
+	}
+	flatDir {
+		dirs "lib"
 	}
 }
 
@@ -111,7 +115,8 @@ dependencies {
 	runtime project.cofhw_dep
 	runtime project.rf_dep
 	runtime project.ae2_dep
-	
+	runtime project.top_dep
+
 }
 
 sourceSets {
@@ -142,16 +147,16 @@ processResources {
 jar {
     manifest {
 		def attribute_map = [:]
-//		if (project.use_coremod.toBoolean()) {
-//			attribute_map['FMLCorePlugin'] = project.coremod_plugin_class_name
-//			if (project.include_mod.toBoolean()) {
-//				attribute_map['FMLCorePluginContainsFMLMod'] = true
-//				attribute_map['ForceLoadAsMod'] = project.gradle.startParameter.taskNames[0] == "build"
-//			}
-//		}
+		if (project.use_coremod.toBoolean()) {
+			attribute_map['FMLCorePlugin'] = project.coremod_plugin_class_name
+			if (project.include_mod.toBoolean()) {
+				attribute_map['FMLCorePluginContainsFMLMod'] = true
+				attribute_map['ForceLoadAsMod'] = project.gradle.startParameter.taskNames[0] == "build"
+			}
+		}
 		if (project.use_mixins.toBoolean()) {
 			attribute_map['TweakClass'] = 'org.spongepowered.asm.launch.MixinTweaker'
 		}
-        attributes(attribute_map)
+		attributes(attribute_map)
     }
 }

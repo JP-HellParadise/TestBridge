@@ -1,20 +1,11 @@
 package testbridge.core;
 
-import testbridge.datafixer.TBDataFixer;
-import testbridge.network.GuiHandler;
-import testbridge.pipes.ResultPipe;
-import testbridge.textures.Textures;
+import javax.annotation.Nonnull;
 
-import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
-import net.minecraftforge.fml.common.Loader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import lombok.Getter;
-
-import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -25,12 +16,25 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.SidedProxy;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraft.block.Block;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
-import javax.annotation.Nonnull;
-import java.lang.reflect.Method;
+import logisticspipes.LPItems;
+import logisticspipes.LogisticsPipes;
+import logisticspipes.items.ItemUpgrade;
+
+import testbridge.datafixer.TBDataFixer;
+import testbridge.network.GuiHandler;
+import testbridge.pipes.PipeCraftingManager;
+import testbridge.pipes.ResultPipe;
+import testbridge.pipes.upgrades.BufferCMUpgrade;
+import testbridge.proxy.CommonProxy;
+import testbridge.textures.TB_Textures;
 
 @Mod(modid = TestBridge.ID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "", acceptedMinecraftVersions = "1.12.2")
 public class TestBridge extends LogisticsPipes {
@@ -50,6 +54,11 @@ public class TestBridge extends LogisticsPipes {
   @Mod.Instance("testbridge")
   public static TestBridge instance;
 
+  @SidedProxy(
+      clientSide = "testbridge.proxy.ClientProxy",
+      serverSide = "testbridge.proxy.CommonProxy")
+  public static CommonProxy proxy;
+
   public static final Logger log = LogManager.getLogger(NAME);
 
   //Creative tab
@@ -61,9 +70,7 @@ public class TestBridge extends LogisticsPipes {
     }
   };
 
-  private static Method registerTexture;
-
-  public static Textures textures = new Textures();
+  public static TB_Textures TBTextures = new TB_Textures();
 
   @Getter
   private static boolean AELoaded;
@@ -77,23 +84,14 @@ public class TestBridge extends LogisticsPipes {
     log.info("==================================================================================");
     log.info("Test Bridge: Start Pre Initialization");
     long tM = System.currentTimeMillis();
+
+    proxy.preInit(event);
+
     AELoaded = Loader.isModLoaded("appliedenergistics2");
     RSLoaded = Loader.isModLoaded("refinedstorage");
     TOPLoaded = Loader.isModLoaded("theoneprobe");
 
 
-      if (isAELoaded()) {
-      log.info("Applied Energistics 2 is loaded. Start inject module");
-    }
-
-    if (isRSLoaded()) {
-      log.info("Refined Storage is loaded. Start inject module");
-    }
-
-//    if (isTOPLoaded()) {
-//      FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe",
-//          TOPCompat.class.getName());
-//    }
 
     //TODO: preInit
 
@@ -102,7 +100,7 @@ public class TestBridge extends LogisticsPipes {
   }
 
   @Mod.EventHandler
-  public static void _init(FMLInitializationEvent evt) {
+  public void _init(FMLInitializationEvent evt) {
     log.info("==================================================================================");
     log.info("Start Initialization");
     long tM = System.currentTimeMillis();
@@ -132,16 +130,12 @@ public class TestBridge extends LogisticsPipes {
   public void initItems(RegistryEvent.Register<Item> event) {
     IForgeRegistry<Item> registry = event.getRegistry();
 
-//    ItemPipeSignCreator.registerPipeSignTypes();
-//    ItemModule.loadModules(registry);
-//    ItemUpgrade.loadUpgrades(registry);
-    registerPipes(registry);
-  }
-
-  @Override
-  public void registerPipes(IForgeRegistry<Item> registry) {
+    // LP Register
+    // Pipe
     registerPipe(registry, "result", ResultPipe::new);
-
+    registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
+    // Upgrade
+    ItemUpgrade.registerUpgrade(registry, BufferCMUpgrade.getName(), BufferCMUpgrade::new);
   }
 
   @SubscribeEvent
@@ -150,14 +144,6 @@ public class TestBridge extends LogisticsPipes {
     IForgeRegistry<Block> registry = event.getRegistry();
 
     // TODO Block
-  }
-
-  private void registerRecipes() {
-//    RecipeManager.loadRecipes();
-//
-//    resetRecipeList.stream()
-//        .map(Supplier::get)
-//        .forEach(itemItemPair -> registerShapelessResetRecipe(itemItemPair.getValue1(), itemItemPair.getValue2()));
   }
 
   @Mod.EventHandler

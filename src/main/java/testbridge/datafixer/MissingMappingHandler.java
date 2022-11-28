@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 
@@ -11,14 +13,13 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-import com.google.common.collect.ImmutableMap;
-
 import logisticspipes.LPConstants;
 
 public class MissingMappingHandler {
   private Map<String, String> itemIDMap = ImmutableMap.<String, String>builder()
       //pipe
       .put("item.resultpipe", "pipe_result")
+      .put("item.crafting_manager", "pipe_crafting_manager")
       .build();
 
 //  private Map<String, String> blockIDMap = ImmutableMap.<String, String>builder()

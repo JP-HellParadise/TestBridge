@@ -1,5 +1,5 @@
 package testbridge.network;
 
 public interface GuiIDs {
-  int GUI_ResultPipe_ID = 12;
+  int GUI_ResultPipe_ID = 10;
 }

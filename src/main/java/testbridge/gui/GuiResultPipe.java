@@ -3,14 +3,12 @@ package testbridge.gui;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import logisticspipes.network.packets.satpipe.SatelliteSetNamePacket;
-import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+import org.lwjgl.input.Keyboard;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
-
-import org.lwjgl.input.Keyboard;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.pipes.SatelliteNamingResult;
@@ -18,20 +16,23 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.GuiGraphics;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.SmallGuiButton;
-import network.rs485.logisticspipes.SatellitePipe;
+import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
+
 import network.rs485.logisticspipes.util.TextUtil;
 
-public class GuiResultPipe extends LogisticsBaseGuiScreen {
+import testbridge.network.packets.resultpipe.ResultSetNamePacket;
+import testbridge.pipes.ResultPipe;
 
+public class GuiResultPipe extends LogisticsBaseGuiScreen {
   @Nonnull
-  private final SatellitePipe resultPipe;
+  private final ResultPipe resultPipe;
 
   @Nonnull
   private String response = "";
 
   private InputBar input;
 
-  public GuiResultPipe(@Nonnull SatellitePipe resultPipe) {
+  public GuiResultPipe(@Nonnull ResultPipe resultPipe) {
     super(new Container() {
 
       @Override
@@ -63,7 +64,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     if (guibutton.id == 0) {
       final TileEntity container = resultPipe.getContainer();
       if (container != null) {
-        MainProxy.sendPacketToServer(PacketHandler.getPacket(SatelliteSetNamePacket.class).setString(input.getText()).setTilePos(container));
+        MainProxy.sendPacketToServer(PacketHandler.getPacket(ResultSetNamePacket.class).setString(input.getText()).setTilePos(container));
       }
     } else {
       super.actionPerformed(guibutton);
@@ -77,7 +78,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     String name = TextUtil.getTrimmedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer, "...");
     int yOffset = 0;
     if (!response.isEmpty()) {
-      drawCenteredString(TextUtil.translate("gui.result.naming_result." + response), xSize / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
+      drawCenteredString(TextUtil.translate("gui.satellite.naming_result." + response), xSize / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
       yOffset = 4;
     }
     drawCenteredString(name, xSize / 2, 24 - yOffset, 0x404040);

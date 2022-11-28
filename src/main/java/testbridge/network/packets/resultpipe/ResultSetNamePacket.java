@@ -1,6 +1,5 @@
 package testbridge.network.packets.resultpipe;
 
-import logisticspipes.network.packets.satpipe.SetNameResult;
 import net.minecraft.entity.player.EntityPlayer;
 
 import logisticspipes.network.PacketHandler;
@@ -10,7 +9,8 @@ import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-import network.rs485.logisticspipes.SatellitePipe;
+
+import testbridge.pipes.ResultPipe;
 
 @StaticResolve
 public class ResultSetNamePacket extends StringCoordinatesPacket {
@@ -27,8 +27,8 @@ public class ResultSetNamePacket extends StringCoordinatesPacket {
     SatelliteNamingResult result = null;
     if (newName.trim().isEmpty()) {
       result = SatelliteNamingResult.BLANK_NAME;
-    } else if (pipe.pipe instanceof SatellitePipe) {
-      final SatellitePipe resultPipe = (SatellitePipe) pipe.pipe;
+    } else if (pipe.pipe instanceof ResultPipe) {
+      final ResultPipe resultPipe = (ResultPipe) pipe.pipe;
       if (resultPipe.getSatellitesOfType().stream().anyMatch(it -> it.getSatellitePipeName().equals(newName))) {
         result = SatelliteNamingResult.DUPLICATE_NAME;
       } else {
