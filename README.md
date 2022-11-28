@@ -1,6 +1,5 @@
 ## Test Addon for certain pipe mods
 ## Features
-Have some same features as Logistics Bridge (old and rework version) with some changed:
 - Logistics Pipe:
     + Result pipe
     + Crafting manager pipe  
