@@ -57,6 +57,7 @@ minecraft {
 		args << '-Dmixin.hotSwap=true'
 		args << '-Dmixin.checks.interfaces=true'
 		args << '-Dmixin.debug.export=true'
+		args << '-XXaltjvm=dcevm'
 	}
 	clientJvmArgs.addAll(args)
 	serverJvmArgs.addAll(args)
@@ -76,6 +77,9 @@ repositories {
 	}
 	maven {
 		url = "https://maven.removeco.de/"
+	}
+	flatDir {
+		dirs "lib"
 	}
 }
 

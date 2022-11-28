@@ -6,6 +6,8 @@
     "compat.TB_MixinTOPAddon",
     "network.TB_MixinModuleCGP",
     "network.TB_MixinModuleCoordinatesPacket",
+    "pipes.upgrades.TB_ItemExtraction",
+    "pipes.upgrades.TB_ItemStackExtraction",
     "recipes.TB_MixinRecipes"
   ],
   "client": [

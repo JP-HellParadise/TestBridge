@@ -33,7 +33,7 @@ import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
-import logisticspipes.routing.order.IOrderInfoProvider;
+import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LogisticsItemOrder;
 import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.FluidIdentifier;
@@ -52,6 +52,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
   private WeakReference<TileEntity> lastAccessedCrafter;
   private boolean cachedAreAllOrderesToBuffer;
   private PipeCraftingManager pipeCM;
+  private IPipeServiceProvider resultService;
 
   @Override
   public void registerHandler(IWorldProvider world, IPipeServiceProvider service) {
@@ -101,6 +102,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
       // has a satellite and result configured, that one of two is unreachable
       return null;
     }
+
     IRequestItems defsat = getCMSatelliteRouter(pipeCM).getPipe();
     IRequestItems[] target = new IRequestItems[9];
     for (int i = 0; i < 9; i++) {
@@ -205,8 +207,9 @@ public class TB_ModuleCrafter extends ModuleCrafter {
   public boolean isSatelliteConnected() {
     //final List<ExitRoute> routes = getRouter().getIRoutersByCost();
     if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
+      if (pipeCM.getModules().resultUUID.isZero()) return false;
       if (satelliteUUID.isZero()) {
-        if (pipeCM.getModules().satelliteUUID.isZero() || pipeCM.getModules().resultUUID.isZero()) {
+        if (pipeCM.getModules().satelliteUUID.isZero()) {
           return false;
         }
         int satModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(pipeCM.getModules().satelliteUUID.getValue());
@@ -248,7 +251,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
   public void enabledUpdateEntity() {
     IPipeServiceProvider service = this._service;
     if (service != null) {
-      if (service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
+      if (service.getItemOrderManager().hasOrders(new ResourceType[]{ResourceType.CRAFTING, ResourceType.EXTRA})) {
         if (service.isNthTick(6)) {
           this.cacheAreAllOrderesToBuffer();
         }
@@ -267,9 +270,10 @@ public class TB_ModuleCrafter extends ModuleCrafter {
 
       if (service.isNthTick(6)) {
         try {
-          IPipeServiceProvider resultService = getCMResultRouter(pipeCM).getPipe();
+          // As our crafting manager is properly setup, we will get result pipe service for item collecting
+          resultService = getCMResultRouter(pipeCM).getPipe();
           List<NeighborTileEntity<TileEntity>> adjacentInventories = resultService.getAvailableAdjacent().inventories();
-          if (!service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
+          if (!service.getItemOrderManager().hasOrders(new ResourceType[]{ResourceType.CRAFTING, ResourceType.EXTRA})) {
             ISlotUpgradeManager upgradeManager = (ISlotUpgradeManager) Objects.requireNonNull(this.getUpgradeManager());
             if (upgradeManager.getCrafterCleanup() > 0) {
               adjacentInventories.stream().map((neighbor) -> {
@@ -283,7 +287,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
             }
 
           } else if (adjacentInventories.size() < 1) {
-            if (service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
+            if (service.getItemOrderManager().hasOrders(new ResourceType[]{ResourceType.CRAFTING, ResourceType.EXTRA})) {
               service.getItemOrderManager().sendFailed();
             }
 
@@ -295,8 +299,8 @@ public class TB_ModuleCrafter extends ModuleCrafter {
               int stacksleft = this.stacksToExtract();
 
               label123:
-              while (itemsleft > 0 && stacksleft > 0 && service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
-                LogisticsItemOrder nextOrder = (LogisticsItemOrder) service.getItemOrderManager().peekAtTopRequest(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA});
+              while (itemsleft > 0 && stacksleft > 0 && service.getItemOrderManager().hasOrders(new ResourceType[]{ResourceType.CRAFTING, ResourceType.EXTRA})) {
+                LogisticsItemOrder nextOrder = (LogisticsItemOrder) service.getItemOrderManager().peekAtTopRequest(new ResourceType[]{ResourceType.CRAFTING, ResourceType.EXTRA});
                 int maxtosend = Math.min(itemsleft, nextOrder.getResource().stack.getStackSize());
                 maxtosend = Math.min(nextOrder.getResource().getItem().getMaxStackSize(), maxtosend);
                 ItemStack extracted = ItemStack.EMPTY;
@@ -330,10 +334,10 @@ public class TB_ModuleCrafter extends ModuleCrafter {
 
                     if (this.isExtractedMismatch(nextOrder, extractedID)) {
                       LogisticsItemOrder startOrder = nextOrder;
-                      if (service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
+                      if (service.getItemOrderManager().hasOrders(new ResourceType[]{ResourceType.CRAFTING, ResourceType.EXTRA})) {
                         do {
                           service.getItemOrderManager().deferSend();
-                          nextOrder = (LogisticsItemOrder) service.getItemOrderManager().peekAtTopRequest(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA});
+                          nextOrder = (LogisticsItemOrder) service.getItemOrderManager().peekAtTopRequest(new ResourceType[]{ResourceType.CRAFTING, ResourceType.EXTRA});
                         } while (this.isExtractedMismatch(nextOrder, extractedID) && startOrder != nextOrder);
                       }
 
@@ -367,15 +371,15 @@ public class TB_ModuleCrafter extends ModuleCrafter {
                       item.setDestination(nextOrder.getDestination().getRouter().getSimpleID());
                       item.setTransportMode(IRoutedItem.TransportMode.Active);
                       item.setAdditionalTargetInformation(nextOrder.getInformation());
-                      service.queueRoutedItem(item, adjacent.getDirection());
+                      resultService.queueRoutedItem(item, adjacent.getDirection());
                       service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), defersend, item);
                     } else {
-                      service.sendStack(stackToSend, -1, CoreRoutedPipe.ItemSendMode.Normal, nextOrder.getInformation(), adjacent.getDirection());
+                      resultService.sendStack(stackToSend, -1, CoreRoutedPipe.ItemSendMode.Normal, nextOrder.getInformation(), adjacent.getDirection());
                       service.getItemOrderManager().sendSuccessfull(stackToSend.getCount(), false, (IRoutedItem) null);
                     }
 
-                    if (service.getItemOrderManager().hasOrders(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA})) {
-                      nextOrder = (LogisticsItemOrder) service.getItemOrderManager().peekAtTopRequest(new IOrderInfoProvider.ResourceType[]{IOrderInfoProvider.ResourceType.CRAFTING, IOrderInfoProvider.ResourceType.EXTRA});
+                    if (service.getItemOrderManager().hasOrders(new ResourceType[]{ResourceType.CRAFTING, ResourceType.EXTRA})) {
+                      nextOrder = (LogisticsItemOrder) service.getItemOrderManager().peekAtTopRequest(new ResourceType[]{ResourceType.CRAFTING, ResourceType.EXTRA});
                     }
                   }
                 }
@@ -576,5 +580,26 @@ public class TB_ModuleCrafter extends ModuleCrafter {
     }
   }
 
+  @Override
+  protected int neededEnergy() {
+    return (int) (10 * Math.pow(1.1, getUpgradeManager().getItemExtractionUpgrade()) * Math
+        .pow(1.2, getUpgradeManager().getItemStackExtractionUpgrade()));
+  }
+
+  @Override
+  protected int itemsToExtract() {
+    return (int) Math.pow(2, getUpgradeManager().getItemExtractionUpgrade());
+  }
+
+  @Override
+  protected int stacksToExtract() {
+    return 1 + getUpgradeManager().getItemStackExtractionUpgrade();
+  }
+
+  @Nonnull
+  protected ISlotUpgradeManager getUpgradeManager() {
+    return Objects.requireNonNull(resultService, "service object was null in " + this)
+        .getUpgradeManager(slot, positionInt);
+  }
 
 }

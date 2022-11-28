@@ -2,6 +2,7 @@ package testbridge.gui;
 
 import java.io.IOException;
 
+import network.rs485.logisticspipes.gui.widget.module.Label;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -61,6 +62,8 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
   private final EntityPlayer _player;
   private final PropertyLayer propertyLayer;
 
+  private final Label[] satresultPipeLabels;
+
   public GuiCMPipe(EntityPlayer _player, PipeCraftingManager pipeCM, boolean bufferExclude) {
     super(null);
     this.pipeCM = pipeCM;
@@ -92,6 +95,8 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
 
     xSize = 177;
     ySize = 167;
+
+    satresultPipeLabels = new Label[2];
   }
 
   protected void windowClick(int id, int btn, ClickType clickType) {
@@ -121,10 +126,10 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
 
     // TODO: Extention dont show up as expected.
     CMExtention extention = new CMExtention("gui.satellite.SatelliteName", new ItemStack(LPItems.pipeSatellite), 0);
-    extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(1, guiLeft - 40 / 2 - 18, guiTop + 23, 37, 10, TextUtil.translate(PREFIX + "Select")))));
+    extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(1, guiLeft - 40 / 2 - 18, guiTop + 25, 37, 10, TextUtil.translate(PREFIX + "Select")))));
     extentionControllerLeft.addExtention(extention);
     extention = new CMExtention("gui.result.ResultName" , new ItemStack(TBItems.pipeResult), 1);
-    extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(2, guiLeft - 40 / 2 - 18, guiTop + 23, 37, 10, TextUtil.translate(PREFIX + "Select")))));
+    extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(2, guiLeft - 40 / 2 - 18, guiTop + 25, 37, 10, TextUtil.translate(PREFIX + "Select")))));
     extentionControllerLeft.addExtention(extention);
   }
 
@@ -231,10 +236,12 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
       } else {
         mc.fontRenderer.drawString(TextUtil.translate(translationKey), left + 9, top + 8, 0x404040);
         String pipeID = guiButton == 0 ? pipeCM.getModules().clientSideSatResultNames.satelliteName : pipeCM.getModules().clientSideSatResultNames.resultName;
+        int maxWidth = 70;
         if (pipeID.isEmpty()) {
-          mc.fontRenderer.drawString(TextUtil.translate("gui.crafting.Off"), left + 40 / 2 - 5, top + 23, 0x404040);
+          drawCenteredString(TextUtil.translate("gui.crafting.Off"), left + maxWidth / 2 + 7, top + 23, 0x404040);
         } else {
-          mc.fontRenderer.drawString(pipeID, left + 40 / 2 + 3 - (fontRenderer.getStringWidth(pipeID) / 2), top + 23, 0x404040);
+          String name = TextUtil.getTrimmedString(pipeID, maxWidth, mc.fontRenderer, "...");
+          drawCenteredString(name, left + maxWidth / 2 + 7, top + 23, 0x404040);
         }
       }
     }

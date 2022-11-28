@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import logisticspipes.routing.order.LogisticsItemOrderManager;
 import lombok.Getter;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -105,7 +106,6 @@ public class PipeCraftingManager extends CoreRoutedPipe
     }
     moduleCM = new TB_ModuleCM(getChassisSize(), this);
     moduleCM.registerHandler(this, this);
-//    _orderItemManager = new LogisticsItemOrderManager(this, this); // null by default when not needed
   }
 
   /**

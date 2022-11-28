@@ -6,7 +6,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import logisticspipes.interfaces.ISendRoutedItem;
+import logisticspipes.logisticspipes.IRoutedItem;
+import logisticspipes.utils.SinkReply;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,7 +46,7 @@ import testbridge.network.packets.resultpipe.SyncResultNamePacket;
 import testbridge.network.GuiIDs;
 import testbridge.textures.TB_Textures;
 
-public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRendererProvider, IChangeListener, SatellitePipe, IChassisPipe {
+public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRendererProvider, IChangeListener, SatellitePipe, IChassisPipe, ISendRoutedItem {
   public final LinkedList<ItemIdentifierStack> oldList = new LinkedList<>();
   public static final Set<ResultPipe> AllResults = Collections.newSetFromMap(new WeakHashMap<>());
 
@@ -62,7 +66,7 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   public ResultPipe(Item item) {
     super(item);
     throttleTime = 40;
-    _orderItemManager = new LogisticsItemOrderManager(this, this);
+    _orderItemManager = new LogisticsItemOrderManager(this, this); // null by default when not needed
   }
 
 
@@ -118,6 +122,11 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
       packet.setDir(newNeighbor.getValue1().getDirection());
     }
     refreshRender(true);
+  }
+
+  @Override
+  public IRoutedItem sendStack(@Nonnull ItemStack stack, int destRouterId, @Nonnull SinkReply sinkReply, @Nonnull ItemSendMode itemSendMode, EnumFacing direction) {
+    return super.sendStack(stack, destRouterId, sinkReply, itemSendMode, direction);
   }
 
   @Override
