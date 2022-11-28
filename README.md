@@ -3,10 +3,9 @@
 Have some same features as Logistics Bridge (old and rework version) with some changed:
 - Logistics Pipe:
     + Result pipe
-      Using Satellite pipe as template, now using LP upgrade for simplification.
-    + Crafting manager pipe
-      Should fix some issues with LB rework version.
-    + New upgrade for CM pipe: WIP
+    + Crafting manager pipe  
+
+[//]: # (    + New upgrade for CM pipe: WIP)
 
 [//]: # (- Applied Energistics 2:  WIP)
 
