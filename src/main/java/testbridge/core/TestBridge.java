@@ -42,7 +42,7 @@ public class TestBridge extends LogisticsPipes {
   public static final String ID = "testbridge";
   public static final String NAME = "Test Bridge";
   public static final String VERSION = "@VERSION@";
-  public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:logisticspipes@[0.10.4.21,)";
+  public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[5.0,);";
 
   @Getter
   private static boolean debug = true;
