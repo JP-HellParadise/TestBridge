@@ -25,6 +25,10 @@ public class CMPipeUpdatePacket extends ModuleCoordinatesPacket {
 	@Setter
   private String resultName = "";
 
+	@Getter
+	@Setter
+	private int blockingMode;
+
   public CMPipeUpdatePacket(int id) {
 		super(id);
 	}
@@ -43,6 +47,7 @@ public class CMPipeUpdatePacket extends ModuleCoordinatesPacket {
 		super.writeData(output);
 		output.writeUTF(satelliteName);
  		output.writeUTF(resultName);
+		output.writeInt(blockingMode);
 	}
 
 	@Override
@@ -50,6 +55,7 @@ public class CMPipeUpdatePacket extends ModuleCoordinatesPacket {
 		super.readData(input);
 		satelliteName= input.readUTF();
 		resultName = input.readUTF();
+		blockingMode = input.readInt();
 	}
 
 	@Override

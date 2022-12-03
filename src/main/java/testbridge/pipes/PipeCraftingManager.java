@@ -1,12 +1,11 @@
 package testbridge.pipes;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import logisticspipes.routing.order.LogisticsItemOrderManager;
 import lombok.Getter;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -44,6 +43,7 @@ import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.request.*;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
+import logisticspipes.routing.IRouter;
 import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LogisticsItemOrder;
@@ -71,22 +71,19 @@ import testbridge.modules.TB_ModuleCrafter;
 import testbridge.network.packets.pipe.CMOrientationPacket;
 import testbridge.network.packets.pipe.CMPipeModuleContent;
 import testbridge.network.packets.pipe.RequestCMOrientationPacket;
+import testbridge.pipes.upgrades.BufferCMUpgrade;
 import testbridge.pipes.upgrades.ModuleUpgradeManager;
 import testbridge.textures.TB_Textures;
 
 @CCType(name = "TestBridge:CraftingManager")
 public class PipeCraftingManager extends CoreRoutedPipe
-    implements ICraftItems, ISimpleInventoryEventHandler, ISendRoutedItem,
-    IChassisPipe, IChangeListener, ISendQueueContentRecieiver {
+    implements ICraftItems, ISimpleInventoryEventHandler, ISendRoutedItem, IChassisPipe, IChangeListener, ISendQueueContentRecieiver {
 
   private final TB_ModuleCM moduleCM;
   private final ItemIdentifierInventory _moduleInventory;
   private final NonNullList<ModuleUpgradeManager> slotUpgradeManagers = NonNullList.create();
   private boolean init = false;
-
   public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-
-  private boolean doContentUpdate = true;
 
   @Nullable
   private SingleAdjacent pointedAdjacent = null;
@@ -267,11 +264,11 @@ public class PipeCraftingManager extends CoreRoutedPipe
   }
 
   @Override
-  public void readFromNBT(@Nonnull NBTTagCompound tag) {
-    super.readFromNBT(tag);
-    _moduleInventory.readFromNBT(tag, "craftingmanager");
-    moduleCM.readFromNBT(tag);
-    int tmp = tag.getInteger("Orientation");
+  public void readFromNBT(@Nonnull NBTTagCompound nbttagcompound) {
+    super.readFromNBT(nbttagcompound);
+    _moduleInventory.readFromNBT(nbttagcompound, "craftingmanager");
+    moduleCM.readFromNBT(nbttagcompound);
+    int tmp = nbttagcompound.getInteger("Orientation");
     if (tmp != -1) {
       setPointedOrientation(EnumFacingUtil.getOrientation(tmp % 6));
     }
@@ -292,7 +289,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
       if (i >= slotUpgradeManagers.size()) {
         addModuleUpgradeManager();
       }
-      slotUpgradeManagers.get(i).readFromNBT(tag, Integer.toString(i));
+      slotUpgradeManagers.get(i).readFromNBT(nbttagcompound, Integer.toString(i));
     }
     // register slotted modules
     moduleCM.slottedModules()
@@ -338,14 +335,6 @@ public class PipeCraftingManager extends CoreRoutedPipe
       for (int i = 0; i < getChassisSize(); i++) {
         getModuleUpgradeManager(i).dropUpgrades();
       }
-    }
-  }
-
-  @Override
-  public void enabledUpdateEntity() {
-    super.enabledUpdateEntity();
-    if (doContentUpdate) {
-//      checkContentUpdate();
     }
   }
 
@@ -531,16 +520,12 @@ public class PipeCraftingManager extends CoreRoutedPipe
       @Nullable IWorldProvider world,
       @Nullable IPipeServiceProvider service
   ) {
-
     if (currentModule != null) {
       if (TB_ModuleCrafter.class.equals(currentModule.getClass())) {
         return currentModule;
       }
     }
     LogisticsModule newModule = new TB_ModuleCrafter();
-    if (newModule == null) {
-      return null;
-    }
     newModule.registerHandler(world, service);
     return newModule;
   }
@@ -552,7 +537,6 @@ public class PipeCraftingManager extends CoreRoutedPipe
       @Nullable IWorldProvider world,
       @Nullable IPipeServiceProvider service
   ) {
-
     if (itemStack.isEmpty()) {
       return null;
     }
@@ -571,9 +555,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
   public void playerStopWatching(EntityPlayer player, int mode) {}
 
   @Override
-  public void listenedChanged() {
-    doContentUpdate = true;
-  }
+  public void listenedChanged() {}
 
   @Override
   public void finishInit() {
@@ -621,10 +603,12 @@ public class PipeCraftingManager extends CoreRoutedPipe
 
   @Override
   public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemidCollection) {
-    // if we don't have a pointed inventory we can't be interested in anything
-//    if (getPointedAdjacentOrNoAdjacent().inventories().isEmpty()) {
-//      return;
-//    }
+    // if we don't have a pointed inventory while buffer upgrade is on
+    // we can't be interested in anything
+    if (hasBufferUpgrade() && getPointedAdjacentOrNoAdjacent().inventories().isEmpty()) {
+      return;
+    }
+
     for (int i = 0; i < getChassisSize(); i++) {
       LogisticsModule module = getSubModule(i);
       if (module != null) {
@@ -726,5 +710,32 @@ public class PipeCraftingManager extends CoreRoutedPipe
   @Override
   public Object getCCType() {
     return super.getCCType();
+  }
+
+  public IRouter getSatelliteRouterByUUID(UUID id) {
+    if (id == null) return null;
+    int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(id);
+    return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+  }
+
+  public IRouter getCMSatelliteRouter() {
+    final UUID satelliteUUID = getModules().satelliteUUID.getValue();
+    final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID);
+    return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+  }
+
+  public IRouter getCMResultRouter() {
+    final UUID resultUUID = getModules().resultUUID.getValue();
+    final int resultRouterId = SimpleServiceLocator.routerManager.getIDforUUID(resultUUID);
+    return SimpleServiceLocator.routerManager.getRouter(resultRouterId);
+  }
+
+  public boolean hasBufferUpgrade() {
+    for (int i = 0 ; i < 9 ; i++) {
+      if (upgradeManager.getUpgrade(i) instanceof BufferCMUpgrade) {
+        return true;
+      }
+    }
+    return false;
   }
 }

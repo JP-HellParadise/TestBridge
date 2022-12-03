@@ -4,6 +4,8 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import javax.annotation.Nonnull;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -31,8 +33,7 @@ import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.FluidResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
-import logisticspipes.routing.ExitRoute;
-import logisticspipes.routing.IRouter;
+import logisticspipes.routing.*;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LogisticsItemOrder;
 import logisticspipes.utils.CacheHolder;
@@ -65,6 +66,56 @@ public class TB_ModuleCrafter extends ModuleCrafter {
     super.registerPosition(slot, positionInt);
     _sinkReply = new SinkReply(SinkReply.FixedPriority.ItemSink, 0, true, false, 1, 0,
         new CMTargetInformation(getPositionInt()));
+  }
+
+  @Override
+  public LogisticsItemOrder fullFill(LogisticsPromise promise, IRequestItems destination,
+                                     IAdditionalTargetInformation info) {
+    if (_service == null) return null;
+    ItemIdentifierStack result = getCraftedItem();
+    if (result == null) return null;
+    //
+    int multiply = (int) Math.ceil(promise.numberOfItems / (float) result.getStackSize());
+    if(pipeCM.hasBufferUpgrade()){
+      List<Pair<IRequestItems, ItemIdentifierStack>> rec = new ArrayList<>();
+      IRouter defSat = pipeCM.getCMSatelliteRouter();
+      if (defSat == null) return null;
+      IRequestItems[] target = new IRequestItems[9];
+      for (int i = 0; i < 9; i++) {
+        target[i] = defSat.getPipe();
+      }
+
+      boolean hasSatellite = isSatelliteConnected();
+      if (!hasSatellite) {
+        return null;
+      }
+
+      if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
+        IRouter r = getSatelliteRouter(-1);
+        if (r != null) {
+          IRequestItems sat = r.getPipe();
+          for (int i = 6; i < 9; i++) {
+            target[i] = sat;
+          }
+        }
+      } else {
+        for (int i = 0; i < 9; i++) {
+          IRouter r = getSatelliteRouter(i);
+          if (r != null) {
+            target[i] = r.getPipe();
+          }
+        }
+      }
+
+      for (int i = 0; i < target.length; i++) {
+        ItemIdentifierStack materials = dummyInventory.getIDStackInSlot(i);
+        if (materials != null) rec.add(Pair.of(target[i], materials));
+      }
+
+      for(int i = 0;i<multiply;i++)
+        pipeCM.getModules().addBuffered(rec);
+    }
+    return super.fullFill(promise, destination, info);
   }
 
   /**
@@ -103,25 +154,29 @@ public class TB_ModuleCrafter extends ModuleCrafter {
       return null;
     }
 
-    IRequestItems defsat = getCMSatelliteRouter(pipeCM).getPipe();
     IRequestItems[] target = new IRequestItems[9];
-    for (int i = 0; i < 9; i++) {
-      target[i] = defsat;
-    }
-
-    if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
-      IRouter r = getSatelliteRouter(-1);
-      if (r != null) {
-        IRequestItems sat = r.getPipe();
-        for (int i = 6; i < 9; i++) {
-          target[i] = sat;
-        }
-      }
+    if (pipeCM.hasBufferUpgrade()) {
+      for (int i = 0; i < 9; i++)
+        target[i] = this;
     } else {
+      IRequestItems defsat = pipeCM.getCMSatelliteRouter().getPipe();
       for (int i = 0; i < 9; i++) {
-        IRouter r = getSatelliteRouter(i);
+        target[i] = defsat;
+      }
+      if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
+        IRouter r = getSatelliteRouter(-1);
         if (r != null) {
-          target[i] = r.getPipe();
+          IRequestItems sat = r.getPipe();
+          for (int i = 6; i < 9; i++) {
+            target[i] = sat;
+          }
+        }
+      } else {
+        for (int i = 0; i < 9; i++) {
+          IRouter r = getSatelliteRouter(i);
+          if (r != null) {
+            target[i] = r.getPipe();
+          }
         }
       }
     }
@@ -185,18 +240,6 @@ public class TB_ModuleCrafter extends ModuleCrafter {
     return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
   }
 
-  private IRouter getCMSatelliteRouter(PipeCraftingManager pipeCM) {
-    final UUID satelliteUUID = pipeCM.getModules().satelliteUUID.getValue();
-    final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID);
-    return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
-  }
-
-  private IRouter getCMResultRouter(PipeCraftingManager pipeCM) {
-    final UUID resultUUID = pipeCM.getModules().resultUUID.getValue();
-    final int resultRouterId = SimpleServiceLocator.routerManager.getIDforUUID(resultUUID);
-    return SimpleServiceLocator.routerManager.getRouter(resultRouterId);
-  }
-
   private IRouter getFluidSatelliteRouter(int x) {
     UUID liquidSatelliteUUID = x == -1 ? (UUID)this.liquidSatelliteUUID.getValue() : (UUID)this.liquidSatelliteUUIDList.get(x);
     int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(liquidSatelliteUUID);
@@ -207,16 +250,20 @@ public class TB_ModuleCrafter extends ModuleCrafter {
   public boolean isSatelliteConnected() {
     //final List<ExitRoute> routes = getRouter().getIRoutersByCost();
     if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
-      if (pipeCM.getModules().resultUUID.isZero()) return false;
-      if (satelliteUUID.isZero()) {
-        if (pipeCM.getModules().satelliteUUID.isZero()) {
-          return false;
-        }
+      // Make sure own CM doesn't idiot screw up
+      if (!(pipeCM.getModules().resultUUID.isZero() || pipeCM.getModules().satelliteUUID.isZero())) {
         int satModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(pipeCM.getModules().satelliteUUID.getValue());
-        if (satModuleRouterId != -1) {
-          List<ExitRoute> rt = getRouter().getRouteTable().get(satModuleRouterId);
-          return rt != null && !rt.isEmpty();
+        int resultModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(pipeCM.getModules().resultUUID.getValue());
+        if (satModuleRouterId != -1 && resultModuleRouterId != -1) {
+          List<ExitRoute> sat_rt = getRouter().getRouteTable().get(satModuleRouterId);
+          List<ExitRoute> result_rt = getRouter().getRouteTable().get(satModuleRouterId);
+          return sat_rt != null && !sat_rt.isEmpty() && result_rt != null && !result_rt.isEmpty();
         }
+      } else {
+        return false;
+      }
+      if (satelliteUUID.isZero()) {
+        return true;
       }
       int satModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID.getValue());
       if (satModuleRouterId != -1) {
@@ -271,7 +318,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
       if (service.isNthTick(6)) {
         try {
           // As our crafting manager is properly setup, we will get result pipe service for item collecting
-          resultService = getCMResultRouter(pipeCM).getPipe();
+          resultService = pipeCM.getCMResultRouter().getPipe();
           List<NeighborTileEntity<TileEntity>> adjacentInventories = resultService.getAvailableAdjacent().inventories();
           if (!service.getItemOrderManager().hasOrders(new ResourceType[]{ResourceType.CRAFTING, ResourceType.EXTRA})) {
             ISlotUpgradeManager upgradeManager = (ISlotUpgradeManager) Objects.requireNonNull(this.getUpgradeManager());

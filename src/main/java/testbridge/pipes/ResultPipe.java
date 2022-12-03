@@ -1,17 +1,11 @@
 package testbridge.pipes;
 
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import logisticspipes.interfaces.ISendRoutedItem;
-import logisticspipes.logisticspipes.IRoutedItem;
-import logisticspipes.utils.SinkReply;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -32,7 +26,9 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.textures.Textures.TextureType;
-import logisticspipes.utils.tuples.Pair;
+import logisticspipes.interfaces.ISendRoutedItem;
+import logisticspipes.logisticspipes.IRoutedItem;
+import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
@@ -41,7 +37,6 @@ import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.SatellitePipe;
 
 import testbridge.core.TestBridge;
-import testbridge.network.packets.pipe.CMOrientationPacket;
 import testbridge.network.packets.resultpipe.SyncResultNamePacket;
 import testbridge.network.GuiIDs;
 import testbridge.textures.TB_Textures;
@@ -49,12 +44,6 @@ import testbridge.textures.TB_Textures;
 public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRendererProvider, IChangeListener, SatellitePipe, IChassisPipe, ISendRoutedItem {
   public final LinkedList<ItemIdentifierStack> oldList = new LinkedList<>();
   public static final Set<ResultPipe> AllResults = Collections.newSetFromMap(new WeakHashMap<>());
-
-  // called only on server shutdown
-  public static void cleanup() {
-    ResultPipe.AllResults.clear();
-  }
-
   public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
   private final HUDSatellite HUD = new HUDSatellite(this);
   private boolean doContentUpdate = true;
@@ -69,6 +58,10 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
     _orderItemManager = new LogisticsItemOrderManager(this, this); // null by default when not needed
   }
 
+  // called only on server shutdown
+  public static void cleanup() {
+    ResultPipe.AllResults.clear();
+  }
 
   private void checkContentUpdate() {
     LinkedList<ItemIdentifierStack> all = _orderItemManager.getContentList(getWorld());
@@ -104,25 +97,7 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   }
 
   @Override
-  public void nextOrientation() {
-    final SingleAdjacent pointedAdjacent = this.pointedAdjacent;
-    Pair<NeighborTileEntity<TileEntity>, ConnectionType> newNeighbor;
-    if (pointedAdjacent == null) {
-      newNeighbor = nextPointedOrientation(null);
-    } else {
-      newNeighbor = nextPointedOrientation(pointedAdjacent.getDir());
-    }
-    final CMOrientationPacket packet = PacketHandler.getPacket(CMOrientationPacket.class);
-    if (newNeighbor == null) {
-      this.pointedAdjacent = null;
-      packet.setDir(null);
-    } else {
-      this.pointedAdjacent = new SingleAdjacent(
-          this, newNeighbor.getValue1().getDirection(), newNeighbor.getValue2());
-      packet.setDir(newNeighbor.getValue1().getDirection());
-    }
-    refreshRender(true);
-  }
+  public void nextOrientation() {}
 
   @Override
   public IRoutedItem sendStack(@Nonnull ItemStack stack, int destRouterId, @Nonnull SinkReply sinkReply, @Nonnull ItemSendMode itemSendMode, EnumFacing direction) {
@@ -130,13 +105,7 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   }
 
   @Override
-  public void setPointedOrientation(@Nullable EnumFacing dir) {
-    if (dir == null) {
-      pointedAdjacent = null;
-    } else {
-      pointedAdjacent = new SingleAdjacent(this, dir, ConnectionType.UNDEFINED);
-    }
-  }
+  public void setPointedOrientation(@Nullable EnumFacing dir) {}
 
   /**
    * Returns the pointed adjacent EnumFacing or null, if this chassis does not have an attached inventory.
@@ -144,8 +113,7 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   @Nullable
   @Override
   public EnumFacing getPointedOrientation() {
-    if (pointedAdjacent == null) return null;
-    return pointedAdjacent.getDir();
+    return null;
   }
 
   @Nonnull
@@ -181,24 +149,6 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
         newPointedAdjacent = adjacent.neighbors().entrySet().stream().findAny().map(connectedNeighbor -> new SingleAdjacent(this, connectedNeighbor.getKey().getDirection(), connectedNeighbor.getValue())).orElse(null);
       }
       pointedAdjacent = newPointedAdjacent;
-    }
-  }
-
-  @Nullable
-  private Pair<NeighborTileEntity<TileEntity>, ConnectionType> nextPointedOrientation(@Nullable EnumFacing previousDirection) {
-    final Map<NeighborTileEntity<TileEntity>, ConnectionType> neighbors = getAdjacent().neighbors();
-    final Stream<NeighborTileEntity<TileEntity>> sortedNeighborsStream = neighbors.keySet().stream()
-        .sorted(Comparator.comparingInt(n -> n.getDirection().ordinal()));
-    if (previousDirection == null) {
-      return sortedNeighborsStream.findFirst().map(neighbor -> new Pair<>(neighbor, neighbors.get(neighbor))).orElse(null);
-    } else {
-      final List<NeighborTileEntity<TileEntity>> sortedNeighbors = sortedNeighborsStream.collect(Collectors.toList());
-      if (sortedNeighbors.size() == 0) return null;
-      final Optional<NeighborTileEntity<TileEntity>> nextNeighbor = sortedNeighbors.stream()
-          .filter(neighbor -> neighbor.getDirection().ordinal() > previousDirection.ordinal())
-          .findFirst();
-      return nextNeighbor.map(neighbor -> new Pair<>(neighbor, neighbors.get(neighbor)))
-          .orElse(new Pair<>(sortedNeighbors.get(0), neighbors.get(sortedNeighbors.get(0))));
     }
   }
 
@@ -317,7 +267,5 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   }
 
   @Override
-  public void listenedChanged() {
-
-  }
+  public void listenedChanged() {}
 }

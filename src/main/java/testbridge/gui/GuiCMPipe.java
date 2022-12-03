@@ -2,23 +2,18 @@ package testbridge.gui;
 
 import java.io.IOException;
 
-import network.rs485.logisticspipes.gui.widget.module.Label;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-
-import lombok.Getter;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import logisticspipes.LPItems;
-import logisticspipes.kotlin.Unit;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.network.PacketHandler;
@@ -31,13 +26,15 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.extention.GuiExtention;
 
-import network.rs485.logisticspipes.property.Property;
 import network.rs485.logisticspipes.property.PropertyLayer;
+import network.rs485.logisticspipes.property.EnumProperty;
 import network.rs485.logisticspipes.util.TextUtil;
 
 import testbridge.core.TBItems;
 import testbridge.gui.popup.GuiSelectResultPopup;
 import testbridge.gui.popup.GuiSelectSatellitePopup;
+import testbridge.modules.TB_ModuleCM;
+import testbridge.modules.TB_ModuleCM.BlockingMode;
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeSetSatResultPacket;
 import testbridge.network.packets.craftingmanager.CMGui;
@@ -50,25 +47,25 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
 
   private static final String PREFIX = "gui.crafting_manager.";
 
-  //Basic modules slot
-  @Getter
+  private final boolean hasBufferUpgrade;
+  private final boolean hasContainer;
   private final PipeCraftingManager pipeCM;
-
+  private final TB_ModuleCM cmModule;
   private final IInventory _moduleInventory;
-
   private final Slot[] upgradeslot;
-
-  //Advanced stuff
-  private final EntityPlayer _player;
   private final PropertyLayer propertyLayer;
+  private final PropertyLayer.ValuePropertyOverlay<BlockingMode, EnumProperty<BlockingMode>> blockingModeOverlay;
+  private GuiButton blockingButton;
 
-  private final Label[] satresultPipeLabels;
-
-  public GuiCMPipe(EntityPlayer _player, PipeCraftingManager pipeCM, boolean bufferExclude) {
+  public GuiCMPipe(EntityPlayer _player, PipeCraftingManager pipeCM, TB_ModuleCM module, boolean flag, boolean container) {
     super(null);
+    hasBufferUpgrade = flag;
+    hasContainer = container;
+    cmModule = module;
     this.pipeCM = pipeCM;
     _moduleInventory = pipeCM.getModuleInventory();
-    this._player = _player;
+
+    propertyLayer = new PropertyLayer(cmModule.getProperties());
 
     // Create dummy container
     DummyContainer dummy = new DummyContainer(_player.inventory, _moduleInventory);
@@ -86,21 +83,11 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
       upgradeslot[i * 2 + 1] = dummy.addUpgradeSlot(1, upgradeManager, 1, - (i - pipeCM.getChassisSize()) * 18, 9 + i * 20, itemStack -> CMGuiProvider.checkStack(itemStack, this.pipeCM, fI));
     }
 
-    this.pipeCM.getModules().bufferModeIsExclude.setValue(bufferExclude);
-
-    propertyLayer = new PropertyLayer(this.pipeCM.getModules().getProperties());
-    propertyLayer.addObserver(this.pipeCM.getModules().bufferModeIsExclude, this::updateBufferModeButton);
-
     inventorySlots = dummy;
 
     xSize = 177;
     ySize = 167;
-
-    satresultPipeLabels = new Label[2];
-  }
-
-  protected void windowClick(int id, int btn, ClickType clickType) {
-    mc.playerController.windowClick(this.inventorySlots.windowId, id, btn, clickType, _player);
+    blockingModeOverlay = propertyLayer.overlay(cmModule.blockingMode);
   }
 
   @Override
@@ -120,17 +107,21 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
   @Override
   public void initGui() {
     super.initGui();
-
     buttonList.clear();
     extentionControllerLeft.clear();
 
-    // TODO: Extention dont show up as expected.
     CMExtention extention = new CMExtention("gui.satellite.SatelliteName", new ItemStack(LPItems.pipeSatellite), 0);
     extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(1, guiLeft - 40 / 2 - 18, guiTop + 25, 37, 10, TextUtil.translate(PREFIX + "Select")))));
     extentionControllerLeft.addExtention(extention);
     extention = new CMExtention("gui.result.ResultName" , new ItemStack(TBItems.pipeResult), 1);
     extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(2, guiLeft - 40 / 2 - 18, guiTop + 25, 37, 10, TextUtil.translate(PREFIX + "Select")))));
     extentionControllerLeft.addExtention(extention);
+
+    if (hasBufferUpgrade) {
+      BufferExtention buffered = new BufferExtention(PREFIX + "blocking", new ItemStack(TBItems.upgradeBuffer));
+      buffered.registerButton(extentionControllerLeft.registerControlledButton(addButton(blockingButton = new GuiButton(4, guiLeft - 143, guiTop + 23, 140, 14, getModeText()))));
+      extentionControllerLeft.addExtention(buffered);
+    }
   }
 
   @Override
@@ -142,13 +133,12 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
       case 2:
         openSubGuiForSatResultSelection(2);
         break;
-//      case 24:
-//        bufferModeIsExcludeOverlay.write(BooleanProperty::toggle);
-//        break;
-//      case 25:
-//        bufferModeIsExcludeOverlay.set(false);
-//        MainProxy.sendPacketToServer(PacketHandler.getPacket(CMPipeBuffer.class).setModulePos(craftingModule));
-//        break;
+      case 4:
+        if (hasBufferUpgrade) {
+          final BlockingMode newMode = blockingModeOverlay.write(EnumProperty::next);
+          blockingButton.displayString = TextUtil.translate(PREFIX + "blocking." + newMode.toString().toLowerCase());
+        }
+        break;
       default:
         super.actionPerformed(guibutton);
     }
@@ -195,8 +185,8 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     }
   }
 
-  private Unit updateBufferModeButton(Property<Boolean> prop) {
-    return null;
+  private String getModeText() {
+    return TextUtil.translate(PREFIX + "blocking." + blockingModeOverlay.get().toString().toLowerCase());
   }
 
   private final class CMExtention extends GuiExtention {
@@ -242,6 +232,50 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
         } else {
           String name = TextUtil.getTrimmedString(pipeID, maxWidth, mc.fontRenderer, "...");
           drawCenteredString(name, left + maxWidth / 2 + 7, top + 23, 0x404040);
+        }
+      }
+    }
+  }
+
+  private final class BufferExtention extends GuiExtention {
+    private final ItemStack showItem;
+    private final String translationKey;
+
+    public BufferExtention(String translationKey, ItemStack showItem) {
+      this.translationKey = translationKey;
+      this.showItem = showItem;
+    }
+
+    @Override
+    public int getFinalWidth() {
+      return 150;
+    }
+
+    @Override
+    public int getFinalHeight() {
+      return 40;
+    }
+
+    @Override
+    public void renderForground(int left, int top) {
+      if (!isFullyExtended()) {
+        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240 / 1.0F, 240 / 1.0F);
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        RenderHelper.enableGUIStandardItemLighting();
+        itemRender.renderItemAndEffectIntoGUI(showItem, left + 5, top + 5);
+        itemRender.renderItemOverlayIntoGUI(fontRenderer, showItem, left + 5, top + 5, "");
+        GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        itemRender.zLevel = 0.0F;
+      } else {
+        mc.fontRenderer.drawString(TextUtil.translate(translationKey), left + 9, top + 8, 0x404040);
+        if (hasContainer) {
+          blockingButton.displayString = TextUtil.translate(PREFIX + "NoContainer");
+          blockingButton.enabled = false;
+        } else {
+          blockingButton.enabled = true;
         }
       }
     }

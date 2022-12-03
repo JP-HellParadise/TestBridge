@@ -2,6 +2,9 @@ package testbridge.network.guis.pipe;
 
 import javax.annotation.Nonnull;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -14,13 +17,30 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 
+import network.rs485.logisticspipes.util.LPDataInput;
+import network.rs485.logisticspipes.util.LPDataOutput;
+
 import testbridge.gui.GuiCMPipe;
+import testbridge.modules.TB_ModuleCM;
+import testbridge.modules.TB_ModuleCM.BlockingMode;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.upgrades.ModuleUpgradeManager;
 import testbridge.utils.gui.DummyContainer;
 
 @StaticResolve
 public class CMGuiProvider extends BooleanModuleCoordinatesGuiProvider {
+
+  @Getter
+  @Setter
+  private boolean isBufferUpgrade;
+
+  @Getter
+  @Setter
+  private boolean isContainerConnected;
+
+  @Getter
+  @Setter
+  private int blockingMode;
 
   public CMGuiProvider(int id) {
     super(id);
@@ -29,10 +49,12 @@ public class CMGuiProvider extends BooleanModuleCoordinatesGuiProvider {
   @Override
   public Object getClientGui(EntityPlayer player) {
     LogisticsTileGenericPipe pipe = getTileAs(player.world, LogisticsTileGenericPipe.class);
-    if (!(pipe.pipe instanceof PipeCraftingManager)) {
+    TB_ModuleCM module = this.getLogisticsModule(player.getEntityWorld(), TB_ModuleCM.class);
+    if (!(pipe.pipe instanceof PipeCraftingManager) || module == null) {
       return null;
     }
-    return new GuiCMPipe(player, (PipeCraftingManager) pipe.pipe, isFlag());
+    module.blockingMode.setValue(BlockingMode.values()[blockingMode]);
+    return new GuiCMPipe(player, (PipeCraftingManager) pipe.pipe, module, isBufferUpgrade, isContainerConnected);
   }
 
   @Override
@@ -76,5 +98,21 @@ public class CMGuiProvider extends BooleanModuleCoordinatesGuiProvider {
   @Override
   public GuiProvider template() {
     return new CMGuiProvider(getId());
+  }
+
+  @Override
+  public void writeData(LPDataOutput output) {
+    super.writeData(output);
+    output.writeBoolean(isBufferUpgrade);
+    output.writeInt(blockingMode);
+    output.writeBoolean(isContainerConnected);
+  }
+
+  @Override
+  public void readData(LPDataInput input) {
+    super.readData(input);
+    isBufferUpgrade = input.readBoolean();
+    blockingMode = input.readInt();
+    isContainerConnected = input.readBoolean();
   }
 }

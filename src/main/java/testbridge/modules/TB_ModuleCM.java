@@ -1,14 +1,16 @@
 package testbridge.modules;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 
 import logisticspipes.interfaces.*;
 import logisticspipes.interfaces.routing.IRequestItems;
@@ -20,6 +22,7 @@ import logisticspipes.network.abstractguis.ModuleInHandGuiProvider;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.objects.CCSinkResponder;
@@ -28,10 +31,13 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
+import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
+import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.*;
 
+import testbridge.interfaces.ISatellitePipe;
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeUpdatePacket;
 import testbridge.pipes.PipeCraftingManager;
@@ -41,18 +47,12 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
 
   public final UUIDProperty satelliteUUID = new UUIDProperty(null, "satelliteUUID");
   public final UUIDProperty resultUUID = new UUIDProperty(null, "resultUUID");
-  public final BooleanProperty bufferModeIsExclude = new BooleanProperty(true, "bufferModeIsExclude");
-
+  public final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
   private final List<Property<?>> properties;
-
   public ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
-
-  @Nullable
-  private IRequestItems _invRequester;
-
+  private List<List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>>> bufferlist = new ArrayList<>();
+  private int sendCooldown = 0;
   private UpdateSatResultFromIDs updateSatResultFromIDs = null;
-
-  // Logistics Chassis
   private final PipeCraftingManager parentPipe;
   private final SlottedModuleListProperty modules;
 
@@ -64,7 +64,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
         .addAll(Collections.singletonList(modules))
         .add(satelliteUUID)
         .add(resultUUID)
-        .add(bufferModeIsExclude)
+        .add(blockingMode)
         .build();
   }
 
@@ -162,12 +162,9 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
     return new SinkReply(bestresult, Math.min(bestresult.maxNumberOfItems, roomForItem));
   }
 
-
-
   @Override
   public void registerHandler(IWorldProvider world, IPipeServiceProvider service) {
     super.registerHandler(world, service);
-    _invRequester = (IRequestItems) service;
   }
 
   private UUID getUUIDForSatelliteName(String name) {
@@ -192,7 +189,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   public void tick() {
     final IPipeServiceProvider service = _service;
     if (service == null) return;
-//    enabledUpdateEntity();
+    enabledUpdateEntity();
     if (updateSatResultFromIDs != null && service.isNthTick(100)) {
       if (updateSatResultFromIDs.satelliteId != -1) {
         UUID uuid = getUUIDForSatelliteName(Integer.toString(updateSatResultFromIDs.satelliteId));
@@ -220,6 +217,59 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
       }
       module.tick();
     }
+  }
+
+  private void enabledUpdateEntity() {
+    if (!parentPipe.isNthTick(5)) {
+      return;
+    }
+
+    if(parentPipe.hasBufferUpgrade()) {
+      if(sendCooldown > 0) {
+        parentPipe.spawnParticle(Particles.RedParticle, 1);
+        sendCooldown--;
+        return;
+      }
+      if(!bufferlist.isEmpty()) {
+        boolean allow = checkBlocking();
+        if(!allow) {
+          parentPipe.spawnParticle(Particles.RedParticle, 1);
+          return;
+        }
+        final List<NeighborTileEntity<TileEntity>> neighborAdjacent = parentPipe.getAvailableAdjacent().inventories();
+        if(parentPipe.canUseEnergy(neededEnergy()) && !neighborAdjacent.isEmpty()){
+          IInventoryUtil util = neighborAdjacent.stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
+          for (List<Pair<IRequestItems, ItemIdentifierStack>> map : bufferlist) {
+            if(map.stream().map(Pair::getValue).allMatch(i -> util.itemCount(i.getItem()) >= i.getStackSize())){
+              int maxDist = 0;
+              for (Pair<IRequestItems, ItemIdentifierStack> en : map) {
+                ItemIdentifierStack toSend = en.getValue();
+                ItemStack removed = util.getMultipleItems(toSend.getItem(), toSend.getStackSize());
+                if (!removed.isEmpty()) {
+                  UUID moved;
+                  if (parentPipe.getSatelliteRouterByUUID(en.getKey().getRouter().getId()) != null )
+                    moved = en.getKey().getRouter().getId();
+                  else
+                    moved = parentPipe.getCMResultRouter().getId();
+                  parentPipe.sendStack(removed, SimpleServiceLocator.routerManager.getIDforUUID(moved), CoreRoutedPipe.ItemSendMode.Fast, null, parentPipe.getPointedOrientation());
+                  maxDist = Math.max(maxDist, (int) en.getKey().getRouter().getPipe().getPos().distanceSq(parentPipe.getPos()));
+                }
+              }
+              parentPipe.useEnergy(neededEnergy(), true);
+              bufferlist.remove(map);
+              if (blockingMode.getValue() == BlockingMode.EMPTY_MAIN_SATELLITE) {
+                sendCooldown = Math.min(maxDist, 16);
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private int neededEnergy() {
+    return 20;
   }
 
   @Override
@@ -265,6 +315,9 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   @Override
   public ModuleCoordinatesGuiProvider getPipeGuiProvider() {
     return NewGuiHandler.getGui(CMGuiProvider.class)
+        .setBufferUpgrade(parentPipe.hasBufferUpgrade())
+        .setBlockingMode(blockingMode.getValue().ordinal())
+        .setContainerConnected(parentPipe.getAvailableAdjacent().inventories().isEmpty())
         .setFlag(parentPipe.getUpgradeManager().hasUpgradeModuleUpgrade());
   }
 
@@ -275,8 +328,8 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   }
 
   @Override
-	public void readFromNBT(@Nonnull NBTTagCompound tag) {
-		super.readFromNBT(tag);
+  public void readFromNBT(@Nonnull NBTTagCompound tag) {
+    super.readFromNBT(tag);
     // Stream crafter modules
     modules.stream()
         .filter(slottedModule -> !slottedModule.isEmpty() && tag.hasKey("slot" + slottedModule.getSlot()))
@@ -288,12 +341,13 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
       updateSatResultFromIDs.satelliteId = tag.getInteger("satelliteid");
       updateSatResultFromIDs.resultId = tag.getInteger("resultid");
     }
-	}
+  }
 
   public ModernPacket getCMPipePacket() {
     return PacketHandler.getPacket(CMPipeUpdatePacket.class)
         .setSatelliteName(getSatResultNameForUUID(satelliteUUID.getValue()))
         .setResultName(getSatResultNameForUUID(resultUUID.getValue()))
+        .setBlockingMode(blockingMode.getValue().ordinal())
         .setModulePos(this);
   }
 
@@ -318,6 +372,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
     if (MainProxy.isClient(getWorld())) {
       clientSideSatResultNames.satelliteName = packet.getSatelliteName();
       clientSideSatResultNames.resultName = packet.getResultName();
+      blockingMode.setValue(BlockingMode.VALUES[packet.getBlockingMode()]);
     } else {
       throw new UnsupportedOperationException();
     }
@@ -359,4 +414,66 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
     String resultName = "";
   }
 
+  protected boolean checkBlocking() {
+    switch (blockingMode.getValue()) {
+      case EMPTY_MAIN_SATELLITE:
+      {
+        PipeItemsSatelliteLogistics defSat = (PipeItemsSatelliteLogistics) parentPipe.getCMSatelliteRouter().getPipe();
+        if (defSat == null) return false;
+        List<NeighborTileEntity<TileEntity>> adjacentInventories = ((ISatellitePipe) defSat).getAvailableAdjacent().inventories();
+        for (NeighborTileEntity<TileEntity> adjacentCrafter : adjacentInventories) {
+          IInventoryUtil inv = LPNeighborTileEntityKt.getInventoryUtil(adjacentCrafter);
+          if (inv != null) {
+            for (int i = 0; i < inv.getSizeInventory(); i++) {
+              ItemStack stackInSlot = inv.getStackInSlot(i);
+              if (!stackInSlot.isEmpty()) {
+                return false;
+              }
+            }
+          }
+        }
+        return true;
+      }
+
+      case REDSTONE_HIGH:
+        return getWorld().isBlockPowered(parentPipe.getPos());
+
+      case REDSTONE_LOW:
+        return !getWorld().isBlockPowered(parentPipe.getPos());
+
+//      case WAIT_FOR_RESULT: { // TODO check if this work
+//        ResultPipe defSat = (ResultPipe) getCMResultRouter().getPipe();
+//        if (defSat == null) return false;
+//        List<NeighborTileEntity<TileEntity>> adjacentInventories = ((ISatellitePipe) defSat).getAvailableAdjacent().inventories();
+//        for (NeighborTileEntity<TileEntity> adjacentCrafter : adjacentInventories) {
+//          IInventoryUtil inv = LPNeighborTileEntityKt.getInventoryUtil(adjacentCrafter);
+//          if (inv != null) {
+//            for (int i = 0; i < inv.getSizeInventory(); i++) {
+//              ItemStack stackInSlot = inv.getStackInSlot(i);
+//              if (!stackInSlot.isEmpty()) {
+//                return false;
+//              }
+//            }
+//          }
+//        }
+//        return true;
+//      }
+      default:
+        return true;
+    }
+  }
+
+  public void addBuffered(List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>> record) {
+    bufferlist.add(record);
+  }
+
+  public enum BlockingMode {
+    OFF,
+    //    WAIT_FOR_RESULT,
+    EMPTY_MAIN_SATELLITE,
+    REDSTONE_LOW,
+    REDSTONE_HIGH,
+    ;
+    public static final BlockingMode[] VALUES = values();
+  }
 }

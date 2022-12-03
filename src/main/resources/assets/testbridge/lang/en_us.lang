@@ -46,6 +46,14 @@ gui.crafting_manager.satellite=Satellite
 gui.crafting_manager.result=Result
 gui.crafting_manager.CMName=Crafting Manager
 
+gui.crafting_manager.blocking=Blocking Mode
+gui.crafting_manager.NoContainer=No Container connected
+gui.crafting_manager.blocking.off=Off
+gui.crafting_manager.blocking.empty_main_satellite=Wait for Empty Inventory
+gui.crafting_manager.blocking.redstone_high=Redstone Active High
+gui.crafting_manager.blocking.redstone_low=Redstone Active Low
+gui.crafting_manager.blocking.wait_for_result=Wait for Completion
+
 gui.popup.selectresult.title=Select Result Pipe
 
 # TOP
