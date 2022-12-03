@@ -45,7 +45,7 @@ jobs:
       uses: KorewaLidesu/github-release@2.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: "v" + ${{ github.event.inputs.version }} + "-" + ${{ github.event.inputs.tags }}
+        tag: "v${{github.event.inputs.version}}-${{github.event.inputs.tags}}"
         commitish: master
         body: ""
         name:  ${{ github.event.inputs.tags }} + " " + ${{ github.event.inputs.version }}
