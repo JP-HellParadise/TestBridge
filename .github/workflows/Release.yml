@@ -54,4 +54,4 @@ jobs:
         allow_override: true
         gzip: false
         files: |
-            ./LogisticsBridge-Artifact/LogisticsBridge-${{ github.event.inputs.version }}.jar
+            ./artifact/testbridge-${{ github.event.inputs.version }}.jar
