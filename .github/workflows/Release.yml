@@ -5,13 +5,14 @@ name: Build and release Github
 
 on: 
   workflow_dispatch:
-    version:
-      description: 'Release version'     
-      required: true
-      default: '0.0.'
-    tags:
-      description: 'Test scenario tags'  
-      default: 'Alpha'
+    inputs:
+      version:
+        description: 'Release version'     
+        required: true
+        default: '0.0.'
+      tags:
+        description: 'Test scenario tags'  
+        default: 'Alpha'
 jobs:
   build:
     runs-on: ubuntu-latest
