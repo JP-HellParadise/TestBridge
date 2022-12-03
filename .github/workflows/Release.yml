@@ -1,0 +1,56 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Build and release Github
+
+on: 
+  workflow_dispatch:
+    version:
+      description: 'Release version'     
+      required: true
+      default: '0.0.'
+    tags:
+      description: 'Test scenario tags'  
+      default: 'Alpha'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 8
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+    - name: Build with Gradle
+      run: ./gradlew build
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        # A file, directory or wildcard pattern that describes what to upload
+        path: build/libs/*.jar
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: actions/checkout@v2
+
+    - name: Download a Build Artifact
+      uses: actions/download-artifact@v2.0.10
+        
+    - name: Create GitHub Release
+      uses: KorewaLidesu/github-release@2.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: "v" + ${{ github.event.inputs.version }} + "-" + ${{ github.event.inputs.tags }}
+        commitish: master
+        body: ""
+        name:  ${{ github.event.inputs.tags }} + " " + ${{ github.event.inputs.version }}
+        prerelease: false
+        allow_override: true
+        gzip: false
+        files: |
+            ./LogisticsBridge-Artifact/LogisticsBridge-${{ github.event.inputs.version }}.jar
