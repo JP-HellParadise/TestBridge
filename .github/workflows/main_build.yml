@@ -20,6 +20,7 @@ on:
       - '.github/workflows/Release.yml'
       - 'LICENSE'
       - 'README.md'
+  workflow_dispatch:
   
 permissions:
   contents: read
