@@ -18,7 +18,7 @@ public class TBItems {
   public static Item moduleCrafter;
 
   // Upgrades
-  @ObjectHolder("logisticspipes:buffer_cm")
+  @ObjectHolder("logisticspipes:upgrade_buffer_cm")
   public static Item upgradeBuffer;
 
   // Blocks

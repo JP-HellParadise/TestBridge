@@ -418,23 +418,30 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
     switch (blockingMode.getValue()) {
       case EMPTY_MAIN_SATELLITE:
       {
-        PipeItemsSatelliteLogistics defSat = (PipeItemsSatelliteLogistics) parentPipe.getCMSatelliteRouter().getPipe();
-        if (defSat == null) return false;
-        List<NeighborTileEntity<TileEntity>> adjacentInventories = ((ISatellitePipe) defSat).getAvailableAdjacent().inventories();
-        for (NeighborTileEntity<TileEntity> adjacentCrafter : adjacentInventories) {
-          IInventoryUtil inv = LPNeighborTileEntityKt.getInventoryUtil(adjacentCrafter);
-          if (inv != null) {
-            for (int i = 0; i < inv.getSizeInventory(); i++) {
-              ItemStack stackInSlot = inv.getStackInSlot(i);
-              if (!stackInSlot.isEmpty()) {
-                return false;
+        for (List<Pair<IRequestItems, ItemIdentifierStack>> map : bufferlist) {
+          for (Pair<IRequestItems, ItemIdentifierStack> en : map) {
+            PipeItemsSatelliteLogistics sat;
+            if (parentPipe.getSatelliteRouterByUUID(en.getKey().getRouter().getId()) != null )
+              sat = (PipeItemsSatelliteLogistics) en.getKey().getRouter().getPipe();
+            else
+              sat = (PipeItemsSatelliteLogistics) parentPipe.getCMSatelliteRouter().getPipe();
+            if (sat == null) return false;
+            List<NeighborTileEntity<TileEntity>> adjacentInventories = ((ISatellitePipe) sat).getAvailableAdjacent().inventories();
+            for (NeighborTileEntity<TileEntity> adjacentCrafter : adjacentInventories) {
+              IInventoryUtil inv = LPNeighborTileEntityKt.getInventoryUtil(adjacentCrafter);
+              if (inv != null) {
+                for (int i = 0; i < inv.getSizeInventory(); i++) {
+                  ItemStack stackInSlot = inv.getStackInSlot(i);
+                  if (!stackInSlot.isEmpty()) {
+                    return false;
+                  }
+                }
               }
             }
           }
+          return true;
         }
-        return true;
       }
-
       case REDSTONE_HIGH:
         return getWorld().isBlockPowered(parentPipe.getPos());
 

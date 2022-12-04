@@ -58,5 +58,21 @@ public abstract class TB_MixinRecipes extends CraftingPartRecipes {
         new RecipeManager.RecipeIndex('d', "gemDiamond"),
         new RecipeManager.RecipeIndex('f', parts.getChipFpga())
     );
+
+    // Buffer Upgrade
+    registerPipeRecipeCategory(ProgrammCategories.MODDED, TBItems.upgradeBuffer);
+    RecipeManager.craftingManager.addRecipe(new ItemStack(TBItems.upgradeBuffer, 1),
+        new RecipeManager.RecipeLayout(
+            "rpr",
+            "gag",
+            "qnq"
+        ),
+        new RecipeManager.RecipeIndex('r', "dustRedstone"),
+        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TBItems.upgradeBuffer)),
+        new RecipeManager.RecipeIndex('g', "ingotGold"),
+        new RecipeManager.RecipeIndex('a', parts.getChipAdvanced()),
+        new RecipeManager.RecipeIndex('q', "paper"),
+        new RecipeManager.RecipeIndex('n', "nuggetGold")
+    );
   }
 }
