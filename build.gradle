@@ -61,6 +61,7 @@ minecraft {
 	}
 	clientJvmArgs.addAll(args)
 	serverJvmArgs.addAll(args)
+	makeObfSourceJar = false
 }
 
 repositories {
