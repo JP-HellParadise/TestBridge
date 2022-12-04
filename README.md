@@ -4,6 +4,7 @@
 - Logistics Pipe:
     + Result pipe
     + Crafting manager pipe  
+    + Buffer Upgrade  
 
 [//]: # (    + New upgrade for CM pipe: WIP)
 
@@ -18,8 +19,8 @@
 4. Right-click in IDEA `build.gradle` of your project, and select `Link Gradle Project`, after completion, hit `Refresh All` in the gradle tab on the right.
 5. Instead of running `genIntellijRuns` and using generated IntelliJ tasks, just run `gradlew runClient` and `gradlew runServer`.
 
-## Current stage/version: (PoC)
-Alpha 0.0.1
+## Current stage & version: PoC
+Alpha 0.0.3
 
-## PoC (Proof of Concept)
+## Proof of concept
 ![Concept](/Stuff/concept.gif)
