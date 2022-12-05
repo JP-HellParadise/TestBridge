@@ -1,13 +1,13 @@
 package testbridge.network;
 
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
-
-import logisticspipes.network.abstractpackets.ModernPacket;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import net.minecraft.entity.player.EntityPlayer;
+
+import logisticspipes.network.abstractpackets.CoordinatesPacket;
+import logisticspipes.network.abstractpackets.ModernPacket;
 
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;

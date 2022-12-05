@@ -3,6 +3,9 @@ package testbridge.gui;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
+import appeng.api.parts.IPartHost;
+import appeng.parts.AEBasePart;
+import network.rs485.logisticspipes.SatellitePipe;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.gui.GuiButton;
@@ -20,21 +23,19 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 
 import network.rs485.logisticspipes.util.TextUtil;
 
-import testbridge.network.packets.resultpipe.ResultSetNamePacket;
-import testbridge.pipes.ResultPipe;
+import testbridge.network.packets.HandleResultPacket.TB_SetNamePacket;
+import testbridge.part.PartSatelliteBus;
 
-public class GuiResultPipe extends LogisticsBaseGuiScreen {
-  @Nonnull
-  private final ResultPipe resultPipe;
+public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScreen {
+  private final T tile;
 
   @Nonnull
   private String response = "";
 
   private InputBar input;
 
-  public GuiResultPipe(@Nonnull ResultPipe resultPipe) {
+  public GuiResultPipe(@Nonnull T tile) {
     super(new Container() {
-
       @Override
       public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
         return true;
@@ -42,7 +43,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
     });
     xSize = 116;
     ySize = 77;
-    this.resultPipe = resultPipe;
+    this.tile = tile;
   }
 
   @Override
@@ -62,9 +63,15 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
   @Override
   protected void actionPerformed(GuiButton guibutton) throws IOException {
     if (guibutton.id == 0) {
-      final TileEntity container = resultPipe.getContainer();
+      TileEntity container = tile.getContainer();
       if (container != null) {
-        MainProxy.sendPacketToServer(PacketHandler.getPacket(ResultSetNamePacket.class).setString(input.getText()).setTilePos(container));
+        if (container instanceof IPartHost) {
+          AEBasePart satelliteBus = (AEBasePart) tile;
+          if (satelliteBus instanceof PartSatelliteBus){
+            MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_SetNamePacket.class).setSide(satelliteBus.getSide().ordinal()).setString(input.getText()).setTilePos(satelliteBus.getTile()));
+          }
+        }
+        MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_SetNamePacket.class).setString(input.getText()).setTilePos(container));
       }
     } else {
       super.actionPerformed(guibutton);
@@ -75,7 +82,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
   protected void drawGuiContainerForegroundLayer(int par1, int par2) {
     super.drawGuiContainerForegroundLayer(par1, par2);
     drawCenteredString(TextUtil.translate("gui.result.ResultName"), 59, 7, 0x404040);
-    String name = TextUtil.getTrimmedString(resultPipe.getSatellitePipeName(), 100, mc.fontRenderer, "...");
+    String name = TextUtil.getTrimmedString(tile.getSatellitePipeName(), 100, mc.fontRenderer, "...");
     int yOffset = 0;
     if (!response.isEmpty()) {
       drawCenteredString(TextUtil.translate("gui.satellite.naming_result." + response), xSize / 2, 30, response.equals("success") ? 0x404040 : 0x5c1111);
@@ -108,7 +115,7 @@ public class GuiResultPipe extends LogisticsBaseGuiScreen {
   public void handleResponse(SatelliteNamingResult result, String newName) {
     response = result.toString();
     if (result == SatelliteNamingResult.SUCCESS) {
-      resultPipe.setSatellitePipeName(newName);
+      tile.setSatellitePipeName(newName);
     }
   }
 

@@ -5,8 +5,8 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

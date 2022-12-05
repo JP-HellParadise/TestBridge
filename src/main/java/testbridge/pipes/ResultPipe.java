@@ -21,7 +21,6 @@ import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
 import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
-import logisticspipes.network.packets.orderer.OrdererManagerContent;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
@@ -37,16 +36,14 @@ import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.SatellitePipe;
 
 import testbridge.core.TestBridge;
-import testbridge.network.packets.resultpipe.SyncResultNamePacket;
+import testbridge.network.packets.HandleResultPacket.TB_SyncNamePacket;
 import testbridge.network.GuiIDs;
 import testbridge.textures.TB_Textures;
 
 public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRendererProvider, IChangeListener, SatellitePipe, IChassisPipe, ISendRoutedItem {
-  public final LinkedList<ItemIdentifierStack> oldList = new LinkedList<>();
   public static final Set<ResultPipe> AllResults = Collections.newSetFromMap(new WeakHashMap<>());
   public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
   private final HUDSatellite HUD = new HUDSatellite(this);
-  private boolean doContentUpdate = true;
   private String resultPipeName = "";
 
   @Nullable
@@ -63,26 +60,9 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
     ResultPipe.AllResults.clear();
   }
 
-  private void checkContentUpdate() {
-    LinkedList<ItemIdentifierStack> all = _orderItemManager.getContentList(getWorld());
-    if (!oldList.equals(all)) {
-      oldList.clear();
-      oldList.addAll(all);
-      MainProxy.sendToPlayerList(PacketHandler.getPacket(OrdererManagerContent.class).setIdentList(all).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
-    }
-  }
-
   @Override
   public TextureType getCenterTexture() {
     return TB_Textures.TESTBRIDGE_RESULT_TEXTURE;
-  }
-
-  @Override
-  public void enabledUpdateEntity() {
-    super.enabledUpdateEntity();
-    if (doContentUpdate) {
-      checkContentUpdate();
-    }
   }
 
   @Nullable
@@ -163,31 +143,10 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   }
 
   @Override
-  public void startWatching() {
-    MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStartWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
-  }
+  public void startWatching() {}
 
   @Override
-  public void stopWatching() {
-    MainProxy.sendPacketToServer(PacketHandler.getPacket(HUDStopWatchingPacket.class).setInteger(1).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
-  }
-
-  @Override
-  public void playerStartWatching(EntityPlayer player, int mode) {
-    if (mode == 1) {
-      localModeWatchers.add(player);
-      final ModernPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
-      MainProxy.sendPacketToPlayer(packet, player);
-    } else {
-      super.playerStartWatching(player, mode);
-    }
-  }
-
-  @Override
-  public void playerStopWatching(EntityPlayer player, int mode) {
-    super.playerStopWatching(player, mode);
-    localModeWatchers.remove(player);
-  }
+  public void stopWatching() {}
 
   @Override
   public IHeadUpDisplayRenderer getRenderer() {
@@ -195,10 +154,11 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   }
 
   @Override
-  public void readFromNBT(NBTTagCompound nbttagcompound) {
+  public void readFromNBT(@Nonnull NBTTagCompound nbttagcompound) {
     super.readFromNBT(nbttagcompound);
     if (nbttagcompound.hasKey("resultid")) {
-      this.resultPipeName = Integer.toString(nbttagcompound.getInteger("resultid"));
+      int resultId = nbttagcompound.getInteger("resultid");
+      this.resultPipeName = Integer.toString(resultId);
     } else {
       this.resultPipeName = nbttagcompound.getString("resultPipeName");
     }
@@ -225,7 +185,7 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
 
   @Override
   public void updateWatchers() {
-    CoordinatesPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setTilePos(this.getContainer());
+    CoordinatesPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class).setString(resultPipeName).setTilePos(this.getContainer());
     MainProxy.sendToPlayerList(packet, localModeWatchers);
     MainProxy.sendPacketToAllWatchingChunk(this.getContainer(), packet);
   }
@@ -241,9 +201,9 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
   @Override
   public void onWrenchClicked(EntityPlayer entityplayer) {
     // Send the result id when opening gui
-    final ModernPacket packet = PacketHandler.getPacket(SyncResultNamePacket.class).setString(resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
+    final ModernPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class).setString(resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
     MainProxy.sendPacketToPlayer(packet, entityplayer);
-    entityplayer.openGui(TestBridge.instance, GuiIDs.GUI_ResultPipe_ID, getWorld(), getX(), getY(), getZ());
+    entityplayer.openGui(TestBridge.INSTANCE, GuiIDs.GUI_ResultPipe_ID, getWorld(), getX(), getY(), getZ());
   }
 
   @Nonnull

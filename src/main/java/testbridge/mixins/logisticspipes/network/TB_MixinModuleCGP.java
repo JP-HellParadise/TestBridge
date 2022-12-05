@@ -27,9 +27,8 @@ public abstract class TB_MixinModuleCGP extends CoordinatesGuiProvider {
   @Inject(method = "getLogisticsModule", at = @At(value = "RETURN", ordinal = 1, shift = At.Shift.BEFORE), cancellable = true)
   public <T> void test(World world, Class<T> clazz, CallbackInfoReturnable<LogisticsModule> cir) {
     LogisticsTileGenericPipe pipe = this.getTileAs(world, LogisticsTileGenericPipe.class);
-    LogisticsModule module;
     if(pipe.pipe instanceof PipeCraftingManager) {
-      module = ((PipeCraftingManager)pipe.pipe).getSubModule(this.positionInt);
+      LogisticsModule module = ((PipeCraftingManager)pipe.pipe).getSubModule(this.positionInt);
       cir.setReturnValue(module);
     }
   }

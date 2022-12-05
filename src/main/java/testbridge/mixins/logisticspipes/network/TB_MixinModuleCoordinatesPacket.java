@@ -23,9 +23,8 @@ public abstract class TB_MixinModuleCoordinatesPacket {
   @Inject(method = "getLogisticsModule", at = @At(value = "NEW", target = "logisticspipes/network/exception/TargetNotFoundException"
       , shift = At.Shift.AFTER, ordinal = 5), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
   private <T> void isCraftingManager(EntityPlayer player, Class<T> clazz, CallbackInfoReturnable<T> cir, LogisticsTileGenericPipe pipe) {
-    LogisticsModule module;
     if (pipe.pipe instanceof PipeCraftingManager) {
-      module = ((PipeCraftingManager) pipe.pipe).getSubModule(positionInt);
+      LogisticsModule module = ((PipeCraftingManager) pipe.pipe).getSubModule(positionInt);
       if (module != null && clazz.isAssignableFrom(module.getClass())) {
         cir.setReturnValue((T) module);
       }

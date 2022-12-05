@@ -1,6 +1,5 @@
 package testbridge.gui.popup;
 
-
 import java.util.UUID;
 import java.util.function.Consumer;
 

@@ -1,5 +1,6 @@
-package testbridge.network.packets.resultpipe;
+package testbridge.network.packets.HandleResultPacket;
 
+import logisticspipes.network.packets.satpipe.SetNameResult;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
@@ -9,22 +10,22 @@ import logisticspipes.utils.StaticResolve;
 import testbridge.gui.GuiResultPipe;
 
 @StaticResolve
-public class SetNameResult extends logisticspipes.network.packets.satpipe.SetNameResult {
+public class TB_SetNameResult extends SetNameResult {
 
-  public SetNameResult(int id) {
+  public TB_SetNameResult(int id) {
     super(id);
   }
 
   @Override
   public void processPacket(EntityPlayer player) {
     if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiResultPipe) {
-      ((GuiResultPipe) FMLClientHandler.instance().getClient().currentScreen).handleResponse(getResult(), getNewName());
+      ((GuiResultPipe<?>) FMLClientHandler.instance().getClient().currentScreen).handleResponse(getResult(), getNewName());
     }
   }
 
   @Override
   public ModernPacket template() {
-    return new SetNameResult(getId());
+    return new TB_SetNameResult(getId());
   }
 
 }
