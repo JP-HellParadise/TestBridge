@@ -27,6 +27,8 @@ import testbridge.network.packets.HandleResultPacket.TB_SetNamePacket;
 import testbridge.part.PartSatelliteBus;
 
 public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScreen {
+
+  private final String PREFIX;
   private final T tile;
 
   @Nonnull
@@ -34,7 +36,7 @@ public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScre
 
   private InputBar input;
 
-  public GuiResultPipe(@Nonnull T tile) {
+  public GuiResultPipe(@Nonnull T tile, String PREFIX) {
     super(new Container() {
       @Override
       public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
@@ -44,6 +46,7 @@ public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScre
     xSize = 116;
     ySize = 77;
     this.tile = tile;
+    this.PREFIX = PREFIX;
   }
 
   @Override
@@ -81,7 +84,7 @@ public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScre
   @Override
   protected void drawGuiContainerForegroundLayer(int par1, int par2) {
     super.drawGuiContainerForegroundLayer(par1, par2);
-    drawCenteredString(TextUtil.translate("gui.result.ResultName"), 59, 7, 0x404040);
+    drawCenteredString(TextUtil.translate(PREFIX + "GuiName"), 59, 7, 0x404040);
     String name = TextUtil.getTrimmedString(tile.getSatellitePipeName(), 100, mc.fontRenderer, "...");
     int yOffset = 0;
     if (!response.isEmpty()) {

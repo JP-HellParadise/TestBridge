@@ -2,6 +2,12 @@ package testbridge.core;
 
 import javax.annotation.Nonnull;
 
+import logisticspipes.recipes.NBTIngredient;
+import logisticspipes.recipes.RecipeManager;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,7 +29,10 @@ import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
+import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
+import logisticspipes.blocks.LogisticsProgramCompilerTileEntity.ProgrammCategories;
 import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.items.ItemUpgrade;
@@ -113,6 +122,8 @@ public class TestBridge extends LogisticsPipes {
     NetworkRegistry.INSTANCE.registerGuiHandler(TestBridge.INSTANCE, new GuiHandler());
     TBDataFixer.INSTANCE.init();
 
+    loadRecipes();
+
     log.info("Initialization took in {} milliseconds", (System.currentTimeMillis() - tM));
     log.info("==================================================================================");
   }
@@ -160,6 +171,69 @@ public class TestBridge extends LogisticsPipes {
   @Mod.EventHandler
   public void onServerLoad(FMLServerStartingEvent event) {
   // TODO
+  }
+
+  private static void loadRecipes() {
+    ResourceLocation resultPipe = TBItems.pipeResult.delegate.name();
+    ResourceLocation craftingMgrPipe = TBItems.pipeCraftingManager.delegate.name();
+    ResourceLocation bufferUpgrage = TBItems.upgradeBuffer.delegate.name();
+
+    LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(resultPipe);
+    LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(craftingMgrPipe);
+    LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(bufferUpgrage);
+    ResourceLocation group = new ResourceLocation(ID, "recipes");
+
+    if (isAELoaded())
+      AE2Plugin.loadRecipes(group);
+
+    //  Result Pipe
+    RecipeManager.craftingManager.addRecipe(new ItemStack(TBItems.pipeResult),
+        new RecipeManager.RecipeLayout(
+            " p ",
+            "rfr",
+            " s "
+        ),
+        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TBItems.pipeResult)),
+        new RecipeManager.RecipeIndex('r', "dustRedstone"),
+        new RecipeManager.RecipeIndex('f', LPItems.chipFPGA),
+        new RecipeManager.RecipeIndex('s', LPItems.pipeBasic)
+    );
+
+    // Crafting Manager pipe
+    RecipeManager.craftingManager.addRecipe(new ItemStack(TBItems.pipeCraftingManager),
+        new RecipeManager.RecipeLayout(
+            "fpf",
+            "bsb",
+            "fdf"
+        ),
+        new RecipeManager.RecipeIndex('b', LPItems.chipAdvanced),
+        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TBItems.pipeCraftingManager)),
+        new RecipeManager.RecipeIndex('s', LPItems.pipeCrafting),
+        new RecipeManager.RecipeIndex('d', "gemDiamond"),
+        new RecipeManager.RecipeIndex('f', LPItems.chipFPGA)
+    );
+
+    // Buffer Upgrade
+    RecipeManager.craftingManager.addRecipe(new ItemStack(TBItems.upgradeBuffer, 1),
+        new RecipeManager.RecipeLayout(
+            "rpr",
+            "gag",
+            "qnq"
+        ),
+        new RecipeManager.RecipeIndex('r', "dustRedstone"),
+        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TBItems.upgradeBuffer)),
+        new RecipeManager.RecipeIndex('g', "ingotGold"),
+        new RecipeManager.RecipeIndex('a', LPItems.chipAdvanced),
+        new RecipeManager.RecipeIndex('q', "paper"),
+        new RecipeManager.RecipeIndex('n', "nuggetGold")
+    );
+  }
+
+  private static Ingredient getIngredientForProgrammer(Item targetPipe) {
+    ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer);
+    programmerStack.setTagCompound(new NBTTagCompound());
+    programmerStack.getTagCompound().setString("LogisticsRecipeTarget", targetPipe.toString());
+    return NBTIngredient.fromStacks(programmerStack);
   }
 
 }

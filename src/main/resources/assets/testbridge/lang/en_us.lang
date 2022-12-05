@@ -37,9 +37,13 @@ item.upgrade.info.crafting_manager=Crafting Manager Pipe
 #tile.testbridge.tile_cm.tip3= - Automatically request items to be crafted when queued.
 #tile.testbridge.tile_cm.tip4= - Can use a satellite bus to send inputs.
 
+# Part
+item.appliedenergistics2.multi_part.satellite_bus.name=Satellite Bus
+
 # GUI
 
-gui.result.ResultName=Result Name
+gui.satellite.GuiName=Satellite Name
+gui.result.GuiName=Result Name
 
 gui.crafting_manager.Select=Select
 gui.crafting_manager.satellite=Satellite

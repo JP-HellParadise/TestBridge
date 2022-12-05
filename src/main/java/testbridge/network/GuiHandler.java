@@ -69,7 +69,7 @@ public class GuiHandler extends logisticspipes.network.GuiHandler{
       if( TE instanceof IPartHost) {
         IPart part = ((IPartHost) TE).getPart( side );
         if(part instanceof PartSatelliteBus) {
-          return new GuiResultPipe<>((PartSatelliteBus) part);
+          return new GuiResultPipe<>((PartSatelliteBus) part, "gui.satellite.");
         }
       }
       return null;
@@ -86,7 +86,7 @@ public class GuiHandler extends logisticspipes.network.GuiHandler{
 
         case GuiIDs.GUI_ResultPipe_ID:
           if (pipe != null && pipe.pipe instanceof ResultPipe) {
-            return new GuiResultPipe<>(((ResultPipe) pipe.pipe));
+            return new GuiResultPipe<>(((ResultPipe) pipe.pipe), "gui.result.");
           }
           return null;
 
