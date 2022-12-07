@@ -3,11 +3,11 @@
 - Logistics Pipe:
     + Result pipe
     + Crafting manager pipe  
-    + Buffer Upgrade  
+    + Buffer Upgrade
 
-[//]: # (    + New upgrade for CM pipe: WIP)
-
-[//]: # (- Applied Energistics 2:  WIP)
+- Applied Energistics 2:  
+    + Satellite Bus  
+    + Package  
 
 [//]: # (- Refined Storage:  WIP  )
 
@@ -19,7 +19,7 @@
 5. Instead of running `genIntellijRuns` and using generated IntelliJ tasks, just run `gradlew runClient` and `gradlew runServer`.
 
 ## Current stage & version: PoC
-Beta 0.1.0
+Beta 0.1.1
 
 ## Proof of concept
 ![Concept](/Stuff/concept.gif)
