@@ -2,12 +2,7 @@ package testbridge.core;
 
 import javax.annotation.Nonnull;
 
-import logisticspipes.recipes.NBTIngredient;
-import logisticspipes.recipes.RecipeManager;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.oredict.ShapedOreRecipe;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -27,8 +23,10 @@ import net.minecraftforge.fml.common.SidedProxy;
 
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
@@ -36,8 +34,11 @@ import logisticspipes.blocks.LogisticsProgramCompilerTileEntity.ProgrammCategori
 import logisticspipes.LPItems;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.items.ItemUpgrade;
+import logisticspipes.recipes.NBTIngredient;
+import logisticspipes.recipes.RecipeManager;
 
 import testbridge.datafixer.TBDataFixer;
+import testbridge.items.FakeItem;
 import testbridge.network.GuiHandler;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.PipeCraftingManager;
@@ -102,11 +103,18 @@ public class TestBridge extends LogisticsPipes {
 
     if (AELoaded) {
       AE2Plugin.preInit();
+      // Cause game suck
+      registerItem(new FakeItem(false), "placeholder", "", null);
+      registerItem(new FakeItem(true), "package", "", CreativeTabs.MISC);
     }
 
+    if (RSLoaded) {
 
+    }
 
     //TODO: preInit
+    MinecraftForge.EVENT_BUS.register(TB_EventHandlers.class);
+    proxy.registerRenderers();
 
     log.info("Pre Initialization took in {} milliseconds", (System.currentTimeMillis() - tM));
     log.info("==================================================================================");
@@ -144,8 +152,6 @@ public class TestBridge extends LogisticsPipes {
   @Override
   public void initItems(RegistryEvent.Register<Item> event) {
     IForgeRegistry<Item> registry = event.getRegistry();
-
-    // LP Register
     // Pipe
     registerPipe(registry, "result", ResultPipe::new);
     registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
@@ -171,6 +177,28 @@ public class TestBridge extends LogisticsPipes {
   @Mod.EventHandler
   public void onServerLoad(FMLServerStartingEvent event) {
   // TODO
+  }
+
+  private void registerItem(@Nonnull final Item item, @Nonnull final String name, @Nonnull final String key, CreativeTabs creativeTabs) {
+    String itemName;
+    String translationKey = "";
+    if (!name.equals("")) {
+      itemName = "item_" + name;
+    } else {
+      TestBridge.log.error("Item don't have name properly, will create random name instead");
+      itemName = "tb_itemRandom_" + RandomStringUtils.randomAlphabetic(10);
+    }
+    if (key.equals("")) {
+      translationKey = "testbridge." + itemName;
+    } else translationKey = key;
+    final Item result = item.setTranslationKey(translationKey).setRegistryName(TestBridge.ID, itemName);
+    if (creativeTabs != null) {
+      ForgeRegistries.ITEMS.register(result.setCreativeTab(creativeTabs));
+      return;
+    }
+    ForgeRegistries.ITEMS.register(result);
+
+    proxy.addRenderer(result, itemName);
   }
 
   private static void loadRecipes() {

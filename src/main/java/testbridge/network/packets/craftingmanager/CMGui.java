@@ -15,14 +15,11 @@ import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
+import testbridge.network.abstractpackets.CustomCoordinatesPacket;
 import testbridge.pipes.PipeCraftingManager;
 
 @StaticResolve
-public class CMGui extends CoordinatesPacket {
-
-  @Getter
-  @Setter
-  private int slotID;
+public class CMGui extends CustomCoordinatesPacket {
 
   public CMGui(int id) {
     super(id);
@@ -30,13 +27,11 @@ public class CMGui extends CoordinatesPacket {
 
   @Override
   public void writeData(LPDataOutput output) {
-    output.writeInt(this.slotID);
     super.writeData(output);
   }
 
   @Override
   public void readData(LPDataInput input) {
-    this.slotID = input.readInt();
     super.readData(input);
   }
 
@@ -44,7 +39,7 @@ public class CMGui extends CoordinatesPacket {
   public void processPacket(EntityPlayer player) {
     final LogisticsTileGenericPipe pipe = getPipe(player.world, LTGPCompletionCheck.PIPE);
     if (pipe.pipe instanceof PipeCraftingManager) {
-      LogisticsModule subModule = ((PipeCraftingManager) pipe.pipe).getSubModule(getSlotID());
+      LogisticsModule subModule = ((PipeCraftingManager) pipe.pipe).getSubModule(getId());
       if (subModule instanceof Gui) {
         Gui.getPipeGuiProvider((Gui) subModule).setPosX(getPosX()).setPosY(getPosY()).setPosZ(getPosZ()).open(player);
       }

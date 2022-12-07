@@ -2,7 +2,7 @@
     "parent": "appliedenergistics2:item/part/part",
     "textures": {
         "sides": "appliedenergistics2:parts/p2p_tunnel_sides",
-        "back": "logisticsbridge:blocks/satellite_back",
+        "back": "testbridge:blocks/satellite_back",
         "front": "appliedenergistics2:items/part/p2p_tunnel_front",
         "type": "appliedenergistics2:items/part/import_bus"
     },

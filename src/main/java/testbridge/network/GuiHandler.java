@@ -1,6 +1,7 @@
 package testbridge.network;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -12,6 +13,9 @@ import appeng.api.util.AEPartLocation;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.gui.DummyContainer;
 
+import testbridge.container.ContainerPackage;
+import testbridge.gui.GuiPackage;
+import testbridge.items.FakeItem;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.ResultPipe;
 import testbridge.gui.GuiResultPipe;
@@ -42,15 +46,17 @@ public class GuiHandler extends logisticspipes.network.GuiHandler{
       pipe = (LogisticsTileGenericPipe) tile;
     }
 
-    DummyContainer dummy;
-    int xOffset;
-    int yOffset;
-
     if (ID < 100 && ID > 0) {
-      switch (ID) {
-        case GuiIDs.GUI_ResultPipe_ID:
+      switch (GuiIDs.ENUM.values()[ID]) {
+        case RESULT_PIPE:
           if (pipe != null && pipe.pipe instanceof ResultPipe) {
             return new DummyContainer(player.inventory, null);
+          }
+          return null;
+        case TEMPLATE_PKG:
+          Item onHand = player.getHeldItemMainhand().getItem();
+          if (onHand instanceof FakeItem) {
+            return new ContainerPackage(player);
           }
 
         default:
@@ -82,13 +88,19 @@ public class GuiHandler extends logisticspipes.network.GuiHandler{
     }
 
     if (ID < 100 && ID > 0) {
-      switch (ID) {
+      switch (GuiIDs.ENUM.values()[ID]) {
 
-        case GuiIDs.GUI_ResultPipe_ID:
+        case RESULT_PIPE:
           if (pipe != null && pipe.pipe instanceof ResultPipe) {
             return new GuiResultPipe<>(((ResultPipe) pipe.pipe), "gui.result.");
           }
           return null;
+
+        case TEMPLATE_PKG:
+          Item onHand = player.getHeldItemMainhand().getItem();
+          if (onHand instanceof FakeItem) {
+            return new GuiPackage(onHand, player, null);
+          }
 
         default:
           break;

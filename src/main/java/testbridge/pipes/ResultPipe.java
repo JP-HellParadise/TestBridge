@@ -19,8 +19,6 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.packets.hud.HUDStartWatchingPacket;
-import logisticspipes.network.packets.hud.HUDStopWatchingPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
@@ -203,7 +201,7 @@ public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRenderer
     // Send the result id when opening gui
     final ModernPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class).setString(resultPipeName).setPosX(getX()).setPosY(getY()).setPosZ(getZ());
     MainProxy.sendPacketToPlayer(packet, entityplayer);
-    entityplayer.openGui(TestBridge.INSTANCE, GuiIDs.GUI_ResultPipe_ID, getWorld(), getX(), getY(), getZ());
+    entityplayer.openGui(TestBridge.INSTANCE, GuiIDs.ENUM.RESULT_PIPE.ordinal(), getWorld(), getX(), getY(), getZ());
   }
 
   @Nonnull

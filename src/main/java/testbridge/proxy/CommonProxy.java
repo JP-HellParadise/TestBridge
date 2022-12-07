@@ -12,7 +12,4 @@ public abstract class CommonProxy implements IProxy {
   public abstract void init(FMLInitializationEvent event);
 
   public abstract void postInit(FMLPostInitializationEvent event);
-
-  @Override
-  public void registerTextures() {}
 }

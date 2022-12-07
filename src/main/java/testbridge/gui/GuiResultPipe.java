@@ -3,15 +3,15 @@ package testbridge.gui;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-import appeng.api.parts.IPartHost;
-import appeng.parts.AEBasePart;
-import network.rs485.logisticspipes.SatellitePipe;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
+
+import appeng.api.parts.IPartHost;
+import appeng.parts.AEBasePart;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.pipes.SatelliteNamingResult;
@@ -21,6 +21,7 @@ import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 
+import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.util.TextUtil;
 
 import testbridge.network.packets.HandleResultPacket.TB_SetNamePacket;
@@ -73,8 +74,9 @@ public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScre
           if (satelliteBus instanceof PartSatelliteBus){
             MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_SetNamePacket.class).setSide(satelliteBus.getSide().ordinal()).setString(input.getText()).setTilePos(satelliteBus.getTile()));
           }
+        } else {
+          MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_SetNamePacket.class).setString(input.getText()).setTilePos(container));
         }
-        MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_SetNamePacket.class).setString(input.getText()).setTilePos(container));
       }
     } else {
       super.actionPerformed(guibutton);

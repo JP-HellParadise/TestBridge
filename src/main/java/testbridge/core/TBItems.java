@@ -23,4 +23,11 @@ public class TBItems {
 
   // Blocks
 
+  // Items
+
+  @ObjectHolder("testbridge:item_placeholder")
+  public static Item itemHolder;
+
+  @ObjectHolder("testbridge:item_package")
+  public static Item itemPackage;
 }

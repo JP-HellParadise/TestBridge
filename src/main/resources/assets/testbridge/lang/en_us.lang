@@ -29,6 +29,19 @@ item.logisticspipes.upgrade_buffer_cm.tip5=Added by $BLUETest Bridge
 
 item.upgrade.info.crafting_manager=Crafting Manager Pipe
 
+# Item info
+
+item.testbridge.item_package.name=Package Config
+item.testbridge.item_placeholder.name=AE Craft Token
+tooltip.testbridge.fakeItemNull=Auto Craft token
+tooltip.testbridge.request=Requests %s from Logistics Pipes Network
+tooltip.testbridge.techItem=This item used for requesting & crafting logic. You have no use for it! Throw it away!
+tooltip.testbridge.placeholder=Package Contains %s
+tooltip.testbridge.package_content=Package Template for %s
+tooltip.testbridge.package_empty=Package Empty
+tooltip.testbridge.satName=Satellite Name: %s
+tooltip.testbridge.packageName=%s to %s
+
 # Blocks
 
 #tile.testbridge.tile_cm.name=ME Crafting Manager
@@ -38,9 +51,12 @@ item.upgrade.info.crafting_manager=Crafting Manager Pipe
 #tile.testbridge.tile_cm.tip4= - Can use a satellite bus to send inputs.
 
 # Part
+
 item.appliedenergistics2.multi_part.satellite_bus.name=Satellite Bus
 
 # GUI
+
+gui.item_package.Save=Save
 
 gui.satellite.GuiName=Satellite Name
 gui.result.GuiName=Result Name
@@ -59,6 +75,9 @@ gui.crafting_manager.blocking.redstone_low=Redstone Active Low
 gui.crafting_manager.blocking.wait_for_result=Wait for Completion
 
 gui.popup.selectresult.title=Select Result Pipe
+
+gui.item_package.GuiName=Result Name
+
 
 # TOP
 

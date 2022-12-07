@@ -98,7 +98,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
       int slotID = currentSlot.getSlotIndex();
       LogisticsModule module = pipeCM.getSubModule(slotID);
       if ( module instanceof ModuleCrafter) {
-        ModernPacket packet = PacketHandler.getPacket(CMGui.class).setSlotID(slotID).setPosX(pipeCM.getX()).setPosY(pipeCM.getY()).setPosZ(pipeCM.getZ());
+        ModernPacket packet = PacketHandler.getPacket(CMGui.class).setId(slotID).setPosX(pipeCM.getX()).setPosY(pipeCM.getY()).setPosZ(pipeCM.getZ());
         MainProxy.sendPacketToServer(packet);
       }
     } else super.mouseClicked(X, Y, mouseButton);

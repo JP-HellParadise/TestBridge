@@ -1,34 +1,27 @@
 package testbridge.network.packets.HandleResultPacket;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-
 import appeng.api.parts.IPart;
 import appeng.api.parts.IPartHost;
 import appeng.api.util.AEPartLocation;
 import appeng.tile.networking.TileCableBus;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
 import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
+import testbridge.network.abstractpackets.CustomCoordinatesPacket;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.ResultPipe;
 
 @StaticResolve
-public class TB_SyncNamePacket extends StringCoordinatesPacket {
-
-  @Getter
-  @Setter
-  private int side;
+public class TB_SyncNamePacket extends CustomCoordinatesPacket {
 
   public TB_SyncNamePacket(int id) {
     super(id);
@@ -42,13 +35,11 @@ public class TB_SyncNamePacket extends StringCoordinatesPacket {
   @Override
   public void writeData(LPDataOutput output) {
     super.writeData(output);
-    output.writeInt(side);
   }
 
   @Override
   public void readData(LPDataInput input) {
     super.readData(input);
-    setSide(input.readInt());
   }
 
   @Override
@@ -64,7 +55,7 @@ public class TB_SyncNamePacket extends StringCoordinatesPacket {
     } catch (TargetNotFoundException e) {
       TileEntity TE = getTileAs(player.getEntityWorld(), IPartHost.class).getTile();
       if (TE instanceof TileCableBus) {
-        IPart iPart = ((TileCableBus) TE).getPart(AEPartLocation.fromOrdinal(side));
+        IPart iPart = ((TileCableBus) TE).getPart(AEPartLocation.fromOrdinal(getSide()));
         if (iPart instanceof PartSatelliteBus) {
           ((PartSatelliteBus) iPart).setSatellitePipeName(getString());
         }

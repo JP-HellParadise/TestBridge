@@ -98,10 +98,10 @@ dependencies {
 	deobfCompile project.td_dep
 	deobfCompile project.hei_dep
 	deobfCompile project.lp_dep
+	deobfCompile project.ae2_dep
 
 	//compileOnly
 	compileOnly project.rf_dep
-	compileOnly project.ae2_dep
 	compileOnly project.ccl_dep
 	compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
 	compileOnly group: 'mcjty.theoneprobe', name: 'TheOneProbe-1.12', version: '1.12-1.4.28-17', classifier: 'api'
@@ -115,12 +115,13 @@ dependencies {
 	runtime project.cofhc_dep
 	runtime project.cofhw_dep
 	runtime project.rf_dep
-	runtime project.ae2_dep
 	runtime project.top_dep
 
 }
 
 sourceSets {
+
+		api
 
     main {
         ext.refMap = 'mixins.' + archives_base_name + '.refmap.json'
@@ -160,4 +161,7 @@ jar {
 		}
 		attributes(attribute_map)
     }
+
+		from sourceSets.api.output
+		dependsOn apiClasses
 }
