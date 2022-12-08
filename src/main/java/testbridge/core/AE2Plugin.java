@@ -3,9 +3,6 @@ package testbridge.core;
 import appeng.api.AEPlugin;
 import appeng.api.IAppEngApi;
 import appeng.api.definitions.IMaterials;
-import appeng.api.parts.IPart;
-import appeng.api.parts.IPartHost;
-import appeng.api.util.AEPartLocation;
 import appeng.core.Api;
 import appeng.core.features.AEFeature;
 import appeng.core.features.ItemStackSrc;
@@ -14,8 +11,8 @@ import appeng.items.parts.ItemPart;
 import appeng.items.parts.PartType;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
@@ -26,8 +23,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
-import testbridge.network.abstractpackets.CustomCoordinatesPacket;
-import testbridge.network.packets.HandleResultPacket.TB_SetNamePacket.ICustomPacket;
 import testbridge.part.PartSatelliteBus;
 
 import java.util.EnumSet;
@@ -53,22 +48,23 @@ public class AE2Plugin {
 
   public static void loadRecipes(ResourceLocation group) {
     IMaterials materials = AE2Plugin.INSTANCE.api.definitions().materials();
-    ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, AE2Plugin.SATELLITE_BUS_SRC.stack(1), " c ", "ifi", " p ",
+    // Satellite Bus
+    ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, AE2Plugin.SATELLITE_BUS_SRC.stack(1),
+        " c ",
+                "ifi",
+                " p ",
         'p', Blocks.PISTON,
         'f', materials.formationCore().maybeStack(1).orElse(ItemStack.EMPTY),
         'i', "ingotIron",
         'c', materials.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
         setRegistryName(new ResourceLocation(TestBridge.ID, "recipes/satellite_bus")));
-  }
 
-  public static void processResIDMod(EntityPlayer player, CustomCoordinatesPacket packet){
-    AEPartLocation side = AEPartLocation.fromOrdinal(packet.getSide() - 1);
-    IPartHost ph = packet.getTileAs(player.world, IPartHost.class);
-    if(ph == null)return;
-    IPart p = ph.getPart(side);
-    if(p instanceof ICustomPacket){
-      ((ICustomPacket) p).setNamePacket(packet.getId(), packet.getString(), player);
-    }
+    // Item Package
+    ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(TBItems.itemPackage),
+        "pw",
+        'p', Items.PAPER,
+        'w', "plankWood").
+        setRegistryName(new ResourceLocation(TestBridge.ID, "recipes/item_package")));
   }
 
   @SideOnly(Side.CLIENT)

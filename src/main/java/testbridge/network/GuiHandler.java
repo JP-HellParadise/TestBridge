@@ -53,6 +53,7 @@ public class GuiHandler extends logisticspipes.network.GuiHandler{
             return new DummyContainer(player.inventory, null);
           }
           return null;
+
         case TEMPLATE_PKG:
           Item onHand = player.getHeldItemMainhand().getItem();
           if (onHand instanceof FakeItem) {

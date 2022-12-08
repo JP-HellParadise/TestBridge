@@ -1,7 +1,9 @@
 package testbridge.network.packets.HandleResultPacket;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
 
 import appeng.api.parts.IPart;
@@ -11,24 +13,24 @@ import appeng.tile.networking.TileCableBus;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
 import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 
-import testbridge.container.ContainerPackage;
-import testbridge.core.AE2Plugin;
-import testbridge.core.TestBridge;
-import testbridge.network.abstractpackets.CustomCoordinatesPacket;
+import network.rs485.logisticspipes.util.LPDataInput;
+import network.rs485.logisticspipes.util.LPDataOutput;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.ResultPipe;
 
-import java.util.function.Consumer;
-
 @StaticResolve
-public class TB_SetNamePacket extends CustomCoordinatesPacket {
-  private int id = 0;
+public class TB_SetNamePacket extends StringCoordinatesPacket {
+
+  @Getter
+  @Setter
+  private int side;
 
   public TB_SetNamePacket(int id) {
     super(id);
@@ -36,15 +38,8 @@ public class TB_SetNamePacket extends CustomCoordinatesPacket {
 
   @Override
   public void processPacket(EntityPlayer player) {
-    if (getId() != id) {
-      id = getId();
-    }
     String newName = getString();
     SatelliteNamingResult result = null;
-    if (id != 0) {
-      processResIDMod(player, this);
-      return;
-    }
     if (newName.trim().isEmpty()) {
       result = SatelliteNamingResult.BLANK_NAME;
     } else {
@@ -85,24 +80,21 @@ public class TB_SetNamePacket extends CustomCoordinatesPacket {
     }
   }
 
-  private void processResIDMod(EntityPlayer player, CustomCoordinatesPacket packet) {
-    if(packet.getSide() == -1){
-      if(player.openContainer instanceof Consumer){
-        ((Consumer<String>) player.openContainer).accept(packet.getString());
-      }
-    }else if(TestBridge.isAELoaded()){
-      AE2Plugin.processResIDMod(player, packet);
-    }
+  @Override
+  public void writeData(LPDataOutput output) {
+    super.writeData(output);
+    output.writeInt(side);
+  }
+
+  @Override
+  public void readData(LPDataInput input) {
+    super.readData(input);
+    side = input.readInt();
   }
 
   @Override
   public ModernPacket template() {
     return new TB_SetNamePacket(getId());
   }
-
-  public interface ICustomPacket {
-    void setNamePacket(int id, String name, EntityPlayer player);
-  }
-
 }
 

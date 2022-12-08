@@ -1,10 +1,11 @@
 package testbridge.network.packets.HandleResultPacket;
 
-import logisticspipes.network.packets.satpipe.SetNameResult;
 import net.minecraft.entity.player.EntityPlayer;
+
 import net.minecraftforge.fml.client.FMLClientHandler;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.network.packets.satpipe.SetNameResult;
 import logisticspipes.utils.StaticResolve;
 
 import testbridge.gui.GuiResultPipe;

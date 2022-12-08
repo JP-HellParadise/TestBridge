@@ -15,11 +15,14 @@ import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
-import testbridge.network.abstractpackets.CustomCoordinatesPacket;
 import testbridge.pipes.PipeCraftingManager;
 
 @StaticResolve
-public class CMGui extends CustomCoordinatesPacket {
+public class CMGui extends CoordinatesPacket {
+
+  @Getter
+  @Setter
+  private int id;
 
   public CMGui(int id) {
     super(id);
@@ -28,11 +31,13 @@ public class CMGui extends CustomCoordinatesPacket {
   @Override
   public void writeData(LPDataOutput output) {
     super.writeData(output);
+    output.writeInt(id);
   }
 
   @Override
   public void readData(LPDataInput input) {
     super.readData(input);
+    id = input.readInt();
   }
 
   @Override

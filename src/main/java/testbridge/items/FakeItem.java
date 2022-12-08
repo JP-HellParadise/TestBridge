@@ -9,6 +9,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
@@ -23,14 +24,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import appeng.items.AEBaseItem;
 import appeng.util.Platform;
 
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.proxy.MainProxy;
-
 import testbridge.core.TBItems;
 import testbridge.core.TestBridge;
 import testbridge.network.GuiIDs;
-import testbridge.network.packets.HandleResultPacket.TB_SetNamePacket;
 
 public class FakeItem extends AEBaseItem {
   @Getter
@@ -61,10 +57,6 @@ public class FakeItem extends AEBaseItem {
         return new ActionResult<>(EnumActionResult.SUCCESS, is);
       } else {
         player.openGui(TestBridge.INSTANCE, GuiIDs.ENUM.TEMPLATE_PKG.ordinal(), w, hand.ordinal(), 0, 0);
-        if(!w.isRemote && is.hasTagCompound()){
-          final ModernPacket packet = PacketHandler.getPacket(TB_SetNamePacket.class).setSide(-2).setId(1).setString(is.getTagCompound().getString("__pkgDest"));
-          MainProxy.sendPacketToPlayer(packet, player);
-        }
         return new ActionResult<>(EnumActionResult.SUCCESS, is);
       }
     }
@@ -73,6 +65,9 @@ public class FakeItem extends AEBaseItem {
 
   @Override
   public EnumActionResult onItemUseFirst(final EntityPlayer player, final World world, final BlockPos pos, final EnumFacing side, final float hitX, final float hitY, final float hitZ, final EnumHand hand) {
+    if (!player.isSneaking()) {
+      return EnumActionResult.PASS;
+    }
     return this.clearPackage(player.getHeldItem(hand), player) ? EnumActionResult.SUCCESS : EnumActionResult.PASS;
   }
 
@@ -103,7 +98,7 @@ public class FakeItem extends AEBaseItem {
         return new ItemStack(tagList);
       }
     }
-    return null;
+    return new ItemStack(Items.AIR);
   }
 
   public String getItemInfo(ItemStack is) {
