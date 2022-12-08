@@ -10,6 +10,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemAir;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
@@ -91,14 +92,7 @@ public class FakeItem extends AEBaseItem {
   }
 
   public ItemStack getItemStack(ItemStack is) {
-    NBTTagCompound tagList;
-    if (is.hasTagCompound()) {
-      if (is.getTagCompound().hasKey("__itemHold")) {
-        tagList = is.getTagCompound().getCompoundTag("__itemHold");
-        return new ItemStack(tagList);
-      }
-    }
-    return new ItemStack(Items.AIR);
+    return is.hasTagCompound() && is.getTagCompound().hasKey("__itemHold") ? new ItemStack(is.getTagCompound().getCompoundTag("__itemHold")) : new ItemStack(Items.AIR);
   }
 
   public String getItemInfo(ItemStack is) {
@@ -106,14 +100,11 @@ public class FakeItem extends AEBaseItem {
   }
 
   private int getItemCount(ItemStack is) {
-    if (!getItemStack(is).isEmpty())
-      return getItemStack(is).getCount();
-    return 0;
+    return getItemStack(is).isEmpty() ? 0 : getItemStack(is).getCount();
   }
 
   private String getItemName(ItemStack is) {
-    String name = getItemStack(is).getItem().getItemStackDisplayName(is);
-    return !name.equals("Air") ? name : "";
+    return getItemCount(is) == 0 ? "" : getItemStack(is).getItem().getItemStackDisplayName(is);
   }
 
   @Override
