@@ -1,15 +1,15 @@
 package testbridge.proxy;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemMeshDefinition;
+import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -25,12 +25,11 @@ import appeng.bootstrap.components.IModelRegistrationComponent;
 import appeng.bootstrap.components.ItemVariantsComponent;
 import appeng.core.Api;
 import appeng.items.parts.ItemPart;
-import net.minecraft.client.Minecraft;
 
 import testbridge.core.AE2Plugin;
+import testbridge.core.TBItems;
 import testbridge.core.TestBridge;
-
-
+import testbridge.utils.MeshDefinitionFix;
 
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
@@ -48,10 +47,11 @@ public class ClientProxy extends CommonProxy {
   public void registerRenderers() {
     TestBridge.log.info("Loading Renderers");
     for (Item item : renderers) {
-      addRenderToRegistry(item, 0, item.getTranslationKey().substring(5));
+      ModelResourceLocation local = new ModelResourceLocation(new ResourceLocation(TestBridge.ID, item.getTranslationKey().substring(5)), "inventory");
+      addRenderToRegistry(item, 0, local);
     }
     renderers = null;
-    if(TestBridge.isAELoaded()){
+    if (TestBridge.isAELoaded()) {
       try {
         FeatureFactory ff = Api.INSTANCE.definitions().getRegistry();
         Field bootstrapComponentsF = FeatureFactory.class.getDeclaredField("bootstrapComponents");
@@ -62,9 +62,9 @@ public class ClientProxy extends CommonProxy {
         Field ItemVariantsComponent_item = ItemVariantsComponent.class.getDeclaredField("item");
         ItemVariantsComponent_item.setAccessible(true);
         for (IBootstrapComponent iBootstrapComponent : itemRegComps) {
-          if(iBootstrapComponent instanceof ItemVariantsComponent){
+          if (iBootstrapComponent instanceof ItemVariantsComponent) {
             Item item = (Item) ItemVariantsComponent_item.get(iBootstrapComponent);
-            if(item == ItemPart.instance){
+            if (item == ItemPart.instance) {
               partReg = (ItemVariantsComponent) iBootstrapComponent;
               break;
             }
@@ -81,28 +81,69 @@ public class ClientProxy extends CommonProxy {
     //OBJLoader.INSTANCE.addDomain(LogisticsBridge.ID);
   }
 
-  @Override
-  public void addRenderer(ItemStack is, String name) {
-    addRenderToRegistry(is.getItem(), is.getItemDamage(), name);
+  private static void addRenderToRegistry(Item item, int meta, ModelResourceLocation local) {
+    ModelLoader.setCustomModelResourceLocation(item, meta, local);
+    Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, local);
   }
 
-  @Override
-  public void addRenderer(Item item, String name) {
-    addRenderToRegistry(item, 0, name);
+  /**
+   * The {@link Item}s that have had models registered so far.
+   */
+  private final Set<Item> itemsRegistered = new HashSet<>();
+
+  /**
+   * Register a single model for an {@link Item}.
+   * <p>
+   * Uses the registry name as the domain/path and {@code "inventory"} as the variant.
+   *
+   * @param item The Item
+   */
+  private void registerItemModel(final Item item) {
+    registerItemModel(item, item.getRegistryName().toString());
   }
 
-  private static void addRenderToRegistry(Item item, int meta, String name) {
-    ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(new ResourceLocation(TestBridge.ID, name), "inventory"));
+  /**
+   * Register a single model for an {@link Item}.
+   * <p>
+   * Uses {@code modelLocation} as the domain/path and {@link "inventory"} as the variant.
+   *
+   * @param item          The Item
+   * @param modelLocation The model location
+   */
+  private void registerItemModel(final Item item, final String modelLocation) {
+    final ModelResourceLocation fullModelLocation = new ModelResourceLocation(modelLocation, "inventory");
+    registerItemModel(item, fullModelLocation);
   }
 
-  @Override
-  public void addRenderer(Item item) {
-    renderers.add(item);
+  /**
+   * Register a single model for an {@link Item}.
+   * <p>
+   * Uses {@code fullModelLocation} as the domain, path and variant.
+   *
+   * @param item              The Item
+   * @param fullModelLocation The full model location
+   */
+  private void registerItemModel(final Item item, final ModelResourceLocation fullModelLocation) {
+    ModelBakery.registerItemVariants(item, fullModelLocation); // Ensure the custom model is loaded and prevent the default model from being loaded
+    registerItemModel(item, MeshDefinitionFix.create(stack -> fullModelLocation));
+  }
+
+  /**
+   * Register an {@link ItemMeshDefinition} for an {@link Item}.
+   *
+   * @param item           The Item
+   * @param meshDefinition The ItemMeshDefinition
+   */
+  private void registerItemModel(final Item item, final ItemMeshDefinition meshDefinition) {
+    itemsRegistered.add(item);
+    ModelLoader.setCustomMeshDefinition(item, meshDefinition);
   }
 
   @Override
   public void registerTextures() {
     TestBridge.TBTextures.registerBlockIcons(Minecraft.getMinecraft().getTextureMapBlocks());
+    registerItemModel(TBItems.itemPackage, "testbridge:item_package");
+    registerItemModel(TBItems.itemHolder, "testbridge:item_placeholder");
   }
 
   @SubscribeEvent
