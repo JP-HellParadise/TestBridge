@@ -1,5 +1,4 @@
 [![Github Action](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml/badge.svg)](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml)
-Update will push back for implement Crafting Manager
 ## Features
 - Logistics Pipe:
     + Result pipe
@@ -8,6 +7,7 @@ Update will push back for implement Crafting Manager
 
 - Applied Energistics 2:  
     + Satellite Bus  
+    + Crafting Manager (part for now, will have tile later)  
     + Package  
 
 [//]: # (- Refined Storage:  WIP  )
@@ -20,7 +20,7 @@ Update will push back for implement Crafting Manager
 5. Instead of running `genIntellijRuns` and using generated IntelliJ tasks, just run `gradlew runClient` and `gradlew runServer`.
 
 ## Current stage & version: PoC
-Beta 0.1.1
+Beta 0.2.0
 
 ## Proof of concept
 ![Concept](/Stuff/concept.gif)
