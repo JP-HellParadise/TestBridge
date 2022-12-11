@@ -5,7 +5,6 @@ import lombok.Setter;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemStackHandler;
@@ -42,7 +41,7 @@ public class ContainerPackage extends AEBaseContainer {
       this.addSlotToContainer(new SlotFake(fakeSlot, 0, x, y));
       if (is.hasTagCompound()) {
         satelliteName = is.getTagCompound().getString("__pkgDest");
-        loadItemList(is);
+        fakeSlot.setStackInSlot(0, new ItemStack(is.getTagCompound().getCompoundTag("__itemHold")));
       }
     }
 
@@ -64,15 +63,6 @@ public class ContainerPackage extends AEBaseContainer {
       return entityPlayer.inventory.getStackInSlot(slotId).getItem() instanceof FakeItem;
     }
     return false;
-  }
-
-  public void loadItemList(ItemStack itemStack)
-  {
-    NBTTagCompound tagList = itemStack.getTagCompound().getCompoundTag("__itemHold");
-
-    ItemStack catalyst = new ItemStack(tagList);
-
-    fakeSlot.setStackInSlot(0, catalyst);
   }
 
   protected int getHeight() {

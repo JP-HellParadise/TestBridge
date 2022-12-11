@@ -18,7 +18,7 @@ import logisticspipes.utils.gui.SubGuiScreen;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
-import testbridge.gui.popup.GuiSelectResultPopup;
+import testbridge.client.popup.GuiSelectResultPopup;
 
 @StaticResolve
 public class ProvideResultPipeListPacket extends ModernPacket {

@@ -20,12 +20,12 @@ import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
-import testbridge.gui.GuiCMPipe;
+import testbridge.client.gui.GuiCMPipe;
 import testbridge.modules.TB_ModuleCM;
 import testbridge.modules.TB_ModuleCM.BlockingMode;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.upgrades.ModuleUpgradeManager;
-import testbridge.utils.gui.DummyContainer;
+import testbridge.helpers.DummyContainer;
 
 @StaticResolve
 public class CMGuiProvider extends BooleanModuleCoordinatesGuiProvider {

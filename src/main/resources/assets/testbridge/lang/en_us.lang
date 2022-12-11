@@ -33,6 +33,7 @@ item.upgrade.info.crafting_manager=Crafting Manager Pipe
 
 item.testbridge.item_package.name=Package Config
 item.testbridge.item_placeholder.name=AE Craft Token
+
 tooltip.testbridge.fakeItemNull=Auto Craft token
 tooltip.testbridge.request=Requests %s from Logistics Pipes Network
 tooltip.testbridge.techItem=This item used for requesting & crafting logic. You have no use for it! Throw it away!
@@ -53,6 +54,7 @@ tooltip.testbridge.packageName=%s to %s
 # Part
 
 item.appliedenergistics2.multi_part.satellite_bus.name=Satellite Bus
+item.appliedenergistics2.multi_part.craftingmanager_part.name=ME Crafting Manager
 
 # GUI
 
@@ -63,6 +65,7 @@ gui.result.GuiName=Result Name
 
 gui.crafting_manager.Select=Select
 gui.crafting_manager.satellite=Satellite
+gui.crafting_manager.satselect=Select Satellite
 gui.crafting_manager.result=Result
 gui.crafting_manager.CMName=Crafting Manager
 

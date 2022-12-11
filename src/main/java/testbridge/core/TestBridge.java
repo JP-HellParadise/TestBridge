@@ -7,6 +7,14 @@ import org.apache.logging.log4j.Logger;
 
 import lombok.Getter;
 
+import net.minecraft.block.Block;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -19,14 +27,6 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.SidedProxy;
 
-import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity.ProgrammCategories;
 import logisticspipes.LPItems;
@@ -35,14 +35,14 @@ import logisticspipes.items.ItemUpgrade;
 import logisticspipes.recipes.NBTIngredient;
 import logisticspipes.recipes.RecipeManager;
 
-import testbridge.datafixer.TBDataFixer;
+import testbridge.helpers.datafixer.TBDataFixer;
 import testbridge.network.GuiHandler;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 import testbridge.pipes.upgrades.BufferCMUpgrade;
 import testbridge.proxy.CommonProxy;
-import testbridge.textures.TB_Textures;
+import testbridge.client.TB_Textures;
 
 @Mod(modid = TestBridge.ID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "", acceptedMinecraftVersions = "1.12.2")
 public class TestBridge extends LogisticsPipes {
@@ -152,8 +152,9 @@ public class TestBridge extends LogisticsPipes {
   public void initItems(RegistryEvent.Register<Item> event) {
     IForgeRegistry<Item> registry = event.getRegistry();
     //Items
-    registry.register(TBItems.itemHolder);
-    registry.register(TBItems.itemPackage);
+    registry.register(TB_ItemHandlers.itemHolder);
+    registry.register(TB_ItemHandlers.itemPackage);
+    registry.register(TB_ItemHandlers.virtualPattern);
     // Pipe
     registerPipe(registry, "result", ResultPipe::new);
     registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
@@ -182,9 +183,9 @@ public class TestBridge extends LogisticsPipes {
   }
 
   private static void loadRecipes() {
-    ResourceLocation resultPipe = TBItems.pipeResult.delegate.name();
-    ResourceLocation craftingMgrPipe = TBItems.pipeCraftingManager.delegate.name();
-    ResourceLocation bufferUpgrage = TBItems.upgradeBuffer.delegate.name();
+    ResourceLocation resultPipe = TB_ItemHandlers.pipeResult.delegate.name();
+    ResourceLocation craftingMgrPipe = TB_ItemHandlers.pipeCraftingManager.delegate.name();
+    ResourceLocation bufferUpgrage = TB_ItemHandlers.upgradeBuffer.delegate.name();
 
     LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(resultPipe);
     LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(craftingMgrPipe);
@@ -195,41 +196,41 @@ public class TestBridge extends LogisticsPipes {
       AE2Plugin.loadRecipes(group);
 
     //  Result Pipe
-    RecipeManager.craftingManager.addRecipe(new ItemStack(TBItems.pipeResult),
+    RecipeManager.craftingManager.addRecipe(new ItemStack(TB_ItemHandlers.pipeResult),
         new RecipeManager.RecipeLayout(
             " p ",
             "rfr",
             " s "
         ),
-        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TBItems.pipeResult)),
+        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TB_ItemHandlers.pipeResult)),
         new RecipeManager.RecipeIndex('r', "dustRedstone"),
         new RecipeManager.RecipeIndex('f', LPItems.chipFPGA),
         new RecipeManager.RecipeIndex('s', LPItems.pipeBasic)
     );
 
     // Crafting Manager pipe
-    RecipeManager.craftingManager.addRecipe(new ItemStack(TBItems.pipeCraftingManager),
+    RecipeManager.craftingManager.addRecipe(new ItemStack(TB_ItemHandlers.pipeCraftingManager),
         new RecipeManager.RecipeLayout(
             "fpf",
             "bsb",
             "fdf"
         ),
         new RecipeManager.RecipeIndex('b', LPItems.chipAdvanced),
-        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TBItems.pipeCraftingManager)),
+        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TB_ItemHandlers.pipeCraftingManager)),
         new RecipeManager.RecipeIndex('s', LPItems.pipeCrafting),
         new RecipeManager.RecipeIndex('d', "gemDiamond"),
         new RecipeManager.RecipeIndex('f', LPItems.chipFPGA)
     );
 
     // Buffer Upgrade
-    RecipeManager.craftingManager.addRecipe(new ItemStack(TBItems.upgradeBuffer, 1),
+    RecipeManager.craftingManager.addRecipe(new ItemStack(TB_ItemHandlers.upgradeBuffer, 1),
         new RecipeManager.RecipeLayout(
             "rpr",
             "gag",
             "qnq"
         ),
         new RecipeManager.RecipeIndex('r', "dustRedstone"),
-        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TBItems.upgradeBuffer)),
+        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TB_ItemHandlers.upgradeBuffer)),
         new RecipeManager.RecipeIndex('g', "ingotGold"),
         new RecipeManager.RecipeIndex('a', LPItems.chipAdvanced),
         new RecipeManager.RecipeIndex('q', "paper"),

@@ -1,9 +1,6 @@
 package testbridge.network.packets.gui;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import net.minecraft.entity.player.EntityPlayer;

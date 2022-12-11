@@ -13,7 +13,7 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 
 import network.rs485.logisticspipes.connection.*;
 
-import testbridge.interfaces.ISatellitePipe;
+import testbridge.helpers.interfaces.ISatellitePipe;
 
 @Mixin(PipeItemsSatelliteLogistics.class)
 public abstract class TB_MixinSatellitePipe extends CoreRoutedPipe implements ISatellitePipe {

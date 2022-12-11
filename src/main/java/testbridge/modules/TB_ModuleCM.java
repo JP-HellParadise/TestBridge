@@ -37,7 +37,7 @@ import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.*;
 
-import testbridge.interfaces.ISatellitePipe;
+import testbridge.helpers.interfaces.ISatellitePipe;
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeUpdatePacket;
 import testbridge.pipes.PipeCraftingManager;

@@ -34,9 +34,9 @@ import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.SatellitePipe;
 
 import testbridge.core.TestBridge;
-import testbridge.network.packets.HandleResultPacket.TB_SyncNamePacket;
+import testbridge.network.packets.resultpackethandler.TB_SyncNamePacket;
 import testbridge.network.GuiIDs;
-import testbridge.textures.TB_Textures;
+import testbridge.client.TB_Textures;
 
 public class ResultPipe extends CoreRoutedPipe implements IHeadUpDisplayRendererProvider, IChangeListener, SatellitePipe, IChassisPipe, ISendRoutedItem {
   public static final Set<ResultPipe> AllResults = Collections.newSetFromMap(new WeakHashMap<>());

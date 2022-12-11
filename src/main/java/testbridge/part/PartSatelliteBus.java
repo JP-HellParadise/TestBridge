@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -45,7 +46,7 @@ import network.rs485.logisticspipes.SatellitePipe;
 import testbridge.core.TestBridge;
 import testbridge.items.FakeItem;
 import testbridge.network.GuiIDs;
-import testbridge.network.packets.HandleResultPacket.TB_SyncNamePacket;
+import testbridge.network.packets.resultpackethandler.TB_SyncNamePacket;
 
 public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe {
 
@@ -59,7 +60,6 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
 
   public static final Set<PartSatelliteBus> AllSatellites = Collections.newSetFromMap(new WeakHashMap<>());
   public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-  private List<IAEItemStack> itemsToInsert = new ArrayList<>();
   private String satelliteBusName = "";
 
   @Reflected
@@ -83,7 +83,6 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
     super.readFromNBT(extra);
     this.satelliteBusName = extra.getString("satelliteBusName");
 
-    itemsToInsert.clear();
     if (MainProxy.isServer(getTile().getWorld())) {
       ensureAllSatelliteStatus();
     }
@@ -107,22 +106,6 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
     {
       return TickRateModulation.IDLE;
     }
-    if(!itemsToInsert.isEmpty()){
-      ListIterator<IAEItemStack> itr = itemsToInsert.listIterator();
-      boolean didSomething = false;
-      while (itr.hasNext()) {
-        IAEItemStack stack = itr.next();
-        if(stack == null){
-          itr.remove();
-          continue;
-        }
-        IAEItemStack result = injectCraftedItems(stack, Actionable.MODULATE);
-        if(!stack.equals(result))didSomething = true;
-        if(result != null)itr.set(result);
-        else itr.remove();
-      }
-      return didSomething ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
-    }
     return TickRateModulation.SLOWER;
   }
 
@@ -139,6 +122,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
   {
     return 1;
   }
+
   private IAEItemStack injectCraftedItems( final IAEItemStack items, final Actionable mode ) {
     final InventoryAdaptor d = this.getHandler();
 
@@ -207,7 +191,11 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
 
   @Override
   public TileEntity getContainer() {
-    return getTile();
+    return this.getTile();
+  }
+
+  public EnumFacing getTargets() {
+    return this.getSide().getFacing();
   }
 
   @Override

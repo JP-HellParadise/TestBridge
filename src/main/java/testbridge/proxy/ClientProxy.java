@@ -27,7 +27,7 @@ import appeng.core.Api;
 import appeng.items.parts.ItemPart;
 
 import testbridge.core.AE2Plugin;
-import testbridge.core.TBItems;
+import testbridge.core.TB_ItemHandlers;
 import testbridge.core.TestBridge;
 import testbridge.utils.MeshDefinitionFix;
 
@@ -74,6 +74,7 @@ public class ClientProxy extends CommonProxy {
         ItemVariantsComponent_resources.setAccessible(true);
         HashSet<ResourceLocation> resources = (HashSet<ResourceLocation>) ItemVariantsComponent_resources.get(partReg);
         resources.addAll(AE2Plugin.SATELLITE_BUS.getItemModels());
+        resources.addAll(AE2Plugin.CRAFTINGMANAGER_PART.getItemModels());
       } catch (Exception e) {
         throw new RuntimeException("Error registering part model", e);
       }
@@ -142,8 +143,9 @@ public class ClientProxy extends CommonProxy {
   @Override
   public void registerTextures() {
     TestBridge.TBTextures.registerBlockIcons(Minecraft.getMinecraft().getTextureMapBlocks());
-    registerItemModel(TBItems.itemPackage, "testbridge:item_package");
-    registerItemModel(TBItems.itemHolder, "testbridge:item_placeholder");
+    registerItemModel(TB_ItemHandlers.itemPackage, "testbridge:item_package");
+    registerItemModel(TB_ItemHandlers.itemHolder, "testbridge:item_placeholder");
+    registerItemModel(TB_ItemHandlers.virtualPattern, "testbridge:item_virtualpattern");
   }
 
   @SubscribeEvent

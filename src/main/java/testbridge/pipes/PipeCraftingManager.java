@@ -64,8 +64,8 @@ import network.rs485.logisticspipes.connection.*;
 import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.SlottedModule;
 
-import testbridge.gui.GuiCMPipe;
-import testbridge.logisticspipes.CMTransportLayer;
+import testbridge.client.gui.GuiCMPipe;
+import testbridge.helpers.CMTransportLayer;
 import testbridge.modules.TB_ModuleCM;
 import testbridge.modules.TB_ModuleCrafter;
 import testbridge.network.packets.pipe.CMOrientationPacket;
@@ -73,7 +73,7 @@ import testbridge.network.packets.pipe.CMPipeModuleContent;
 import testbridge.network.packets.pipe.RequestCMOrientationPacket;
 import testbridge.pipes.upgrades.BufferCMUpgrade;
 import testbridge.pipes.upgrades.ModuleUpgradeManager;
-import testbridge.textures.TB_Textures;
+import testbridge.client.TB_Textures;
 
 @CCType(name = "TestBridge:CraftingManager")
 public class PipeCraftingManager extends CoreRoutedPipe

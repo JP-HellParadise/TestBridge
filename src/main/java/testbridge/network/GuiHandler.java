@@ -2,6 +2,7 @@ package testbridge.network;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -13,20 +14,20 @@ import appeng.api.util.AEPartLocation;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.gui.DummyContainer;
 
+import testbridge.client.gui.GuiPackage;
 import testbridge.container.ContainerPackage;
-import testbridge.gui.GuiPackage;
 import testbridge.items.FakeItem;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.ResultPipe;
-import testbridge.gui.GuiResultPipe;
+import testbridge.client.gui.GuiResultPipe;
 
-public class GuiHandler extends logisticspipes.network.GuiHandler{
+public class GuiHandler extends logisticspipes.network.GuiHandler {
 
   @Override
   public Object getServerGuiElement(int ID, EntityPlayer player, World world, final int x, final int y, final int z) {
     // Satellite Bus checker
-    if(ID >= 100 && ID < 120){
-      AEPartLocation side = AEPartLocation.fromOrdinal( ID - 100 );
+    if(ID >= GuiIDs.GUI_SatelliteBus_ID && ID < GuiIDs.GUI_SatelliteBus_ID + 6){
+      AEPartLocation side = AEPartLocation.fromOrdinal( ID - GuiIDs.GUI_SatelliteBus_ID );
       TileEntity TE = world.getTileEntity( new BlockPos( x, y, z ) );
       if( TE instanceof IPartHost ) {
         IPart part = ( (IPartHost) TE ).getPart( side );
@@ -59,6 +60,7 @@ public class GuiHandler extends logisticspipes.network.GuiHandler{
           if (onHand instanceof FakeItem) {
             return new ContainerPackage(player);
           }
+          return null;
 
         default:
           break;
@@ -70,8 +72,8 @@ public class GuiHandler extends logisticspipes.network.GuiHandler{
   @Override
   public Object getClientGuiElement(int ID, EntityPlayer player, final World world, int x, int y, int z) {
     // Satellite Bus checker
-    if(ID >= 100 && ID < 120){
-      AEPartLocation side = AEPartLocation.fromOrdinal( ID - 100 );
+    if(ID >= GuiIDs.GUI_SatelliteBus_ID && ID < GuiIDs.GUI_SatelliteBus_ID + 6){
+      AEPartLocation side = AEPartLocation.fromOrdinal( ID - GuiIDs.GUI_SatelliteBus_ID );
       TileEntity TE = world.getTileEntity( new BlockPos( x, y, z ) );
       if( TE instanceof IPartHost) {
         IPart part = ((IPartHost) TE).getPart( side );
@@ -90,7 +92,6 @@ public class GuiHandler extends logisticspipes.network.GuiHandler{
 
     if (ID < 100 && ID > 0) {
       switch (GuiIDs.ENUM.values()[ID]) {
-
         case RESULT_PIPE:
           if (pipe != null && pipe.pipe instanceof ResultPipe) {
             return new GuiResultPipe<>(((ResultPipe) pipe.pipe), "gui.result.");
@@ -98,10 +99,11 @@ public class GuiHandler extends logisticspipes.network.GuiHandler{
           return null;
 
         case TEMPLATE_PKG:
-          Item onHand = player.getHeldItemMainhand().getItem();
-          if (onHand instanceof FakeItem) {
+          ItemStack onHand = player.getHeldItemMainhand();
+          if (onHand.getItem() instanceof FakeItem) {
             return new GuiPackage(onHand, player, null);
           }
+          return null;
 
         default:
           break;

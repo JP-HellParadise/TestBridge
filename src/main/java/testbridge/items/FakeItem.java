@@ -10,22 +10,21 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemAir;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import appeng.items.AEBaseItem;
 import appeng.util.Platform;
 
-import testbridge.core.TBItems;
+import testbridge.core.TB_ItemHandlers;
 import testbridge.core.TestBridge;
 import testbridge.network.GuiIDs;
 
@@ -53,8 +52,8 @@ public class FakeItem extends AEBaseItem {
           if (getItemStack(is) != null && !getItemStack(is).isEmpty()) {
             w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, getItemStack(is).copy()));
           }
+          is.shrink(1);
         }
-        is.shrink(1);
         return new ActionResult<>(EnumActionResult.SUCCESS, is);
       } else {
         player.openGui(TestBridge.INSTANCE, GuiIDs.ENUM.TEMPLATE_PKG.ordinal(), w, hand.ordinal(), 0, 0);
@@ -79,7 +78,7 @@ public class FakeItem extends AEBaseItem {
 
     final InventoryPlayer inv = player.inventory;
 
-    ItemStack is = new ItemStack(TBItems.itemPackage, item.getCount());
+    ItemStack is = new ItemStack(TB_ItemHandlers.itemPackage, item.getCount());
     if (!is.isEmpty()) {
       for (int s = 0; s < player.inventory.getSizeInventory(); s++) {
         if (inv.getStackInSlot(s) == item) {
@@ -105,6 +104,10 @@ public class FakeItem extends AEBaseItem {
 
   private String getItemName(ItemStack is) {
     return getItemCount(is) == 0 ? "" : getItemStack(is).getItem().getItemStackDisplayName(is);
+  }
+
+  private String getSatName(ItemStack is) {
+    return is.hasTagCompound() ? (is.getTagCompound().hasKey("__pkgDest") ? is.getTagCompound().getString("__pkgDest") : "") : "";
   }
 
   @Override

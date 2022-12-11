@@ -79,6 +79,10 @@ repositories {
 	maven {
 		url = "https://maven.removeco.de/"
 	}
+	maven {
+		name "Ellpeck"
+		url "https://maven.ellpeck.de"
+	}
 	flatDir {
 		dirs "lib"
 	}
@@ -106,6 +110,8 @@ dependencies {
 	compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
 	compileOnly group: 'mcjty.theoneprobe', name: 'TheOneProbe-1.12', version: '1.12-1.4.28-17', classifier: 'api'
 	compileOnly group: 'li.cil.oc', name: 'OpenComputers', version: 'MC1.12.2-1.7.5.205', classifier: 'api'
+	compileOnly group: 'de.ellpeck.actuallyadditions', name : 'ActuallyAdditions', version: '1.12.2-r152.16', classifier: 'api'
+
 
 	//runtime so that mods loaded on runClient & runServer
 	runtime project.ccl_dep
