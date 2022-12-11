@@ -1,4 +1,5 @@
 [![Github Action](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml/badge.svg)](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml)
+Update will push back for implement Crafting Manager
 ## Features
 - Logistics Pipe:
     + Result pipe
