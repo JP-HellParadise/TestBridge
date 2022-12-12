@@ -1,5 +1,7 @@
 package testbridge.proxy;
 
+import net.minecraft.item.Item;
+
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -18,4 +20,7 @@ public class CommonProxy implements IProxy {
 
   @Override
   public void registerTextures() {}
+
+  @Override
+  public void addRenderer(Item item) {}
 }

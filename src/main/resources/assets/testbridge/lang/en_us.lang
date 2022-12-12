@@ -45,11 +45,7 @@ tooltip.testbridge.packageName=%s to %s
 
 # Blocks
 
-#tile.testbridge.tile_cm.name=ME Crafting Manager
-#tile.testbridge.tile_cm.tip1=Type: Active Requesters + Source
-#tile.testbridge.tile_cm.tip2= - Can hold 27 Patterns.
-#tile.testbridge.tile_cm.tip3= - Automatically request items to be crafted when queued.
-#tile.testbridge.tile_cm.tip4= - Can use a satellite bus to send inputs.
+tile.appliedenergistics2.crafting_manager.name=ME Crafting Manager
 
 # Part
 
@@ -65,7 +61,6 @@ gui.result.GuiName=Result Name
 
 gui.crafting_manager.Select=Select
 gui.crafting_manager.satellite=Satellite
-gui.crafting_manager.satselect=Select Satellite
 gui.crafting_manager.result=Result
 gui.crafting_manager.CMName=Crafting Manager
 

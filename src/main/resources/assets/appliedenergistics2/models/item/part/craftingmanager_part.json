@@ -1,60 +1,46 @@
 {
-    "parent": "appliedenergistics2:item/part/part",
-    "textures": {
-        "sides": "appliedenergistics2:parts/p2p_tunnel_sides",
-        "back": "testbridge:blocks/crafting_manager_back",
-        "front": "appliedenergistics2:items/part/p2p_tunnel_front",
-        "type": "appliedenergistics2:items/part/import_bus"
-    },
-    "elements": [
-        {
-            "from": [
-                2,
-                2,
-                7
-            ],
-            "to": [
-                14,
-                14,
-                9
-            ],
-            "faces": {
-                "north": {
-                    "texture": "#type"
-                }
-            }
-        },
-        {
-            "from": [
-                2,
-                2,
-                7
-            ],
-            "to": [
-                14,
-                14,
-                9
-            ],
-            "faces": {
-                "north": {
-                    "texture": "#front"
-                },
-                "south": {
-                    "texture": "#back"
-                },
-                "east": {
-                    "texture": "#sides"
-                },
-                "west": {
-                    "texture": "#sides"
-                },
-                "up": {
-                    "texture": "#sides"
-                },
-                "down": {
-                    "texture": "#sides"
-                }
-            }
-        }
-    ]
+	"parent": "appliedenergistics2:item/part/part",
+	"textures": {
+		"back": "appliedenergistics2:parts/monitor_sides",
+		"particle": "testbridge:blocks/crafting_manager_back",
+		"front": "testbridge:blocks/crafting_manager_back"
+	},
+	"elements": [
+		{
+			"from": [2, 2, 7],
+			"to": [14, 14, 9],
+			"faces": {
+				"north": {"uv": [2, 2, 14, 14], "texture": "#front"},
+				"east": {"uv": [13, 2, 14, 14], "texture": "#front"},
+				"south": {"uv": [2, 2, 14, 14], "texture": "#front"},
+				"west": {"uv": [2, 2, 3, 14], "texture": "#front"},
+				"up": {"uv": [2, 2, 14, 3], "texture": "#front"},
+				"down": {"uv": [2, 13, 14, 14], "texture": "#front"}
+			}
+		},
+		{
+			"from": [5, 5, 10],
+			"to": [11, 11, 11],
+			"faces": {
+				"north": {"uv": [5, 5, 11, 11], "texture": "#back"},
+				"east": {"uv": [5, 5, 6, 11], "texture": "#back"},
+				"south": {"uv": [5, 5, 11, 11], "texture": "#back"},
+				"west": {"uv": [10, 5, 11, 11], "texture": "#back"},
+				"up": {"uv": [5, 10, 11, 11], "texture": "#back"},
+				"down": {"uv": [5, 5, 11, 6], "texture": "#back"}
+			}
+		},
+		{
+			"from": [5, 5, 9],
+			"to": [11, 11, 10],
+			"faces": {
+				"north": {"uv": [5, 5, 11, 11], "texture": "#back"},
+				"east": {"uv": [6, 5, 7, 11], "texture": "#back"},
+				"south": {"uv": [5, 5, 11, 11], "texture": "#missing"},
+				"west": {"uv": [9, 5, 10, 11], "texture": "#back"},
+				"up": {"uv": [5, 9, 11, 10], "texture": "#back"},
+				"down": {"uv": [5, 6, 11, 7], "texture": "#back"}
+			}
+		}
+	]
 }

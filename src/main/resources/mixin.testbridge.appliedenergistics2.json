@@ -3,6 +3,7 @@
   "package": "testbridge.mixins.appliedenergistics2",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "TB_APIBlocks"
   ],
   "client": [],
   "server": []

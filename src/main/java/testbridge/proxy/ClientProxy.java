@@ -3,6 +3,8 @@ package testbridge.proxy;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import appeng.client.gui.implementations.GuiMEMonitorable;
+import appeng.client.me.ItemRepo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
@@ -10,8 +12,10 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -34,10 +38,23 @@ import testbridge.utils.MeshDefinitionFix;
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
   private List<Item> renderers = new ArrayList<>();
+  public static Field GuiMEMonitorable_Repo, ItemRepo_myPartitionList;
 
   public void preInit(FMLPreInitializationEvent event) {}
 
-  public void init(FMLInitializationEvent event) {}
+  public void init(FMLInitializationEvent event) {
+    try {
+      if(TestBridge.isAELoaded()){
+        GuiMEMonitorable_Repo = GuiMEMonitorable.class.getDeclaredField("repo");
+        GuiMEMonitorable_Repo.setAccessible(true);
+        ItemRepo_myPartitionList = ItemRepo.class.getDeclaredField("myPartitionList");
+        ItemRepo_myPartitionList.setAccessible(true);
+      }
+    } catch (SecurityException | NoSuchFieldException e) {
+      throw new RuntimeException(e);
+    }
+    MinecraftForge.EVENT_BUS.register(this);
+  }
 
   public void postInit(FMLPostInitializationEvent event) {}
 
@@ -111,7 +128,7 @@ public class ClientProxy extends CommonProxy {
    * @param item          The Item
    * @param modelLocation The model location
    */
-  private void registerItemModel(final Item item, final String modelLocation) {
+  public void registerItemModel(final Item item, final String modelLocation) {
     final ModelResourceLocation fullModelLocation = new ModelResourceLocation(modelLocation, "inventory");
     registerItemModel(item, fullModelLocation);
   }
@@ -149,9 +166,9 @@ public class ClientProxy extends CommonProxy {
   }
 
   @SubscribeEvent
-  public void loadModels(ModelRegistryEvent event) {
+  public void onDrawBackgroundEventPost(GuiScreenEvent.BackgroundDrawnEvent event) {
     if (TestBridge.isAELoaded()) {
-      AE2Plugin.loadModels();
+      AE2Plugin.hideFakeItems(event);
     }
   }
 }

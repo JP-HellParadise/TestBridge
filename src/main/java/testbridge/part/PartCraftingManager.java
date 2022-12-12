@@ -39,6 +39,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.IConfigManager;
+import appeng.core.AppEng;
 import appeng.core.localization.PlayerMessages;
 import appeng.core.sync.GuiBridge;
 import appeng.helpers.IPriorityHost;
@@ -64,13 +65,13 @@ public class PartCraftingManager extends PartBasicState
   public static final ResourceLocation MODEL_BASE = new ResourceLocation(TestBridge.ID, "part/crafting_manager_base");
 
   @PartModels
-  public static final PartModel MODELS_OFF = new PartModel(MODEL_BASE, new ResourceLocation(TestBridge.ID, "part/satellite_bus_off"));
+  public static final PartModel MODELS_OFF = new PartModel(MODEL_BASE, new ResourceLocation(AppEng.MOD_ID, "part/interface_off"));
 
   @PartModels
-  public static final PartModel MODELS_ON = new PartModel(MODEL_BASE, new ResourceLocation(TestBridge.ID, "part/satellite_bus_on"));
+  public static final PartModel MODELS_ON = new PartModel(MODEL_BASE, new ResourceLocation(AppEng.MOD_ID, "part/interface_on"));
 
   @PartModels
-  public static final PartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(TestBridge.ID, "part/satellite_bus_has_channel"));
+  public static final PartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(AppEng.MOD_ID, "part/interface_has_channel"));
 
   private final DualityCraftingManager duality = new DualityCraftingManager(this.getProxy(), this);
 

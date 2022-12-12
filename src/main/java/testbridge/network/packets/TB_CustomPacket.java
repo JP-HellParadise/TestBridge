@@ -114,7 +114,9 @@ public class TB_CustomPacket extends CoordinatesPacket {
             IGridHost h = node.getMachine();
             if (h instanceof PartSatelliteBus) {
               PartSatelliteBus part = (PartSatelliteBus) h;
-              list.add(part.getSatellitePipeName());
+              if (!part.getSatellitePipeName().equals("")){
+                list.add(part.getSatellitePipeName());
+              }
             }
           }
         } catch (final GridAccessException ignore) {

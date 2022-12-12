@@ -102,11 +102,6 @@ public class TestBridge extends LogisticsPipes {
       AE2Plugin.preInit();
     }
 
-    if (AELoaded) {
-      // Cause game suck
-
-    }
-
     if (RSLoaded) {
 
     }
@@ -130,6 +125,7 @@ public class TestBridge extends LogisticsPipes {
     TBDataFixer.INSTANCE.init();
 
     loadRecipes();
+    proxy.init(evt);
 
     log.info("Initialization took in {} milliseconds", (System.currentTimeMillis() - tM));
     log.info("==================================================================================");
@@ -166,7 +162,6 @@ public class TestBridge extends LogisticsPipes {
   @Override
   public void initBlocks(RegistryEvent.Register<Block> event) {
     IForgeRegistry<Block> registry = event.getRegistry();
-
     // TODO Block
   }
 
@@ -244,5 +239,4 @@ public class TestBridge extends LogisticsPipes {
     programmerStack.getTagCompound().setString("LogisticsRecipeTarget", targetPipe.toString());
     return NBTIngredient.fromStacks(programmerStack);
   }
-
 }
