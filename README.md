@@ -7,7 +7,7 @@
 
 - Applied Energistics 2:  
     + Satellite Bus  
-    + Crafting Manager (part for now, will have tile later)  
+    + Crafting Manager (tile texture don't show yet, but they are functional now)  
     + Package  
 
 [//]: # (- Refined Storage:  WIP  )
@@ -20,7 +20,7 @@
 5. Instead of running `genIntellijRuns` and using generated IntelliJ tasks, just run `gradlew runClient` and `gradlew runServer`.
 
 ## Current stage & version: PoC
-Beta 0.2.0
+Beta 0.2.1
 
 ## Proof of concept
 ![Concept](/Stuff/concept.gif)
