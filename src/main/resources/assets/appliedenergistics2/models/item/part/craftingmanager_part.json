@@ -2,8 +2,8 @@
 	"parent": "appliedenergistics2:item/part/part",
 	"textures": {
 		"back": "appliedenergistics2:parts/monitor_sides",
-		"particle": "testbridge:blocks/crafting_manager_back",
-		"front": "testbridge:blocks/crafting_manager_back"
+		"particle": "testbridge:blocks/crafting_manager",
+		"front": "testbridge:blocks/crafting_manager"
 	},
 	"elements": [
 		{

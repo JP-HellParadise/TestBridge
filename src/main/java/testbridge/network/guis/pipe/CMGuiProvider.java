@@ -11,7 +11,7 @@ import net.minecraft.item.ItemStack;
 
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.modules.LogisticsModule;
-import logisticspipes.network.abstractguis.BooleanModuleCoordinatesGuiProvider;
+import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.GuiProvider;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
@@ -28,7 +28,7 @@ import testbridge.pipes.upgrades.ModuleUpgradeManager;
 import testbridge.helpers.DummyContainer;
 
 @StaticResolve
-public class CMGuiProvider extends BooleanModuleCoordinatesGuiProvider {
+public class CMGuiProvider extends ModuleCoordinatesGuiProvider {
 
   @Getter
   @Setter
@@ -53,7 +53,7 @@ public class CMGuiProvider extends BooleanModuleCoordinatesGuiProvider {
     if (!(pipe.pipe instanceof PipeCraftingManager) || module == null) {
       return null;
     }
-    module.blockingMode.setValue(BlockingMode.values()[blockingMode]);
+    module.getBlockingMode().setValue(BlockingMode.values()[blockingMode]);
     return new GuiCMPipe(player, (PipeCraftingManager) pipe.pipe, module, isBufferUpgrade, isContainerConnected);
   }
 
@@ -72,13 +72,11 @@ public class CMGuiProvider extends BooleanModuleCoordinatesGuiProvider {
       for (int j = 0; j < 9; j++)
         dummy.addCMModuleSlot(9*i+j, _moduleInventory, 8 + 18*j, 16 + 18*i, _cmPipe);
 
-    if (_cmPipe.getUpgradeManager().hasUpgradeModuleUpgrade()) {
-      for (int i = 0; i < _cmPipe.getChassisSize(); i++) {
-        final int fI = i;
-        ModuleUpgradeManager upgradeManager = _cmPipe.getModuleUpgradeManager(i);
-        dummy.addUpgradeSlot(0, upgradeManager, 0, - (i - _cmPipe.getChassisSize()) * 18, 9 + i * 20, itemStack -> CMGuiProvider.checkStack(itemStack, _cmPipe, fI));
-        dummy.addUpgradeSlot(1, upgradeManager, 1, - (i - _cmPipe.getChassisSize()) * 18, 9 + i * 20, itemStack -> CMGuiProvider.checkStack(itemStack, _cmPipe, fI));
-      }
+    for (int i = 0; i < _cmPipe.getChassisSize(); i++) {
+      final int fI = i;
+      ModuleUpgradeManager upgradeManager = _cmPipe.getModuleUpgradeManager(i);
+      dummy.addUpgradeSlot(0, upgradeManager, 0, - (_cmPipe.getChassisSize()) * 18, 9 + i * 20, itemStack -> CMGuiProvider.checkStack(itemStack, _cmPipe, fI));
+      dummy.addUpgradeSlot(1, upgradeManager, 1, - (_cmPipe.getChassisSize()) * 18, 9 + i * 20, itemStack -> CMGuiProvider.checkStack(itemStack, _cmPipe, fI));
     }
     _cmPipe.localModeWatchers.add(player);
     return dummy;

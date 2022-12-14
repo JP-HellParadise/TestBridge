@@ -91,7 +91,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
   @Nonnull
   @Override
   public TickingRequest getTickingRequest(@Nonnull final IGridNode node ) {
-    return new TickingRequest( TickRates.ExportBus.getMin(), TickRates.ExportBus.getMax(), this.isSleeping(), false );
+    return new TickingRequest( TickRates.StorageBus.getMax(), TickRates.Interface.getMax(), this.isSleeping(), false );
   }
 
   @Nonnull
@@ -121,34 +121,6 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
   public float getCableConnectionLength( AECableType cable )
   {
     return 1;
-  }
-
-  private IAEItemStack injectCraftedItems( final IAEItemStack items, final Actionable mode ) {
-    final InventoryAdaptor d = this.getHandler();
-
-    try
-    {
-      if( d != null && this.getProxy().isActive() )
-      {
-        final IEnergyGrid energy = this.getProxy().getEnergy();
-        final double power = items.getStackSize();
-
-        if( energy.extractAEPower( power, mode, PowerMultiplier.CONFIG ) > power - 0.01 )
-        {
-          if( mode == Actionable.MODULATE )
-          {
-            return AEItemStack.fromItemStack( d.addItems( items.createItemStack() ) );
-          }
-          return AEItemStack.fromItemStack( d.simulateAdd( items.createItemStack() ) );
-        }
-      }
-    }
-    catch( final GridAccessException e )
-    {
-      AELog.debug( e );
-    }
-
-    return items;
   }
 
   @Nonnull

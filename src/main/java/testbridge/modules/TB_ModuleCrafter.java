@@ -251,9 +251,9 @@ public class TB_ModuleCrafter extends ModuleCrafter {
     //final List<ExitRoute> routes = getRouter().getIRoutersByCost();
     if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
       // Make sure own CM doesn't idiot screw up
-      if (!(pipeCM.getModules().resultUUID.isZero() || pipeCM.getModules().satelliteUUID.isZero())) {
-        int satModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(pipeCM.getModules().satelliteUUID.getValue());
-        int resultModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(pipeCM.getModules().resultUUID.getValue());
+      if (!(pipeCM.getModules().getResultUUID().isZero() || pipeCM.getModules().getSatelliteUUID().isZero())) {
+        int satModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(pipeCM.getModules().getSatelliteUUID().getValue());
+        int resultModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(pipeCM.getModules().getResultUUID().getValue());
         if (satModuleRouterId != -1 && resultModuleRouterId != -1) {
           List<ExitRoute> sat_rt = getRouter().getRouteTable().get(satModuleRouterId);
           List<ExitRoute> result_rt = getRouter().getRouteTable().get(satModuleRouterId);
@@ -629,22 +629,28 @@ public class TB_ModuleCrafter extends ModuleCrafter {
 
   @Override
   protected int neededEnergy() {
-    return (int) (10 * Math.pow(1.1, getUpgradeManager().getItemExtractionUpgrade()) * Math
-        .pow(1.2, getUpgradeManager().getItemStackExtractionUpgrade()));
+    return (int) (10 * Math.pow(1.1, getResultUM().getItemExtractionUpgrade()) * Math
+        .pow(1.2, getResultUM().getItemStackExtractionUpgrade()));
   }
 
   @Override
   protected int itemsToExtract() {
-    return (int) Math.pow(2, getUpgradeManager().getItemExtractionUpgrade());
+    return (int) Math.pow(2, getResultUM().getItemExtractionUpgrade());
   }
 
   @Override
   protected int stacksToExtract() {
-    return 1 + getUpgradeManager().getItemStackExtractionUpgrade();
+    return 1 + getResultUM().getItemStackExtractionUpgrade();
   }
 
   @Nonnull
   protected ISlotUpgradeManager getUpgradeManager() {
+    return Objects.requireNonNull(_service, "service object was null in " + this)
+        .getUpgradeManager(slot, positionInt);
+  }
+
+  @Nonnull
+  protected ISlotUpgradeManager getResultUM() {
     return Objects.requireNonNull(resultService, "service object was null in " + this)
         .getUpgradeManager(slot, positionInt);
   }

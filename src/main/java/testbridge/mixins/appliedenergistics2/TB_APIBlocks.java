@@ -23,7 +23,7 @@ public abstract class TB_APIBlocks implements IBlocks_TB {
   private IBlockDefinition cmBlock;
 
   @Override
-  public IBlockDefinition craftingManagerBlock() {
+  public IBlockDefinition cmBlock() {
     return cmBlock;
   };
 

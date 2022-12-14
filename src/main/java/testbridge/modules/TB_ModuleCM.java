@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.tuple.Pair;
 
+import lombok.Getter;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -44,12 +46,15 @@ import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 
 public class TB_ModuleCM extends LogisticsModule implements Gui {
-
-  public final UUIDProperty satelliteUUID = new UUIDProperty(null, "satelliteUUID");
-  public final UUIDProperty resultUUID = new UUIDProperty(null, "resultUUID");
-  public final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
+  @Getter
+  private final UUIDProperty satelliteUUID = new UUIDProperty(null, "satelliteUUID");
+  @Getter
+  private final UUIDProperty resultUUID = new UUIDProperty(null, "resultUUID");
+  @Getter
+  private final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
+  @Getter
+  private ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
   private final List<Property<?>> properties;
-  public ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
   private List<List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>>> bufferlist = new ArrayList<>();
   private int sendCooldown = 0;
   private UpdateSatResultFromIDs updateSatResultFromIDs = null;
@@ -317,8 +322,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
     return NewGuiHandler.getGui(CMGuiProvider.class)
         .setBufferUpgrade(parentPipe.hasBufferUpgrade())
         .setBlockingMode(blockingMode.getValue().ordinal())
-        .setContainerConnected(parentPipe.getAvailableAdjacent().inventories().isEmpty())
-        .setFlag(parentPipe.getUpgradeManager().hasUpgradeModuleUpgrade());
+        .setContainerConnected(parentPipe.getAvailableAdjacent().inventories().isEmpty());
   }
 
   @Nonnull

@@ -59,19 +59,17 @@ public class TB_SetNamePacket extends StringCoordinatesPacket {
           }
         }
       } catch (TargetNotFoundException e) {
-        TileEntity TE = getTileAs(player.getEntityWorld(), IPartHost.class).getTile();
-        if (TE instanceof TileCableBus) {
-          IPart iPart = ((TileCableBus) TE).getPart(AEPartLocation.fromOrdinal(getSide()));
-          if (iPart instanceof PartSatelliteBus) {
-            if (((PartSatelliteBus) iPart).getSatellitesOfType().stream().anyMatch(it -> it.getSatellitePipeName().equals(newName))) {
-              result = SatelliteNamingResult.DUPLICATE_NAME;
-            } else {
-              result = SatelliteNamingResult.SUCCESS;
-              ((PartSatelliteBus) iPart).setSatellitePipeName(newName);
-              ((PartSatelliteBus) iPart).updateWatchers();
-              ((PartSatelliteBus) iPart).ensureAllSatelliteStatus();
-              TE.markDirty();
-            }
+        IPart iPart = getTileAs(player.getEntityWorld(), IPartHost.class).getPart(AEPartLocation.fromOrdinal(getSide()));
+        if (iPart instanceof PartSatelliteBus) {
+          PartSatelliteBus part = (PartSatelliteBus) iPart;
+          if ((part).getSatellitesOfType().stream().anyMatch(it -> it.getSatellitePipeName().equals(newName))) {
+            result = SatelliteNamingResult.DUPLICATE_NAME;
+          } else {
+            result = SatelliteNamingResult.SUCCESS;
+            part.setSatellitePipeName(newName);
+            part.updateWatchers();
+            part.ensureAllSatelliteStatus();
+            part.getTile().markDirty();
           }
         }
       }

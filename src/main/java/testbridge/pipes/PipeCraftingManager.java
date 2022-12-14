@@ -396,6 +396,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
       if (stackItem instanceof ItemModule) {
         LogisticsModule current = moduleCM.getModule(i);
         LogisticsModule next = getModuleForItem(stack, moduleCM.getModule(i), this, this);
+        Objects.requireNonNull(next, "getModuleForItem returned null for " + stack);
         next.registerPosition(ModulePositionType.SLOT, i);
         if (current != next) {
           moduleCM.installModule(i, next);
@@ -680,6 +681,18 @@ public class PipeCraftingManager extends CoreRoutedPipe
     return false;
   }
 
+  @Nonnull
+  @Override
+  public ISlotUpgradeManager getUpgradeManager(ModulePositionType slot, int positionInt) {
+    if (slot != ModulePositionType.SLOT || positionInt >= slotUpgradeManagers.size()) {
+      if (LogisticsPipes.isDEBUG()) {
+        new UnsupportedOperationException("Position info aren't for a crafting manager pipe. (" + slot + "/" + positionInt + ")").printStackTrace();
+      }
+      return super.getUpgradeManager(slot, positionInt);
+    }
+    return slotUpgradeManagers.get(positionInt);
+  }
+
   @Override
   public int getTodo() {
     // TODO Auto-generated method stub
@@ -719,13 +732,13 @@ public class PipeCraftingManager extends CoreRoutedPipe
   }
 
   public IRouter getCMSatelliteRouter() {
-    final UUID satelliteUUID = getModules().satelliteUUID.getValue();
+    final UUID satelliteUUID = getModules().getSatelliteUUID().getValue();
     final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID);
     return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
   }
 
   public IRouter getCMResultRouter() {
-    final UUID resultUUID = getModules().resultUUID.getValue();
+    final UUID resultUUID = getModules().getResultUUID().getValue();
     final int resultRouterId = SimpleServiceLocator.routerManager.getIDforUUID(resultUUID);
     return SimpleServiceLocator.routerManager.getRouter(resultRouterId);
   }
@@ -737,5 +750,9 @@ public class PipeCraftingManager extends CoreRoutedPipe
       }
     }
     return false;
+  }
+
+  public int getBlockingMode() {
+    return moduleCM != null ? moduleCM.getBlockingMode().getValue().ordinal() : 0;
   }
 }

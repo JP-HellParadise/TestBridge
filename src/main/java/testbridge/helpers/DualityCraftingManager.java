@@ -404,7 +404,7 @@ public class DualityCraftingManager
   }
 
   private boolean hasWorkToDo() {
-    return hasItemsToSend() || hasItemsToSendOnSat();
+    return hasItemsToSend() || hasItemsToSendOnSat() || hasPkgToCreate();
   }
 
   public void notifyNeighbors() {
@@ -522,13 +522,12 @@ public class DualityCraftingManager
 
   @Override
   public TickingRequest getTickingRequest(final IGridNode node) {
-    return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), !this.hasWorkToDo(), true);
+    return new TickingRequest(2, TickRates.Interface.getMax(), !this.hasWorkToDo(), true);
   }
 
   @Override
   public TickRateModulation tickingRequest(final IGridNode node, final int ticksSinceLastCall) {
     if (!this.gridProxy.isActive()) {
-      if (this.hasPkgToCreate()) return TickRateModulation.URGENT;
       return TickRateModulation.SLEEP;
     }
 
@@ -542,13 +541,13 @@ public class DualityCraftingManager
         this.pushCustomItemsOut(waitingToSendOnSat.keySet());
     }
 
-    final boolean hasPkgCreate = this.hasPkgToCreate();
-    if (hasPkgCreate) {
+    if (this.hasPkgToCreate()) {
       this.createPkg();
+      return TickRateModulation.URGENT;
     }
 
 
-    return this.hasWorkToDo() || hasPkgCreate ? (hasPkgCreate ? TickRateModulation.URGENT : TickRateModulation.SLOWER) : TickRateModulation.SLEEP;
+    return this.hasWorkToDo() ? TickRateModulation.SLOWER : TickRateModulation.SLEEP;
   }
 
   private void pushItemsOut(final String satName) {
@@ -665,12 +664,11 @@ public class DualityCraftingManager
 
   @Override
   public boolean pushPattern(final ICraftingPatternDetails patternDetails, final InventoryCrafting table) {
-    if (this.hasItemsToSend() || this.hasItemsToSendOnSat() || this.hasPkgToCreate() || !this.gridProxy.isActive() || !this.craftingList.contains(patternDetails)) {
+    final PartSatelliteBus mainSat = this.findSatellite(mainSatName);
+
+    if (this.hasItemsToSend() || this.hasItemsToSendOnSat() || !this.gridProxy.isActive() || !this.craftingList.contains(patternDetails) || mainSat == null) {
       return false;
     }
-
-    final PartSatelliteBus mainSat = this.findSatellite(mainSatName);
-    if (mainSat == null) return false;
 
     final World w = mainSat.getTile().getWorld();
 
@@ -682,39 +680,17 @@ public class DualityCraftingManager
         return true;
       }
 
-      // Assuming that all package has been handle careful, we will now move to main Sat
-      final TileEntity te = w.getTileEntity(mainSat.getTile().getPos().offset(mainSat.getTargets()));
-      InventoryAdaptor ad = InventoryAdaptor.getAdaptor(te, mainSat.getTargets().getOpposite());
-      if (ad != null) {
-        if (this.isBlocking()) {
-          IPhantomTile phantomTE;
-          if (Loader.isModLoaded("actuallyadditions") && te instanceof IPhantomTile) {
-            phantomTE = ((IPhantomTile) te);
-            if (phantomTE.hasBoundPosition()) {
-              TileEntity phantom = w.getTileEntity(phantomTE.getBoundPosition());
-              if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(phantomTE.getBoundPosition()).getBlock().getRegistryName().getNamespace())) {
-                if (isCustomInvBlocking(phantom, mainSat.getTargets())) {
-                  return false;
-                }
-              }
-            }
-          } else if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(mainSat.getTile().getPos().offset(mainSat.getTargets())).getBlock().getRegistryName().getNamespace())) {
-            if (isCustomInvBlocking(te, mainSat.getTargets())) {
-              return false;
-            }
-          } else if (invIsBlocked(ad)) {
-            return false;
-          }
-        }
-
+      while (!blockingChecker(mainSatName, w)) {
         Set<String> satList = new HashSet<>();
-
+        final TileEntity te = w.getTileEntity(mainSat.getTile().getPos().offset(mainSat.getTargets()));
+        InventoryAdaptor ad = InventoryAdaptor.getAdaptor(te, mainSat.getTargets().getOpposite());
         if (this.acceptsItems(ad, table)) {
           for (int x = 0; x < table.getSizeInventory(); x++) {
             final ItemStack is = table.getStackInSlot(x);
             if (!is.isEmpty()) {
               if (is.getItem() == TB_ItemHandlers.itemPackage && is.getTagCompound() != null && !is.getTagCompound().isEmpty()) {
                 String satName = is.getTagCompound().getString("__pkgDest");
+                if (satName.isEmpty() || blockingChecker(satName, w)) return false;
                 ItemStack result = new ItemStack(is.getTagCompound().getCompoundTag("__itemHold"));
                 addToSendListOnSat(result, satName);
                 satList.add(satName);
@@ -748,63 +724,41 @@ public class DualityCraftingManager
 
       if (!satelliteList.isEmpty()) {
         for (String satName : satelliteList){
-          PartSatelliteBus workSat = findSatellite(satName);
-          if (workSat == null) return false;
-          final TileEntity te = w.getTileEntity(workSat.getTile().getPos().offset(workSat.getTargets()));
-          InventoryAdaptor ad = InventoryAdaptor.getAdaptor(te, workSat.getTargets().getOpposite());
-          if (ad != null) {
-            if (this.isBlocking()) {
-              IPhantomTile phantomTE;
-              if (Loader.isModLoaded("actuallyadditions") && te instanceof IPhantomTile) {
-                phantomTE = ((IPhantomTile) te);
-                if (phantomTE.hasBoundPosition()) {
-                  TileEntity phantom = w.getTileEntity(phantomTE.getBoundPosition());
-                  if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(phantomTE.getBoundPosition()).getBlock().getRegistryName().getNamespace())) {
-                    if (!isCustomInvBlocking(phantom, workSat.getTargets())) {
-                      allAreBusy = false;
-                    }
-                  }
-                }
-              } else if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(workSat.getTile().getPos().offset(workSat.getTargets())).getBlock().getRegistryName().getNamespace())) {
-                if (!isCustomInvBlocking(te, workSat.getTargets())) {
-                  allAreBusy = false;
-                }
-              } else if (!invIsBlocked(ad)) {
-                allAreBusy = false;
-              }
-            }
-          }
-        }
-      }
-
-      final TileEntity te = w.getTileEntity(mainSat.getTile().getPos().offset(mainSat.getTargets()));
-      InventoryAdaptor ad = InventoryAdaptor.getAdaptor(te, mainSat.getTargets().getOpposite());
-      if (ad != null) {
-        if (this.isBlocking()) {
-          IPhantomTile phantomTE;
-          if (Loader.isModLoaded("actuallyadditions") && te instanceof IPhantomTile) {
-            phantomTE = ((IPhantomTile) te);
-            if (phantomTE.hasBoundPosition()) {
-              TileEntity phantom = w.getTileEntity(phantomTE.getBoundPosition());
-              if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(phantomTE.getBoundPosition()).getBlock().getRegistryName().getNamespace())) {
-                if (!isCustomInvBlocking(phantom, mainSat.getTargets())) {
-                  allAreBusy = false;
-                }
-              }
-            }
-          } else if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(mainSat.getTile().getPos().offset(mainSat.getTargets())).getBlock().getRegistryName().getNamespace())) {
-            if (!isCustomInvBlocking(te, mainSat.getTargets())) {
-              allAreBusy = false;
-            }
-          } else if (!invIsBlocked(ad)) {
+          if (!blockingChecker(satName, w)){
             allAreBusy = false;
           }
         }
       }
 
-      busy = allAreBusy;
+      busy = allAreBusy || !blockingChecker(mainSatName, w);
     }
+
     return busy;
+  }
+
+  private boolean blockingChecker(String satName, World w) {
+    final PartSatelliteBus sat = this.findSatellite(satName);
+    if (sat == null) return false;
+    final TileEntity te = w.getTileEntity(sat.getTile().getPos().offset(sat.getTargets()));
+    InventoryAdaptor ad = InventoryAdaptor.getAdaptor(te, sat.getTargets().getOpposite());
+    if (ad != null) {
+      if (this.isBlocking()) {
+        IPhantomTile phantomTE;
+        if (Loader.isModLoaded("actuallyadditions") && te instanceof IPhantomTile) {
+          phantomTE = ((IPhantomTile) te);
+          if (phantomTE.hasBoundPosition()) {
+            TileEntity phantom = w.getTileEntity(phantomTE.getBoundPosition());
+            if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(phantomTE.getBoundPosition()).getBlock().getRegistryName().getNamespace())) {
+              return !isCustomInvBlocking(phantom, sat.getTargets());
+            }
+          }
+        } else if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(sat.getTile().getPos().offset(sat.getTargets())).getBlock().getRegistryName().getNamespace())) {
+          return !isCustomInvBlocking(te, sat.getTargets());
+        } else return !invIsBlocked(ad);
+      }
+    }
+
+    return true;
   }
 
   boolean isCustomInvBlocking(TileEntity te, EnumFacing s) {
