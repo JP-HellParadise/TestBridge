@@ -680,7 +680,7 @@ public class DualityCraftingManager
         return true;
       }
 
-      while (!blockingChecker(mainSatName, w)) {
+      if (!blockingChecker(mainSatName, w)) {
         Set<String> satList = new HashSet<>();
         final TileEntity te = w.getTileEntity(mainSat.getTile().getPos().offset(mainSat.getTargets()));
         InventoryAdaptor ad = InventoryAdaptor.getAdaptor(te, mainSat.getTargets().getOpposite());
@@ -749,16 +749,16 @@ public class DualityCraftingManager
           if (phantomTE.hasBoundPosition()) {
             TileEntity phantom = w.getTileEntity(phantomTE.getBoundPosition());
             if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(phantomTE.getBoundPosition()).getBlock().getRegistryName().getNamespace())) {
-              return !isCustomInvBlocking(phantom, sat.getTargets());
+              return isCustomInvBlocking(phantom, sat.getTargets());
             }
           }
         } else if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(sat.getTile().getPos().offset(sat.getTargets())).getBlock().getRegistryName().getNamespace())) {
-          return !isCustomInvBlocking(te, sat.getTargets());
-        } else return !invIsBlocked(ad);
+          return isCustomInvBlocking(te, sat.getTargets());
+        } else return invIsBlocked(ad);
       }
     }
 
-    return true;
+    return false;
   }
 
   boolean isCustomInvBlocking(TileEntity te, EnumFacing s) {
