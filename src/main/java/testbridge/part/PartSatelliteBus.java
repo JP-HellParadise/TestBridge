@@ -13,26 +13,18 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-import appeng.api.config.Actionable;
-import appeng.api.config.PowerMultiplier;
 import appeng.api.networking.IGridNode;
-import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.parts.IPartCollisionHelper;
 import appeng.api.parts.IPartModel;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AECableType;
-import appeng.core.AELog;
 import appeng.core.settings.TickRates;
 import appeng.helpers.Reflected;
 import appeng.items.parts.PartModels;
-import appeng.me.GridAccessException;
 import appeng.parts.PartModel;
 import appeng.parts.automation.PartSharedItemBus;
-import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
-import appeng.util.item.AEItemStack;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;

@@ -97,7 +97,7 @@ public class DualityCraftingManager
     this.gridProxy = networkProxy;
     this.gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
 
-    this.cm.registerSetting(Settings.INTERFACE_TERMINAL, YesNo.YES);
+    this.cm.registerSetting(Settings.BLOCK, YesNo.NO);
 
     this.iHost = cmHost;
     this.craftingTracker = new MultiCraftingTracker(this.iHost, 9);
@@ -730,7 +730,10 @@ public class DualityCraftingManager
         }
       }
 
-      busy = allAreBusy || !blockingChecker(mainSatName, w);
+      if (!blockingChecker(mainSatName, w))
+        allAreBusy = false;
+
+      busy = allAreBusy;
     }
 
     return busy;
@@ -767,7 +770,7 @@ public class DualityCraftingManager
   }
 
   private boolean isBlocking() {
-    return false; // TODO
+    return this.cm.getSetting(Settings.BLOCK) == YesNo.YES; //TODO
   }
 
   private boolean acceptsItems(final InventoryAdaptor ad, final InventoryCrafting table) {

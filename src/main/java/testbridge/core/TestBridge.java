@@ -1,14 +1,11 @@
 package testbridge.core;
 
-import javax.annotation.Nonnull;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import lombok.Getter;
 
 import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -21,8 +18,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -69,15 +64,6 @@ public class TestBridge extends LogisticsPipes {
 
   public static final Logger log = LogManager.getLogger(NAME);
 
-  //Creative tab
-  public static final CreativeTabs CREATIVE_TAB_TB = new CreativeTabs("Test_Bridge") {
-    @SideOnly(Side.CLIENT)
-    @Nonnull
-    public ItemStack createIcon() {
-      return new ItemStack(LPItems.pipeBasic);
-    }
-  };
-
   public static TB_Textures TBTextures = new TB_Textures();
 
   @Getter
@@ -96,6 +82,8 @@ public class TestBridge extends LogisticsPipes {
     RSLoaded = Loader.isModLoaded("refinedstorage");
     TOPLoaded = Loader.isModLoaded("theoneprobe");
 
+    //TODO: preInit
+
     proxy.preInit(event);
 
     if (AELoaded) {
@@ -103,10 +91,9 @@ public class TestBridge extends LogisticsPipes {
     }
 
     if (RSLoaded) {
-
+      // TODO
     }
 
-    //TODO: preInit
     MinecraftForge.EVENT_BUS.register(TB_EventHandlers.class);
     proxy.registerRenderers();
 
@@ -121,6 +108,7 @@ public class TestBridge extends LogisticsPipes {
     long tM = System.currentTimeMillis();
 
     //TODO: init
+
     NetworkRegistry.INSTANCE.registerGuiHandler(TestBridge.INSTANCE, new GuiHandler());
     TBDataFixer.INSTANCE.init();
 
@@ -174,7 +162,7 @@ public class TestBridge extends LogisticsPipes {
 
   @Mod.EventHandler
   public void onServerLoad(FMLServerStartingEvent event) {
-  // TODO
+    // TODO
   }
 
   private static void loadRecipes() {

@@ -11,18 +11,15 @@ import appeng.container.implementations.ContainerUpgradeable;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.util.Platform;
 
-import network.rs485.logisticspipes.property.EnumProperty;
-
 import testbridge.helpers.DualityCraftingManager;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
-import testbridge.modules.TB_ModuleCM.BlockingMode;
 
 public class ContainerCraftingManager extends ContainerUpgradeable {
 
   @GuiSync(2)
-  public YesNo iTermMode = YesNo.YES;
+  public YesNo bMode = YesNo.NO;
 
-  public final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
+//  public final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
 
   private final DualityCraftingManager myDuality;
 
@@ -61,23 +58,14 @@ public class ContainerCraftingManager extends ContainerUpgradeable {
 
   @Override
   protected void loadSettingsFromHost(final IConfigManager cm) {
-    this.setBlockingMode(myDuality.blockingMode.getValue());
-    this.setInterfaceTerminalMode((YesNo) cm.getSetting(Settings.INTERFACE_TERMINAL));
+    this.setBlockingMode((YesNo) cm.getSetting(Settings.BLOCK));
   }
 
-  public BlockingMode getBlockingMode() {
-    return this.blockingMode.getValue();
+  public YesNo getBlockingMode() {
+    return this.bMode;
   }
 
-  private void setBlockingMode(final BlockingMode blockingMode) {
-    this.blockingMode.setValue(blockingMode);
-  }
-
-  public YesNo getInterfaceTerminalMode() {
-    return this.iTermMode;
-  }
-
-  private void setInterfaceTerminalMode(final YesNo iTermMode) {
-    this.iTermMode = iTermMode;
+  private void setBlockingMode(final YesNo bMode) {
+    this.bMode = bMode;
   }
 }

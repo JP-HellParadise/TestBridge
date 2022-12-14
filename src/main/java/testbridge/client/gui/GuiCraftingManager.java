@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import appeng.container.implementations.ContainerInterface;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.gui.GuiButton;
@@ -34,7 +35,7 @@ public class GuiCraftingManager extends GuiUpgradeable {
   private GuiTabButton priority;
   private GuiTabButton satellite;
   private GuiImgButton BlockMode;
-  private GuiToggleButton interfaceMode;
+//  private GuiToggleButton interfaceMode;
 
   public GuiCraftingManager(final InventoryPlayer ip, final ICraftingManagerHost te) {
     super(new ContainerCraftingManager(ip, te));
@@ -52,15 +53,12 @@ public class GuiCraftingManager extends GuiUpgradeable {
 
     this.BlockMode = new GuiImgButton(this.guiLeft - 18, this.guiTop, Settings.BLOCK, YesNo.NO);
     this.buttonList.add(this.BlockMode);
-
-    this.interfaceMode = new GuiToggleButton(this.guiLeft - 18, this.guiTop + 26, 84, 85, GuiText.InterfaceTerminal.getLocal(), GuiText.InterfaceTerminalHint.getLocal());
-    this.buttonList.add(this.interfaceMode);
   }
 
   @Override
   public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
-    if (this.interfaceMode != null) {
-      this.interfaceMode.setState(((ContainerCraftingManager) this.cvb).getInterfaceTerminalMode() == YesNo.YES);
+    if (this.BlockMode != null) {
+      this.BlockMode.set(((ContainerCraftingManager) this.cvb).getBlockingMode());
     }
 
     this.fontRenderer.drawString(I18n.format("item.appliedenergistics2.multi_part.craftingmanager_part.name"), 8, 6, 4210752);
@@ -98,13 +96,10 @@ public class GuiCraftingManager extends GuiUpgradeable {
       NetworkHandler.instance().sendToServer(new PacketSwitchGuis(AE2Plugin.GUI_SATELLITESELECT));
     }
 
-    if (btn == this.interfaceMode) {
-      NetworkHandler.instance().sendToServer(new PacketConfigButton(Settings.INTERFACE_TERMINAL, backwards));
-    }
-
     if (btn == this.BlockMode) {
 //      final BlockingMode newMode = blockingModeOverlay.write(EnumProperty::next);
 //      BlockMode.displayString = TextUtil.translate(PREFIX + "blocking." + newMode.toString().toLowerCase());
+      NetworkHandler.instance().sendToServer(new PacketConfigButton(this.BlockMode.getSetting(), backwards));
     }
   }
 
