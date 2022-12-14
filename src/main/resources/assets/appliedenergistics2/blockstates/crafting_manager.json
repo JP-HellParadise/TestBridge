@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "testbridge:crafting_manager"
+    }
+  }
+}

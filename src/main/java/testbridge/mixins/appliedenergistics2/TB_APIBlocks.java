@@ -32,7 +32,6 @@ public abstract class TB_APIBlocks implements IBlocks_TB {
     this.cmBlock  = registry.block("crafting_manager", BlockCraftingManager::new)
         .features(AEFeature.INTERFACE)
         .tileEntity(new TileEntityDefinition(TileCraftingManager.class))
-        .useCustomItemModel()
         .build();
   }
 }
