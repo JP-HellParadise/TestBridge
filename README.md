@@ -22,5 +22,5 @@
 ## Current stage & version: PoC
 Beta 0.2.1
 
-## Proof of concept
+## Demo
 ![Concept](/Stuff/concept.gif)
