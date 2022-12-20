@@ -32,8 +32,6 @@ public class FakeItem extends Item {
   @Getter
   private final boolean isPackage;
 
-  private boolean displayOverride;
-
   public FakeItem(boolean isPackage) {
     this.isPackage = isPackage;
     this.setMaxStackSize(64);
@@ -90,68 +88,66 @@ public class FakeItem extends Item {
     return false;
   }
 
-  public ItemStack getItemStack(ItemStack is) {
-    return is.hasTagCompound() && is.getTagCompound().hasKey("__itemHold") ? new ItemStack(is.getTagCompound().getCompoundTag("__itemHold")) : new ItemStack(Items.AIR);
-  }
-
-  public String getItemInfo(ItemStack is) {
-    return getItemCount(is) + " " + getItemName(is);
-  }
-
-  private int getItemCount(ItemStack is) {
-    return getItemStack(is).isEmpty() ? 0 : getItemStack(is).getCount();
-  }
-
-  private String getItemName(ItemStack is) {
-    return getItemCount(is) == 0 ? "" : getItemStack(is).getItem().getItemStackDisplayName(is);
-  }
-
-  private String getSatName(ItemStack is) {
-    return is.hasTagCompound() ? (is.getTagCompound().hasKey("__pkgDest") ? is.getTagCompound().getString("__pkgDest") : "") : "";
-  }
-
   @Override
   @SideOnly(Side.CLIENT)
   public void addInformation(final ItemStack stack, final World world, final List<String> tooltip, final ITooltipFlag advancedTooltips) {
-    try {
-      if (isPackage) {
-        if (!stack.hasTagCompound())
-          tooltip.add(I18n.format("tooltip.testbridge.package_empty"));
-        else {
-          displayOverride = true;
-          if (!getItemName(stack).isEmpty()){
-            if (stack.getTagCompound().getBoolean("__actContainer"))
-              tooltip.add(I18n.format("tooltip.testbridge.placeholder", getItemInfo(stack)));
-            else
-              tooltip.add(I18n.format("tooltip.testbridge.package_content", getItemInfo(stack)));
-          }
-          displayOverride = false;
-          String name = stack.getTagCompound().getString("__pkgDest");
-          if (!name.isEmpty())
-            tooltip.add(I18n.format("tooltip.testbridge.satName", name));
+    if (isPackage) {
+      if (stack.hasTagCompound()) {
+        if (!getItemStack(stack).isEmpty()) {
+          if (stack.getTagCompound().getBoolean("__actContainer"))
+            tooltip.add(I18n.format("tooltip.testbridge.placeholder", getItemInfo(stack, "default")));
+          else
+            tooltip.add(I18n.format("tooltip.testbridge.package_content", getItemInfo(stack, "default")));
         }
-      } else {
-        if (stack.hasTagCompound())
-          tooltip.add(I18n.format("tooltip.testbridge.request", getItemInfo(stack)));
-        else
-          tooltip.add(I18n.format("tooltip.testbridge.fakeItemNull"));
-        tooltip.add(I18n.format("tooltip.testbridge.techItem"));
+        String name = getSatName(stack);
+        if (!name.isEmpty())
+          tooltip.add(I18n.format("tooltip.testbridge.satName", name));
+        if (tooltip.size() < 2)
+          tooltip.add(I18n.format("tooltip.testbridge.package_empty"));
       }
-    } catch (NullPointerException e) {
-      tooltip.add(I18n.format("tooltip.testbridge.package_empty"));
+    } else {
+      if (stack.hasTagCompound())
+        tooltip.add(I18n.format("tooltip.testbridge.request", getItemInfo(stack, "default")));
+      else
+        tooltip.add(I18n.format("tooltip.testbridge.fakeItemNull"));
+      tooltip.add(I18n.format("tooltip.testbridge.techItem"));
     }
   }
 
   @SuppressWarnings("deprecation")
   @Override
   public String getItemStackDisplayName(ItemStack stack) {
-    if(!displayOverride && isPackage && stack.hasTagCompound()){
-      String name = stack.getTagCompound().getString("__pkgDest");
-      if(!name.equals("") && !(getItemName(stack).isEmpty())){
+    if(isPackage && stack.hasTagCompound()){
+      String sat = stack.getTagCompound().getString("__pkgDest");
+      if(!sat.equals("") && !(getItemInfo(stack, "default").isEmpty())){
         return net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tooltip.testbridge.packageName",
-            getItemInfo(stack), name);
+            getItemInfo(stack, "default"), sat);
       }
     }
     return super.getItemStackDisplayName(stack);
+  }
+
+
+  public ItemStack getItemStack(ItemStack is) {
+    return is.hasTagCompound() && is.getTagCompound().hasKey("__itemHold") ? new ItemStack(is.getTagCompound().getCompoundTag("__itemHold")) : new ItemStack(Items.AIR);
+  }
+
+  public String getItemInfo(ItemStack is, String info) {
+    if (getItemStack(is).getItem() == Items.AIR) return "";
+    else {
+      ItemStack item = getItemStack(is);
+      switch (info) {
+        case "name":
+          return Platform.getItemDisplayName(item);
+        case "count":
+          return Integer.toString(item.getCount());
+        default:
+          return item.getCount() + " " + Platform.getItemDisplayName(item);
+      }
+    }
+  }
+
+  private String getSatName(ItemStack is) {
+    return is.hasTagCompound() && is.getTagCompound().hasKey("__pkgDest") ? is.getTagCompound().getString("__pkgDest") : "";
   }
 }

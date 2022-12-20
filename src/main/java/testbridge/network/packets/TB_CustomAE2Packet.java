@@ -33,7 +33,7 @@ import network.rs485.logisticspipes.util.LPDataOutput;
 import testbridge.client.gui.GuiSatelliteSelect;
 import testbridge.container.ContainerPackage;
 import testbridge.container.ContainerSatelliteSelect;
-import testbridge.helpers.AbstractAECustomGui;
+import testbridge.helpers.AECustomGui;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.items.FakeItem;
 import testbridge.part.PartSatelliteBus;
@@ -127,8 +127,8 @@ public class TB_CustomAE2Packet extends CoordinatesPacket {
         }
       }
     }
-    if (Minecraft.getMinecraft().currentScreen instanceof AbstractAECustomGui) {
-      AbstractAECustomGui thisGUI = ((AbstractAECustomGui) Minecraft.getMinecraft().currentScreen);
+    if (Minecraft.getMinecraft().currentScreen instanceof AECustomGui) {
+      AECustomGui thisGUI = ((AECustomGui) Minecraft.getMinecraft().currentScreen);
       if (thisGUI instanceof GuiSatelliteSelect) {
         ((GuiSatelliteSelect) thisGUI).handleSatList(list);
       }

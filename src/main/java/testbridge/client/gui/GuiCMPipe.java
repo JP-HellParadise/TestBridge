@@ -2,6 +2,7 @@ package testbridge.client.gui;
 
 import java.io.IOException;
 
+import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -13,6 +14,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import logisticspipes.items.ItemUpgrade;
 import logisticspipes.LPItems;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleCrafter;
@@ -25,6 +27,7 @@ import logisticspipes.utils.gui.GuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.extention.GuiExtention;
+import logisticspipes.utils.gui.UpgradeSlot;
 
 import network.rs485.logisticspipes.property.PropertyLayer;
 import network.rs485.logisticspipes.property.EnumProperty;
@@ -101,7 +104,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
           int slotID = currentSlot.getSlotIndex();
           LogisticsModule module = pipeCM.getSubModule(slotID);
           if (module instanceof ModuleCrafter) {
-            ModernPacket packet = PacketHandler.getPacket(CMGui.class).setPositionInt(slotID).setPosX(pipeCM.getX()).setPosY(pipeCM.getY()).setPosZ(pipeCM.getZ());
+            ModernPacket packet = PacketHandler.getPacket(CMGui.class).setModulePos(slotID).setPosX(pipeCM.getX()).setPosY(pipeCM.getY()).setPosZ(pipeCM.getZ());
             MainProxy.sendPacketToServer(packet);
           }
           return;
@@ -109,6 +112,8 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
           showUpgrade(currentSlot.getSlotIndex());
           return;
       }
+    } else if (GuiScreen.isShiftKeyDown() && !(currentSlot instanceof UpgradeSlot) && currentSlot != null && currentSlot.getStack().getItem() instanceof ItemUpgrade) {
+      return;
     }
     super.mouseClicked(X, Y, mouseButton);
   }

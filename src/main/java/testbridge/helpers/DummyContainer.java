@@ -11,7 +11,10 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import logisticspipes.interfaces.ISlotCheck;
+import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
+import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.ReflectionHelper;
 
 import testbridge.core.TB_ItemHandlers;
@@ -28,6 +31,13 @@ public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
 
   public void addCMModuleSlot(int slotId, IInventory inventory, int xCoord, int yCoord, PipeCraftingManager pipe) {
     transferTop.add(addSlotToContainer(new CrafterSlot(inventory, slotId, xCoord, yCoord, pipe)));
+  }
+
+  @Override
+  public Slot addUpgradeSlot(int slotId, ISlotUpgradeManager manager, int upgradeSlotId, int xCoord, int yCoord, ISlotCheck slotCheck) {
+    Slot slot = addSlotToContainer(new UpgradeSlot(manager, upgradeSlotId, slotId, xCoord, yCoord, slotCheck));
+    transferTop.add(slot);
+    return slot;
   }
 
   @Nonnull

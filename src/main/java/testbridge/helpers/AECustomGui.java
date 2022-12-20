@@ -7,7 +7,7 @@ import net.minecraft.inventory.Container;
 
 import appeng.client.gui.AEBaseGui;
 
-public abstract class AbstractAECustomGui extends AEBaseGui {
+public abstract class AECustomGui extends AEBaseGui {
   protected int guiLeft;
   protected int guiTop;
   protected int xCenter;
@@ -18,7 +18,7 @@ public abstract class AbstractAECustomGui extends AEBaseGui {
   protected int ySize;
   protected int xCenterOffset;
   protected int yCenterOffset;
-  public AbstractAECustomGui(Container container, int xOffset, int yOffset) {
+  public AECustomGui(Container container, int xOffset, int yOffset) {
     super(container);
     this.xSize = 150;
     this.ySize = 200;

@@ -21,11 +21,11 @@ import logisticspipes.utils.gui.TextListDisplay;
 import network.rs485.logisticspipes.util.TextUtil;
 
 import testbridge.container.ContainerSatelliteSelect;
-import testbridge.helpers.AbstractAECustomGui;
+import testbridge.helpers.AECustomGui;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.network.packets.TB_CustomAE2Packet;
 
-public class GuiSatelliteSelect extends AbstractAECustomGui implements IGuiAccess {
+public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess {
   static String GUI_LANG_KEY = "gui.popup.selectsatellite.";
   private final Consumer<String> handleResult;
   private List<String> satList = new ArrayList<>();
