@@ -3,16 +3,16 @@
 ![image](https://user-images.githubusercontent.com/24401452/207646011-61a84639-8123-4bba-809b-20b69b7ae007.png)
 ## Features
 - Logistics Pipe:
-    + Result pipe
-    + Crafting manager pipe  
-    + Buffer Upgrade
+  + Result Pipe
+  + Crafting Manager Pipe
+  + Buffer Upgrade
+- Additional / Soft dependencies:  
+  + Applied Energistics 2:
+      + Satellite Bus
+      + Crafting Manager
+      + Package
 
-- Applied Energistics 2:  
-    + Satellite Bus  
-    + Crafting Manager (tile texture don't show yet, but they are functional now)  
-    + Package  
-
-[//]: # (- Refined Storage:  WIP  )
+[//]: # (  + Refined Storage:  WIP  )
 
 ### How to use *this repo*:
 1. Clone this repository.
@@ -22,7 +22,7 @@
 5. Instead of running `genIntellijRuns` and using generated IntelliJ tasks, just run `gradlew runClient` and `gradlew runServer`.
 
 ## Current stage & version: PoC
-Beta 0.2.2
+Beta 0.2.3
 
 ## Demo
 ![Concept](/Stuff/concept.gif)
