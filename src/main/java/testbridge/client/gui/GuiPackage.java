@@ -33,7 +33,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.GuiGraphics;
 
 import testbridge.container.ContainerPackage;
-import testbridge.network.packets.TB_CustomPacket;
+import testbridge.network.packets.TB_CustomAE2Packet;
 
 public class GuiPackage extends AEBaseGui implements IJEIGhostIngredients {
 
@@ -96,7 +96,7 @@ public class GuiPackage extends AEBaseGui implements IJEIGhostIngredients {
   protected void keyTyped(final char character, final int key) throws IOException {
     if (key == Keyboard.KEY_RETURN || key == Keyboard.KEY_NUMPADENTER) { // Enter
       ItemStack is = container.getFakeSlot().getStackInSlot(0);
-      MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomPacket.class).setKey("Package.Opening").setValue(textField.getText()).setIs(is).setSetting(true));
+      MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomAE2Packet.class).setKey("Package.Opening").setValue(textField.getText()).setIs(is).setSetting(true));
     } else if (!this.textField.textboxKeyTyped(character, key)) {
       super.keyTyped(character, key);
     }
@@ -107,7 +107,7 @@ public class GuiPackage extends AEBaseGui implements IJEIGhostIngredients {
     super.actionPerformed(btn);
     if (btn == this.saveButton) {
       ItemStack is = container.getFakeSlot().getStackInSlot(0);
-      MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomPacket.class).setKey("Package.Opening").setValue(textField.getText()).setIs(is).setSetting(true));
+      MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomAE2Packet.class).setKey("Package.Opening").setValue(textField.getText()).setIs(is).setSetting(true));
     }
   }
 

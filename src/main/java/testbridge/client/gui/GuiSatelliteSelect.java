@@ -23,7 +23,7 @@ import network.rs485.logisticspipes.util.TextUtil;
 import testbridge.container.ContainerSatelliteSelect;
 import testbridge.helpers.AbstractAECustomGui;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
-import testbridge.network.packets.TB_CustomPacket;
+import testbridge.network.packets.TB_CustomAE2Packet;
 
 public class GuiSatelliteSelect extends AbstractAECustomGui implements IGuiAccess {
   static String GUI_LANG_KEY = "gui.popup.selectsatellite.";
@@ -39,7 +39,7 @@ public class GuiSatelliteSelect extends AbstractAECustomGui implements IGuiAcces
 
   public GuiSatelliteSelect(final InventoryPlayer inventoryPlayer, final ICraftingManagerHost te) {
     super(new ContainerSatelliteSelect(inventoryPlayer, te), 0, 0);
-    this.handleResult = satName -> MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomPacket.class).setKey("CMSatellite.Setting").setValue(satName).setSetting(true).setBlockPos(te.getBlockPos()));
+    this.handleResult = satName -> MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomAE2Packet.class).setKey("CMSatellite.Setting").setValue(satName).setSetting(true).setBlockPos(te.getBlockPos()));
     this.textList = new TextListDisplay(this, 6, 16, 6, 30, 12, new TextListDisplay.List() {
 
       @Override
@@ -57,7 +57,7 @@ public class GuiSatelliteSelect extends AbstractAECustomGui implements IGuiAcces
         return 0xFFFFFF;
       }
     });
-    MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomPacket.class).setKey("CMSatellite.Opening").setBlockPos(te.getBlockPos()));
+    MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomAE2Packet.class).setKey("CMSatellite.Opening").setBlockPos(te.getBlockPos()));
   }
 
   @Override

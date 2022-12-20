@@ -10,6 +10,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -21,14 +22,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import appeng.items.AEBaseItem;
 import appeng.util.Platform;
 
 import testbridge.core.TB_ItemHandlers;
 import testbridge.core.TestBridge;
 import testbridge.network.GuiIDs;
 
-public class FakeItem extends AEBaseItem {
+public class FakeItem extends Item {
   @Getter
   private final boolean isPackage;
 
@@ -112,7 +112,7 @@ public class FakeItem extends AEBaseItem {
 
   @Override
   @SideOnly(Side.CLIENT)
-  public void addCheckedInformation(final ItemStack stack, final World world, final List<String> tooltip, final ITooltipFlag advancedTooltips) {
+  public void addInformation(final ItemStack stack, final World world, final List<String> tooltip, final ITooltipFlag advancedTooltips) {
     try {
       if (isPackage) {
         if (!stack.hasTagCompound())

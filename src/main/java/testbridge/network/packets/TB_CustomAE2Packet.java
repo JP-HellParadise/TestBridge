@@ -26,6 +26,7 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.utils.StaticResolve;
 
+import net.minecraftforge.fml.common.Optional;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -38,7 +39,7 @@ import testbridge.items.FakeItem;
 import testbridge.part.PartSatelliteBus;
 
 @StaticResolve
-public class TB_CustomPacket extends CoordinatesPacket {
+public class TB_CustomAE2Packet extends CoordinatesPacket {
   @Getter
   @Setter
   private String key;
@@ -59,11 +60,12 @@ public class TB_CustomPacket extends CoordinatesPacket {
   @Setter
   private List list;
 
-  public TB_CustomPacket(int id) {
+  public TB_CustomAE2Packet(int id) {
     super(id);
   }
 
   @Override
+  @Optional.Method(modid = "appliedenergistics2")
   public void processPacket(EntityPlayer player) {
     final Container c = player.openContainer;
     if (this.key.startsWith("Package.Opening") && ((!player.getHeldItem(EnumHand.MAIN_HAND).isEmpty() && player.getHeldItem(EnumHand.MAIN_HAND)
@@ -103,6 +105,7 @@ public class TB_CustomPacket extends CoordinatesPacket {
     }
   }
 
+  @Optional.Method(modid = "appliedenergistics2")
   private void retrieveSatList(EntityPlayer player){
     List<String> list = new ArrayList<>();
     final Container c = player.openContainer;
@@ -134,7 +137,7 @@ public class TB_CustomPacket extends CoordinatesPacket {
 
   @Override
   public ModernPacket template() {
-    return new TB_CustomPacket(getId());
+    return new TB_CustomAE2Packet(getId());
   }
 
   @Override

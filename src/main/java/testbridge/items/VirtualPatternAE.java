@@ -5,9 +5,11 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -17,12 +19,12 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.core.AppEng;
 import appeng.core.localization.GuiText;
 import appeng.helpers.InvalidPatternHelper;
-import appeng.items.AEBaseItem;
 import appeng.util.Platform;
 
 import testbridge.helpers.VirtualPatternHelper;
 
-public class VirtualPatternAE extends AEBaseItem implements ICraftingPatternItem {
+@Optional.Interface(iface = "appeng.api.implementations.ICraftingPatternItem", modid = "appliedenergistics2")
+public class VirtualPatternAE extends Item implements ICraftingPatternItem {
   // rather simple client side caching.
   private static final Map<ItemStack, ItemStack> SIMPLE_CACHE = new WeakHashMap<>();
 
@@ -32,7 +34,8 @@ public class VirtualPatternAE extends AEBaseItem implements ICraftingPatternItem
 
   @Override
   @SideOnly(Side.CLIENT)
-  public void addCheckedInformation(final ItemStack stack, final World world, final List<String> lines, final ITooltipFlag advancedTooltips) {
+  @Optional.Method(modid = "appliedenergistics2")
+  public void addInformation(final ItemStack stack, final World world, final List<String> lines, final ITooltipFlag advancedTooltips) {
     final ICraftingPatternDetails details = this.getPatternForItem(stack, world);
 
     if (details == null) {
@@ -113,6 +116,7 @@ public class VirtualPatternAE extends AEBaseItem implements ICraftingPatternItem
   }
 
   @Override
+  @Optional.Method(modid = "appliedenergistics2")
   public ICraftingPatternDetails getPatternForItem(final ItemStack is, final World w) {
     try {
       return new VirtualPatternHelper(is);
@@ -126,14 +130,17 @@ public class VirtualPatternAE extends AEBaseItem implements ICraftingPatternItem
    * <p>
    * Usage: To create {@link FakeItem} that contains ItemStack
    */
+  @Optional.Method(modid = "appliedenergistics2")
   public static ICraftingPatternDetails newPattern(final ItemStack in, final ItemStack out) {
     return new VirtualPatternHelper(in, out);
   }
 
+  @Optional.Method(modid = "appliedenergistics2")
   public static ICraftingPatternDetails newPattern(final ItemStack is) {
     return new VirtualPatternHelper(is);
   }
 
+  @Optional.Method(modid = "appliedenergistics2")
   public ItemStack getOutput(final ItemStack item) {
     ItemStack out = SIMPLE_CACHE.get(item);
 

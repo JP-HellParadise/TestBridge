@@ -136,9 +136,11 @@ public class TestBridge extends LogisticsPipes {
   public void initItems(RegistryEvent.Register<Item> event) {
     IForgeRegistry<Item> registry = event.getRegistry();
     //Items
-    registry.register(TB_ItemHandlers.itemHolder);
-    registry.register(TB_ItemHandlers.itemPackage);
-    registry.register(TB_ItemHandlers.virtualPattern);
+    if (AELoaded){
+//      registry.register(TB_ItemHandlers.itemHolder);
+      registry.register(TB_ItemHandlers.itemPackage);
+      registry.register(TB_ItemHandlers.virtualPattern);
+    }
     // Pipe
     registerPipe(registry, "result", ResultPipe::new);
     registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
@@ -157,7 +159,9 @@ public class TestBridge extends LogisticsPipes {
   @Override
   public void cleanup(FMLServerStoppingEvent event) {
     ResultPipe.cleanup();
-    PartSatelliteBus.cleanup();
+    if (AELoaded) {
+      PartSatelliteBus.cleanup();
+    }
   }
 
   @Mod.EventHandler
