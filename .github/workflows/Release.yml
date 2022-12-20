@@ -6,10 +6,6 @@ name: Build and release Github
 on: 
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Release version'     
-        required: true
-        default: '0.0.'
       tags:
         description: 'Test scenario tags'  
         default: 'Alpha'
@@ -48,15 +44,17 @@ jobs:
         file: gradle.properties
         property: mod_version
         default: 0.0.0
+
+    - run: echo
         
     - name: Create GitHub Release
       uses: KorewaLidesu/github-release@2.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: v${{github.event.inputs.version}}-${{ steps.mod-version.outputs.value }}
+        tag: v${{ steps.mod-version.outputs.value }}-${{github.event.inputs.tags}}
         commitish: master
         body: ""
-        name:  ${{ steps.mod-version.outputs.value }} ${{ github.event.inputs.version }}
+        name:  ${{ github.event.inputs.tags }} ${{ steps.mod-version.outputs.value }}
         prerelease: false
         allow_override: true
         gzip: false
