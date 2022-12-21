@@ -74,7 +74,6 @@ public class GuiPackage extends AEBaseGui implements IJEIGhostIngredients {
     // Package inventory
     GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop + ySize - 166, guiLeft + 177, guiTop + ySize - 110, zLevel, true);
     GuiGraphics.drawSlotBackground(mc, guiLeft + 7, guiTop + 29); //FakeSlot
-
     // Player inventory
     GuiGraphics.drawGuiBackGround(mc, guiLeft - 1, guiTop + ySize - 80, guiLeft + 177, guiTop + ySize + 18, zLevel, true);
     GuiGraphics.drawPlayerInventoryBackground(mc, guiLeft + 8, guiTop + ySize - 64);

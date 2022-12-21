@@ -1,8 +1,8 @@
 package testbridge.helpers;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -14,7 +14,7 @@ import net.minecraft.item.ItemStack;
 import logisticspipes.interfaces.ISlotCheck;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
-import logisticspipes.utils.gui.UpgradeSlot;
+import logisticspipes.utils.gui.*;
 import logisticspipes.utils.ReflectionHelper;
 
 import testbridge.core.TB_ItemHandlers;
@@ -24,20 +24,89 @@ import testbridge.pipes.PipeCraftingManager;
 public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
 
   private List<Slot> transferTop = new ArrayList();
+  private List<Slot> transferBottom = new ArrayList();
 
   public DummyContainer(IInventory playerInventory, IInventory dummyInventory) {
     super(playerInventory, dummyInventory);
+  }
+
+  /***
+   * Adds all slots for the player inventory and hotbar
+   */
+  public void addNormalSlotsForPlayerInventory(int xOffset, int yOffset) {
+    if (_playerInventory == null) {
+      return;
+    }
+    // Player "backpack"
+    for (int row = 0; row < 3; row++) {
+      for (int column = 0; column < 9; column++) {
+        Slot slot = new Slot(_playerInventory, column + row * 9 + 9, xOffset + column * 18, yOffset + row * 18);
+        addSlotToContainer(slot);
+        transferBottom.add(slot);
+      }
+    }
+
+    // Player "hotbar"
+    for (int i1 = 0; i1 < 9; i1++) {
+      Slot slot = new Slot(_playerInventory, i1, xOffset + i1 * 18, yOffset + 58);
+      addSlotToContainer(slot);
+      transferBottom.add(slot);
+    }
   }
 
   public void addCMModuleSlot(int slotId, IInventory inventory, int xCoord, int yCoord, PipeCraftingManager pipe) {
     transferTop.add(addSlotToContainer(new CrafterSlot(inventory, slotId, xCoord, yCoord, pipe)));
   }
 
+  /**
+   * Add a upgrade slot that will accept upgrade items.
+   *
+   * @param slotId
+   *            The slot number in the dummy IInventory this slot should map
+   * @param manager
+   *            ISlotUpgradeManager
+   * @param upgradeSlotId
+   *            Upgrade slot of modules
+   * @param xCoord
+   *            xCoord of TopLeft corner of where the slot should be rendered
+   * @param yCoord
+   *            yCoord of TopLeft corner of where the slot should be rendered
+   * @param slotCheck
+   *            ISlotCheck for item checker
+   */
   @Override
   public Slot addUpgradeSlot(int slotId, ISlotUpgradeManager manager, int upgradeSlotId, int xCoord, int yCoord, ISlotCheck slotCheck) {
     Slot slot = addSlotToContainer(new UpgradeSlot(manager, upgradeSlotId, slotId, xCoord, yCoord, slotCheck));
     transferTop.add(slot);
     return slot;
+  }
+
+  /**
+   * Transfer stack from dummy IInventory slot.
+   *
+   * @param player
+   *            Current player
+   * @param i
+   *            Slot id
+   */
+  @Nonnull
+  @Override
+  public ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) {
+    if (transferTop.isEmpty() || transferBottom.isEmpty()) {
+      return super.transferStackInSlot(player, i);
+    }
+    Slot slot = inventorySlots.get(i);
+    if (slot == null || slot instanceof DummySlot || slot instanceof UnmodifiableSlot || slot instanceof FluidSlot || slot instanceof ColorSlot || slot instanceof HandelableSlot || !slot.getHasStack()) {
+      return ItemStack.EMPTY;
+    }
+    if (transferTop.contains(slot)) {
+      handleShiftClickLists(slot, transferBottom, true, player);
+      handleShiftClickLists(slot, transferBottom, false, player);
+    } else if (transferBottom.contains(slot)) {
+      handleShiftClickLists(slot, transferTop, true, player);
+      handleShiftClickLists(slot, transferTop, false, player);
+    }
+    return ItemStack.EMPTY;
   }
 
   @Nonnull
@@ -321,5 +390,53 @@ public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
         }
       }
     }
+  }
+
+  private void handleShiftClickLists(Slot from, List<Slot> toList, boolean ignoreEmpty, EntityPlayer player) {
+    if (!from.getHasStack()) {
+      return;
+    }
+    for (Slot to : toList) {
+      if (handleShiftClickForSlots(from, to, ignoreEmpty, player)) {
+        return;
+      }
+    }
+  }
+
+  private boolean handleShiftClickForSlots(Slot from, Slot to, boolean ignoreEmpty, EntityPlayer player) {
+    if (!from.getHasStack()) {
+      return true;
+    }
+    ItemStack out = from.getStack();
+    if (!to.getHasStack() && !ignoreEmpty && to.isItemValid(out)) {
+      boolean remove = true;
+      if (out.getCount() > to.getSlotStackLimit()) {
+        out = from.decrStackSize(to.getSlotStackLimit());
+        remove = false;
+      }
+      to.putStack(from.onTake(player, out));
+      if (remove) {
+        from.putStack(ItemStack.EMPTY);
+      }
+      return true;
+    }
+    if (from instanceof ModuleSlot || to instanceof ModuleSlot) {
+      return false;
+    }
+    out = from.onTake(player, out);
+    if (to.getHasStack() && to.getStack().isItemEqual(out) && ItemStack.areItemStackTagsEqual(to.getStack(), from.getStack())) {
+      int free = Math.min(to.getSlotStackLimit(), to.getStack().getMaxStackSize()) - to.getStack().getCount();
+      if (free > 0) {
+        ItemStack toInsert = from.decrStackSize(free);
+        toInsert = from.onTake(player, toInsert);
+        ItemStack toStack = to.getStack();
+        if (!toInsert.isEmpty() && !toStack.isEmpty()) {
+          toStack.grow(toInsert.getCount());
+          to.putStack(toStack);
+          return !from.getHasStack();
+        }
+      }
+    }
+    return false;
   }
 }

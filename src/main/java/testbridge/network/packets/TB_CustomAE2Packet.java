@@ -93,6 +93,7 @@ public class TB_CustomAE2Packet extends CoordinatesPacket {
       }
       if (setting) {
         player.setHeldItem(hand, pkg);
+        player.closeScreen();
       }
     }
     if (this.key.startsWith("CMSatellite.") && c instanceof ContainerSatelliteSelect) {

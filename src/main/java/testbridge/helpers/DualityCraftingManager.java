@@ -90,7 +90,7 @@ public class DualityCraftingManager
   private List<ItemStack> waitingToSend = null;
   private List<ItemStack> createPkgList;
   private HashMap<String, List<ItemStack>> waitingToSendOnSat = new HashMap<>();
-  private ArrayList<String> satelliteList = new ArrayList<>();
+  private ArrayList<String> satelliteList = null;
   private String mainSatName = "";
 
   public DualityCraftingManager(final AENetworkProxy networkProxy, final ICraftingManagerHost cmHost) {
@@ -146,17 +146,18 @@ public class DualityCraftingManager
 
     // For additional sat(s) used in Pattern contain package
     NBTTagList satList = new NBTTagList();
-    for (int i = 0 ; i < this.satelliteList.size() ; i++) {
-      NBTTagCompound satTag = new NBTTagCompound();
-      satTag.setString("satId_" + (i + 1), this.satelliteList.get(i));
-      satList.appendTag(satTag);
+    if (this.satelliteList != null) {
+      for (int i = 0; i < this.satelliteList.size(); i++) {
+        NBTTagCompound satTag = new NBTTagCompound();
+        satTag.setString("satId_" + (i + 1), this.satelliteList.get(i));
+        satList.appendTag(satTag);
+      }
     }
-
     data.setTag("satList", satList);
 
     // List of items base on sat name
     NBTTagCompound satItemList = new NBTTagCompound();
-    if (this.waitingToSendOnSat != null) {
+    if (this.waitingToSendOnSat != null && this.satelliteList != null) {
       for (String satName : this.satelliteList) {
         // Store list of item to each satellite that is in used
         NBTTagList waitingListSided = new NBTTagList();
@@ -213,10 +214,10 @@ public class DualityCraftingManager
     }
 
     // Retrieve sat(s) list
-    this.satelliteList = new ArrayList<>();
+    this.satelliteList = null;
     NBTTagList satList = data.getTagList("satList", 10);
 
-    for(int i = 0; i < satList.tagCount(); i++) {
+    for (int i = 0; i < satList.tagCount(); i++) {
       NBTTagCompound tag = satList.getCompoundTagAt(i);
       String satName = tag.getString("satId_" + i);
       addToSatList(satName);
@@ -226,33 +227,35 @@ public class DualityCraftingManager
     this.waitingToSendOnSat = null;
     final NBTTagCompound satItemList = data.getCompoundTag("satItemList");
 
-    for (String satName : this.satelliteList) {
-      if (satItemList.hasKey(satName)) {
-        NBTTagList w = satItemList.getTagList(satName, 10);
-        for (int x = 0; x < w.tagCount(); x++) {
-          final NBTTagCompound c = w.getCompoundTagAt(x);
-          if (c != null) {
-            final ItemStack is = new ItemStack(c);
-            if (c.hasKey("stackSize")) {
-              is.setCount(c.getInteger("stackSize"));
+    if (this.satelliteList != null){
+      for (String satName : this.satelliteList) {
+        if (satItemList.hasKey(satName)) {
+          NBTTagList w = satItemList.getTagList(satName, 10);
+          for (int x = 0; x < w.tagCount(); x++) {
+            final NBTTagCompound c = w.getCompoundTagAt(x);
+            if (c != null) {
+              final ItemStack is = new ItemStack(c);
+              if (c.hasKey("stackSize")) {
+                is.setCount(c.getInteger("stackSize"));
+              }
+              this.addToSendListOnSat(is, satName);
             }
-            this.addToSendListOnSat(is, satName);
           }
         }
-      }
 
-      // Wait list on main sat
-      this.createPkgList = null;
-      final NBTTagList pkgList = data.getTagList("__pkgList", 10);
-      if (pkgList != null) {
-        for (int x = 0; x < pkgList.tagCount(); x++) {
-          final NBTTagCompound c = pkgList.getCompoundTagAt(x);
-          if (c != null) {
-            final ItemStack is = new ItemStack(c);
-            if (c.hasKey("stackSize")) {
-              is.setCount(c.getInteger("stackSize"));
+        // Wait list on main sat
+        this.createPkgList = null;
+        final NBTTagList pkgList = data.getTagList("__pkgList", 10);
+        if (pkgList != null) {
+          for (int x = 0; x < pkgList.tagCount(); x++) {
+            final NBTTagCompound c = pkgList.getCompoundTagAt(x);
+            if (c != null) {
+              final ItemStack is = new ItemStack(c);
+              if (c.hasKey("stackSize")) {
+                is.setCount(c.getInteger("stackSize"));
+              }
+              addToCreatePkgList(is);
             }
-            addToCreatePkgList(is);
           }
         }
       }
@@ -313,7 +316,7 @@ public class DualityCraftingManager
 
     this.waitingToSendOnSat.get(satName).add(is);
 
-    this.satelliteList.add(satName);
+    addToSatList(satName);
 
     try {
       this.gridProxy.getTick().wakeDevice(this.gridProxy.getNode());
@@ -463,7 +466,7 @@ public class DualityCraftingManager
           return true;
         }
       }
-    }
+    } else satelliteList = null;
     return false;
   }
 
@@ -546,7 +549,6 @@ public class DualityCraftingManager
       return TickRateModulation.URGENT;
     }
 
-
     return this.hasWorkToDo() ? TickRateModulation.SLOWER : TickRateModulation.SLEEP;
   }
 
@@ -624,6 +626,10 @@ public class DualityCraftingManager
 
     if (this.waitingToSendOnSat.isEmpty()) {
       this.waitingToSendOnSat = null;
+    }
+
+    if (this.satelliteList.isEmpty()) {
+      this.satelliteList = null;
     }
   }
 
@@ -722,7 +728,7 @@ public class DualityCraftingManager
 
       boolean allAreBusy = true;
 
-      if (!satelliteList.isEmpty()) {
+      if (satelliteList != null && !satelliteList.isEmpty()) {
         for (String satName : satelliteList){
           if (!blockingChecker(satName, w)){
             allAreBusy = false;

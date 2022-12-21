@@ -39,21 +39,25 @@ public class FakeItem extends Item {
 
   @Override
   public ActionResult<ItemStack> onItemRightClick(final World w, EntityPlayer player, EnumHand hand) {
-    ItemStack is = player.getHeldItem(hand);
-    if (player.isSneaking()) {
-      this.clearPackage(is, player);
-      return new ActionResult<>(EnumActionResult.SUCCESS, is);
-    }
     if (isPackage) {
-      if(is.hasTagCompound() && is.getTagCompound().getBoolean("__actContainer")){
-        if (!w.isRemote) {
-          if (getItemStack(is) != null && !getItemStack(is).isEmpty()) {
+      ItemStack is = player.getHeldItem(hand);
+      final boolean isHolder = is.hasTagCompound() && is.getTagCompound().getBoolean("__actContainer");
+      if (isHolder && !w.isRemote && getItemStack(is) != null && !getItemStack(is).isEmpty()) {
+        if (player.isSneaking()) {
+          for (int i = 0 ; i< is.getCount() ; i++){
             w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, getItemStack(is).copy()));
           }
+          is.shrink(is.getCount());
+          return new ActionResult<>(EnumActionResult.SUCCESS, is);
+        } else {
+          w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, getItemStack(is).copy()));
           is.shrink(1);
+          return new ActionResult<>(EnumActionResult.SUCCESS, is);
         }
+      } else if (player.isSneaking()) {
+        this.clearPackage(is, player);
         return new ActionResult<>(EnumActionResult.SUCCESS, is);
-      } else {
+      } else if (!isHolder) {
         player.openGui(TestBridge.INSTANCE, GuiIDs.ENUM.TEMPLATE_PKG.ordinal(), w, hand.ordinal(), 0, 0);
         return new ActionResult<>(EnumActionResult.SUCCESS, is);
       }
