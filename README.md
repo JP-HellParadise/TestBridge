@@ -1,5 +1,6 @@
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/KorewaLidesu/TestBridge?style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/releases/latest)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/KorewaLidesu/TestBridge?label=github%20release&style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/releases/latest)
 [![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/KorewaLidesu/TestBridge/main_build.yml?label=test%20build&style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml)
+[![CurseForge](https://img.shields.io/badge/dynamic/json?color=blueviolet&label=curseforge&query=%24.data.latestFiles.0.displayName&url=https%3A%2F%2Fapi.curse.tools%2Fv1%2Fcf%2Fmods%2F719357&style=for-the-badge&logo=curseforge)](https://www.curseforge.com/minecraft/mc-mods/testbridge/files)
 [![GitHub](https://img.shields.io/github/license/KorewaLidesu/TestBridge?style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/blob/master/LICENSE)
 ## Anime
 ![image](https://user-images.githubusercontent.com/24401452/207646011-61a84639-8123-4bba-809b-20b69b7ae007.png)
