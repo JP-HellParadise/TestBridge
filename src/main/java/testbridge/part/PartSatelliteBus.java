@@ -24,6 +24,7 @@ import appeng.helpers.Reflected;
 import appeng.items.parts.PartModels;
 import appeng.parts.PartModel;
 import appeng.parts.automation.PartSharedItemBus;
+import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 
 import logisticspipes.network.PacketHandler;
@@ -52,7 +53,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
 
   public static final Set<PartSatelliteBus> AllSatellites = Collections.newSetFromMap(new WeakHashMap<>());
   public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-  private String satelliteBusName = "";
+  private String satPartName = "";
 
   @Reflected
   public PartSatelliteBus(ItemStack is) {
@@ -67,13 +68,13 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
   @Override
   public void writeToNBT(final NBTTagCompound extra) {
     super.writeToNBT(extra);
-    extra.setString("satelliteBusName", this.satelliteBusName);
+    extra.setString("__satName", this.satPartName);
   }
 
   @Override
   public void readFromNBT(final NBTTagCompound extra) {
     super.readFromNBT(extra);
-    this.satelliteBusName = extra.getString("satelliteBusName");
+    this.satPartName = extra.getString("__satName");
 
     if (MainProxy.isServer(getTile().getWorld())) {
       ensureAllSatelliteStatus();
@@ -83,7 +84,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
   @Nonnull
   @Override
   public TickingRequest getTickingRequest(@Nonnull final IGridNode node ) {
-    return new TickingRequest( TickRates.StorageBus.getMax(), TickRates.Interface.getMax(), this.isSleeping(), false );
+    return new TickingRequest( TickRates.Interface.getMax(), TickRates.Interface.getMax(), this.isSleeping(), false );
   }
 
   @Nonnull
@@ -141,13 +142,13 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
         if (!is.hasTagCompound()) {
           is.setTagCompound(new NBTTagCompound());
         }
-        is.getTagCompound().setString("__pkgDest", satelliteBusName);
+        is.getTagCompound().setString("__pkgDest", satPartName);
       } else {
         BlockPos pos = getTile().getPos();
         // Send the result id when opening gui
-        final ModernPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class).setSide(getSide().ordinal()).setString(satelliteBusName).setTilePos(getTile());
+        final ModernPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class).setSide(this.getSide().ordinal()).setString(this.satPartName).setTilePos(this.getTile());
         MainProxy.sendPacketToPlayer(packet, player);
-        player.openGui(TestBridge.INSTANCE, GuiIDs.GUI_SatelliteBus_ID + getSide().ordinal(), getTile().getWorld(), pos.getX(), pos.getY(), pos.getZ());
+        player.openGui(TestBridge.INSTANCE, GuiIDs.GUI_SatelliteBus_ID + this.getSide().ordinal(), this.getTile().getWorld(), pos.getX(), pos.getY(), pos.getZ());
       }
     }
     return true;
@@ -174,28 +175,37 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
 
   @Override
   public String getSatellitePipeName() {
-    return satelliteBusName;
+    return this.satPartName;
   }
 
   @Override
-  public void setSatellitePipeName(String satelliteName) {
-    this.satelliteBusName = satelliteName;
+  public void setSatellitePipeName(String __satName) {
+    this.satPartName = __satName;
   }
 
   @Override
   public void updateWatchers() {
-    CoordinatesPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class).setSide(getSide().ordinal()).setString(satelliteBusName).setTilePos(getTile());
-    MainProxy.sendToPlayerList(packet, localModeWatchers);
-    MainProxy.sendPacketToAllWatchingChunk(getTile(), packet);
+    CoordinatesPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class).setSide(this.getSide().ordinal()).setString(this.satPartName).setTilePos(this.getTile());
+    MainProxy.sendToPlayerList(packet, this.localModeWatchers);
+    MainProxy.sendPacketToAllWatchingChunk(this.getTile(), packet);
   }
 
   @Override
   public void ensureAllSatelliteStatus() {
-    if (satelliteBusName.isEmpty()) {
+    if (this.satPartName.isEmpty()) {
       PartSatelliteBus.AllSatellites.remove(this);
     }
-    if (!satelliteBusName.isEmpty()) {
+    if (!this.satPartName.isEmpty()) {
       PartSatelliteBus.AllSatellites.add(this);
     }
+  }
+
+  public TileEntity getNeighborTE() {
+    // Nested nightmare =))
+    return this.getTile().getWorld().getTileEntity(this.getTile().getPos().offset(this.getTargets()));
+  }
+
+  public InventoryAdaptor getInvAdaptor() {
+    return InventoryAdaptor.getAdaptor(this.getNeighborTE(), this.getTargets().getOpposite());
   }
 }
