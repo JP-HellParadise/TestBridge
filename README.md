@@ -14,7 +14,11 @@
 
 [//]: # (  + Refined Storage:  WIP  )
 
-### How to use *this repo*:
+## To feature request and PR: 
+Welcome!
+![image](https://cdn.discordapp.com/emojis/736677289676374168.gif?size=96&quality=lossless)
+
+## How to use *this repo*:
 1. Clone this repository.
 2. In the local repository, run the command `gradlew setupDecompWorkspace idea`.
 3. Open the `.ipr` file in IDEA.
