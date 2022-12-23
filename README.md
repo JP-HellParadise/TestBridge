@@ -1,5 +1,5 @@
-[![Github Action](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml/badge.svg)](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/KorewaLidesu/TestBridge?style=for-the-badge)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/KorewaLidesu/TestBridge?style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/releases/latest)
+[![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/KorewaLidesu/TestBridge/main_build.yml?label=test%20build&style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml)
 ## Anime
 ![image](https://user-images.githubusercontent.com/24401452/207646011-61a84639-8123-4bba-809b-20b69b7ae007.png)
 ## Features
