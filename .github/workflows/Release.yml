@@ -7,8 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       tags:
-        description: 'Test scenario tags'  
-        default: 'Alpha'
+        type: choice
+        description: Make a choice
+        options:
+          - Alpha
+          - Beta
+          - Release
 jobs:
   build:
     runs-on: ubuntu-latest
