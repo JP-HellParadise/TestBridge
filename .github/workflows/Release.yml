@@ -8,7 +8,7 @@ on:
     inputs:
       tags:
         type: choice
-        description: Make a choice
+        description: Release tags
         options:
           - Alpha
           - Beta
