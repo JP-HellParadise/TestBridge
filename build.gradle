@@ -59,6 +59,7 @@ minecraft {
 		args << '-Dmixin.debug.export=true'
 		args << '-XXaltjvm=dcevm'
 	}
+	args << '-Dtb.debugging=true'
 	clientJvmArgs.addAll(args)
 	serverJvmArgs.addAll(args)
 	makeObfSourceJar = false

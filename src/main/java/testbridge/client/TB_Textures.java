@@ -33,7 +33,6 @@ public class TB_Textures extends Textures {
     TESTBRIDGE_RESULT_TEXTURE = registerTexture(par1IIconRegister, TB_Textures.TESTBRIDGE_RESULT_TEXTURE_FILE);
     TESTBRIDGE_CMPIPE_TEXTURE = registerTexture(par1IIconRegister, TB_Textures.TESTBRIDGE_CMPIPE_TEXTURE_FILE);
 
-
     if (TestBridge.isDebug()) {
       System.out.println("LP: pipetextures " + index);
     }

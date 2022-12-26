@@ -45,10 +45,10 @@ public class TestBridge extends LogisticsPipes {
   public static final String ID = "testbridge";
   public static final String NAME = "Test Bridge";
   public static final String VERSION = "@VERSION@";
-  public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[5.0,);";
+  public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[4.2,);required-after:logisticspipes@[0.10.4.,);";
 
   @Getter
-  private static boolean debug = true;
+  private static boolean debug = Boolean.getBoolean("tb.debugging");
 
   public TestBridge() {
     MinecraftForge.EVENT_BUS.register(this);
@@ -170,9 +170,9 @@ public class TestBridge extends LogisticsPipes {
   }
 
   private static void loadRecipes() {
-    ResourceLocation resultPipe = TB_ItemHandlers.pipeResult.delegate.name();
-    ResourceLocation craftingMgrPipe = TB_ItemHandlers.pipeCraftingManager.delegate.name();
-    ResourceLocation bufferUpgrage = TB_ItemHandlers.upgradeBuffer.delegate.name();
+    ResourceLocation resultPipe = TB_ItemHandlers.pipeResult.getRegistryName();
+    ResourceLocation craftingMgrPipe = TB_ItemHandlers.pipeCraftingManager.getRegistryName();
+    ResourceLocation bufferUpgrage = TB_ItemHandlers.upgradeBuffer.getRegistryName();
 
     LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(resultPipe);
     LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(craftingMgrPipe);
@@ -228,7 +228,7 @@ public class TestBridge extends LogisticsPipes {
   private static Ingredient getIngredientForProgrammer(Item targetPipe) {
     ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer);
     programmerStack.setTagCompound(new NBTTagCompound());
-    programmerStack.getTagCompound().setString("LogisticsRecipeTarget", targetPipe.toString());
+    programmerStack.getTagCompound().setString("LogisticsRecipeTarget", targetPipe.getRegistryName().toString());
     return NBTIngredient.fromStacks(programmerStack);
   }
 }
