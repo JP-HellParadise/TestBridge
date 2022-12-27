@@ -441,7 +441,6 @@ public class TB_ModuleCrafter extends ModuleCrafter {
     } catch (NullPointerException ignore) {}
   }
 
-
   private boolean isExtractedMismatch(LogisticsItemOrder nextOrder, ItemIdentifier extractedID) {
     return !nextOrder.getResource().getItem().equals(extractedID) && (!getUpgradeManager().isFuzzyUpgrade() || (
         nextOrder.getResource().getBitSet().nextSetBit(0) == -1) || !nextOrder.getResource()

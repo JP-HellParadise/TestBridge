@@ -55,6 +55,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
   private final TB_ModuleCM cmModule;
   private final IInventory _moduleInventory;
   private final Slot[] upgradeslot;
+  private final int[] excludedSlotIDs;
   private final PropertyLayer propertyLayer;
   private final PropertyLayer.ValuePropertyOverlay<BlockingMode, EnumProperty<BlockingMode>> blockingModeOverlay;
   private GuiButton blockingButton;
@@ -88,6 +89,12 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
       ModuleUpgradeManager upgradeManager = this.pipeCM.getModuleUpgradeManager(i);
       upgradeslot[i * 2]  = dummy.addUpgradeSlot(0, upgradeManager, 0, xSize, 0, itemStack -> CMGuiProvider.checkStack(itemStack, this.pipeCM, fI));
       upgradeslot[i * 2 + 1] = dummy.addUpgradeSlot(1, upgradeManager, 1, xSize + 18, 0, itemStack -> CMGuiProvider.checkStack(itemStack, this.pipeCM, fI));
+    }
+
+    excludedSlotIDs = new int[3];
+    for (int x = 0; x < 3; x++) {
+      excludedSlotIDs[x] = extentionControllerLeft.registerControlledSlot(dummy.addDummySlot(x,
+          module.excludedInventory, x * 18 - 141, 55));
     }
 
     inventorySlots = dummy;
@@ -132,8 +139,11 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     extentionControllerLeft.addExtention(extention);
 
     if (hasBufferUpgrade) {
-      BufferExtention buffered = new BufferExtention(PREFIX + "blocking", new ItemStack(TB_ItemHandlers.upgradeBuffer));
+      BufferExtention buffered = new BufferExtention(new ItemStack(TB_ItemHandlers.upgradeBuffer));
       buffered.registerButton(extentionControllerLeft.registerControlledButton(addButton(blockingButton = new GuiButton(4, guiLeft - 143, guiTop + 23, 140, 14, getModeText()))));
+      for (int i = 0; i < 3; i++) {
+        buffered.registerSlot(excludedSlotIDs[i]);
+      }
       extentionControllerLeft.addExtention(buffered);
     }
 
@@ -292,10 +302,8 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
 
   private final class BufferExtention extends GuiExtention {
     private final ItemStack showItem;
-    private final String translationKey;
 
-    public BufferExtention(String translationKey, ItemStack showItem) {
-      this.translationKey = translationKey;
+    public BufferExtention(ItemStack showItem) {
       this.showItem = showItem;
     }
 
@@ -306,7 +314,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
 
     @Override
     public int getFinalHeight() {
-      return 40;
+      return 76;
     }
 
     @Override
@@ -323,12 +331,16 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         itemRender.zLevel = 0.0F;
       } else {
-        mc.fontRenderer.drawString(TextUtil.translate(translationKey), left + 9, top + 8, 0x404040);
+        mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "blocking"), left + 9, top + 8, 0x404040);
+        mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "excluded"), left + 9, top + 39, 0x404040);
         if (hasContainer) {
           blockingButton.displayString = TextUtil.translate(PREFIX + "NoContainer");
           blockingButton.enabled = false;
         } else {
           blockingButton.enabled = true;
+        }
+        for (int x = 0; x < 3; x++) {
+          GuiGraphics.drawSlotBackground(mc, left + 8 + x * 18, top + 50);
         }
       }
     }

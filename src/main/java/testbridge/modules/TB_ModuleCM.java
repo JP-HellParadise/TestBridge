@@ -31,6 +31,7 @@ import logisticspipes.proxy.computers.objects.CCSinkResponder;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
@@ -46,6 +47,9 @@ import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 
 public class TB_ModuleCM extends LogisticsModule implements Gui {
+
+  public final InventoryProperty excludedInventory = new InventoryProperty(
+      new ItemIdentifierInventory(3, "Excluded Filter Item", 1), "ExcludedInv");
   @Getter
   private final UUIDProperty satelliteUUID = new UUIDProperty(null, "satelliteUUID");
   @Getter
@@ -55,7 +59,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   @Getter
   private ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
   private final List<Property<?>> properties;
-  private List<List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>>> bufferlist = new ArrayList<>();
+  private List<List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>>> bufferList = new ArrayList<>();
   private int sendCooldown = 0;
   private UpdateSatResultFromIDs updateSatResultFromIDs = null;
   private final PipeCraftingManager parentPipe;
@@ -66,6 +70,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
     this.parentPipe = parentPipe;
     registerPosition(ModulePositionType.IN_PIPE, 0);
     properties = ImmutableList.<Property<?>>builder()
+        .add(excludedInventory)
         .addAll(Collections.singletonList(modules))
         .add(satelliteUUID)
         .add(resultUUID)
@@ -235,7 +240,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
         sendCooldown--;
         return;
       }
-      if(!bufferlist.isEmpty()) {
+      if(!bufferList.isEmpty()) {
         boolean allow = checkBlocking();
         if(!allow) {
           parentPipe.spawnParticle(Particles.RedParticle, 1);
@@ -244,7 +249,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
         final List<NeighborTileEntity<TileEntity>> neighborAdjacent = parentPipe.getAvailableAdjacent().inventories();
         if(parentPipe.canUseEnergy(neededEnergy()) && !neighborAdjacent.isEmpty()){
           IInventoryUtil util = neighborAdjacent.stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
-          for (List<Pair<IRequestItems, ItemIdentifierStack>> map : bufferlist) {
+          for (List<Pair<IRequestItems, ItemIdentifierStack>> map : bufferList) {
             if(map.stream().map(Pair::getValue).allMatch(i -> util.itemCount(i.getItem()) >= i.getStackSize())){
               int maxDist = 0;
               for (Pair<IRequestItems, ItemIdentifierStack> en : map) {
@@ -261,7 +266,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
                 }
               }
               parentPipe.useEnergy(neededEnergy(), true);
-              bufferlist.remove(map);
+              bufferList.remove(map);
               if (blockingMode.getValue() == BlockingMode.EMPTY_MAIN_SATELLITE) {
                 sendCooldown = Math.min(maxDist, 16);
               }
@@ -422,7 +427,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
     switch (blockingMode.getValue()) {
       case EMPTY_MAIN_SATELLITE:
       {
-        for (List<Pair<IRequestItems, ItemIdentifierStack>> map : bufferlist) {
+        for (List<Pair<IRequestItems, ItemIdentifierStack>> map : bufferList) {
           for (Pair<IRequestItems, ItemIdentifierStack> en : map) {
             PipeItemsSatelliteLogistics sat;
             if (parentPipe.getSatelliteRouterByUUID(en.getKey().getRouter().getId()) != null )
@@ -437,6 +442,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
                 for (int i = 0; i < inv.getSizeInventory(); i++) {
                   ItemStack stackInSlot = inv.getStackInSlot(i);
                   if (!stackInSlot.isEmpty()) {
+                    if (excludedInventory.getItemsAndCount().containsKey(ItemIdentifier.get(stackInSlot))) continue;
                     return false;
                   }
                 }
@@ -446,6 +452,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
           return true;
         }
       }
+
       case REDSTONE_HIGH:
         return getWorld().isBlockPowered(parentPipe.getPos());
 
@@ -475,7 +482,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   }
 
   public void addBuffered(List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>> record) {
-    bufferlist.add(record);
+    bufferList.add(record);
   }
 
   public enum BlockingMode {

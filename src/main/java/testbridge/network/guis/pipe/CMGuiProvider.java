@@ -78,6 +78,11 @@ public class CMGuiProvider extends ModuleCoordinatesGuiProvider {
       dummy.addUpgradeSlot(0, upgradeManager, 0, - (_cmPipe.getChassisSize()) * 18, 9 + i * 20, itemStack -> CMGuiProvider.checkStack(itemStack, _cmPipe, fI));
       dummy.addUpgradeSlot(1, upgradeManager, 1, - (_cmPipe.getChassisSize()) * 18, 9 + i * 20, itemStack -> CMGuiProvider.checkStack(itemStack, _cmPipe, fI));
     }
+
+    for (int x = 0; x < 3; x++) {
+      dummy.addDummySlot(x, ((PipeCraftingManager) pipe.pipe).getModules().excludedInventory, x * 18 - 141, 55);
+    }
+
     _cmPipe.localModeWatchers.add(player);
     return dummy;
   }

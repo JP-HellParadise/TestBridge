@@ -1,5 +1,5 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/KorewaLidesu/TestBridge?label=github%20release&logo=github&style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/releases/latest)
-[![CurseForge](https://azusahideout.ml/curse-badge/testbridge)](https://www.curseforge.com/minecraft/mc-mods/testbridge/files)
+[![CurseForge](https://azusahideout.ml/badge/testbridge)](https://www.curseforge.com/minecraft/mc-mods/testbridge/files)
 [![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/KorewaLidesu/TestBridge/main_build.yml?label=test%20build&logo=github&style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml)
 [![GitHub](https://img.shields.io/github/license/KorewaLidesu/TestBridge?style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/blob/master/LICENSE)
 ## Anime
@@ -29,7 +29,7 @@ Welcome!
 5. Instead of running `genIntellijRuns` and using generated IntelliJ tasks, just run `gradlew runClient` and `gradlew runServer`.
 
 ## Current stage:
-Beta 0.2.6
+Beta 0.2.9
 
 ## Demo
 ![Concept](/Stuff/concept.gif)
