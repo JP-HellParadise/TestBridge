@@ -1,5 +1,6 @@
 package testbridge.core;
 
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -111,6 +112,11 @@ public class TestBridge extends LogisticsPipes {
 
     NetworkRegistry.INSTANCE.registerGuiHandler(TestBridge.INSTANCE, new GuiHandler());
     TBDataFixer.INSTANCE.init();
+
+    if (evt.getSide() == Side.SERVER) {
+      TestBridge.TBTextures.registerBlockIcons(null);
+    }
+
 
     loadRecipes();
     proxy.init(evt);
