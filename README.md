@@ -29,7 +29,7 @@ Welcome!
 5. Instead of running `genIntellijRuns` and using generated IntelliJ tasks, just run `gradlew runClient` and `gradlew runServer`.
 
 ## Current stage:
-Beta 0.2.10
+Beta 0.2.11
 
 ## Demo
 ![Concept](/Stuff/concept.gif)

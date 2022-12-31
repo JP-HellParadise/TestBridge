@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
-import appeng.api.definitions.IBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -22,8 +21,9 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import appeng.api.AEPlugin;
 import appeng.api.config.SecurityPermissions;
-import appeng.api.IAppEngApi;
+import appeng.api.definitions.IBlocks;
 import appeng.api.definitions.IMaterials;
+import appeng.api.IAppEngApi;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.client.gui.implementations.GuiMEMonitorable;
 import appeng.client.me.ItemRepo;
@@ -41,7 +41,6 @@ import appeng.util.prioritylist.MergedPriorityList;
 import testbridge.container.ContainerCraftingManager;
 import testbridge.container.ContainerSatelliteSelect;
 import testbridge.helpers.HideFakeItem;
-import testbridge.helpers.interfaces.IBlocks_TB;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.part.PartCraftingManager;
 import testbridge.part.PartSatelliteBus;

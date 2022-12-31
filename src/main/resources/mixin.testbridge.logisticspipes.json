@@ -9,10 +9,9 @@
     "network.TB_SatelliteSetNamePacket",
     "pipes.TB_MixinSatellitePipe",
     "pipes.upgrades.TB_ItemExtraction",
-    "pipes.upgrades.TB_ItemStackExtraction"
-  ],
-  "client": [
+    "pipes.upgrades.TB_ItemStackExtraction",
     "network.TB_MixinGuiOpenChassis"
   ],
+  "client": [],
   "server": []
 }
