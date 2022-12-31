@@ -11,7 +11,10 @@ import zone.rong.mixinbooter.ILateMixinLoader;
 
 public class LateMixin implements ILateMixinLoader {
 
-  public static final List<String> modMixins = ImmutableList.of("appliedenergistics2", "refinedstorage", "logisticspipes");
+  public static final List<String> modMixins = ImmutableList.of(
+      "appliedenergistics2",
+      "refinedstorage",
+      "logisticspipes");
 
   @Override
   public List<String> getMixinConfigs() {

@@ -1,6 +1,5 @@
 package testbridge.helpers.interfaces;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
@@ -22,8 +21,6 @@ public interface ICraftingManagerHost extends ICraftingProvider, IUpgradeableHos
   String getSatellite();
 
   void setSatellite(String satName);
-
-  ItemStack getItemStackRepresentation();
 
   GuiBridge getGuiBridge();
 

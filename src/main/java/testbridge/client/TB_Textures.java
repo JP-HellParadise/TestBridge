@@ -7,8 +7,6 @@ import testbridge.core.TestBridge;
 
 public class TB_Textures extends Textures {
 
-  public TB_Textures() {
-  }
   public static TextureType TESTBRIDGE_RESULT_TEXTURE = empty;
   public static TextureType TESTBRIDGE_CMPIPE_TEXTURE = empty;
 
@@ -34,7 +32,7 @@ public class TB_Textures extends Textures {
     TESTBRIDGE_CMPIPE_TEXTURE = registerTexture(par1IIconRegister, TB_Textures.TESTBRIDGE_CMPIPE_TEXTURE_FILE);
 
     if (TestBridge.isDebug()) {
-      System.out.println("LP: pipetextures " + index);
+      System.out.println("TB: pipetextures " + index);
     }
   }
 

@@ -40,22 +40,22 @@ import testbridge.pipes.upgrades.BufferCMUpgrade;
 import testbridge.proxy.CommonProxy;
 import testbridge.client.TB_Textures;
 
-@Mod(modid = TestBridge.ID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "", acceptedMinecraftVersions = "1.12.2")
+@Mod(modid = TestBridge.MODID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "", acceptedMinecraftVersions = "1.12.2")
 public class TestBridge extends LogisticsPipes {
 
-  public static final String ID = "testbridge";
+  public static final String MODID = "testbridge";
   public static final String NAME = "Test Bridge";
   public static final String VERSION = "@VERSION@";
   public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[4.2,);required-after:logisticspipes@[0.10.4.,);";
 
   @Getter
-  private static boolean debug = Boolean.getBoolean("tb.debugging");
+  private static final boolean debug = Boolean.getBoolean("tb.debugging");
 
   public TestBridge() {
     MinecraftForge.EVENT_BUS.register(this);
   }
 
-  @Mod.Instance("testbridge")
+  @Mod.Instance(TestBridge.MODID)
   public static TestBridge INSTANCE;
 
   @SidedProxy(
@@ -183,7 +183,7 @@ public class TestBridge extends LogisticsPipes {
     LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(resultPipe);
     LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(craftingMgrPipe);
     LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(bufferUpgrage);
-    ResourceLocation group = new ResourceLocation(ID, "recipes");
+    ResourceLocation group = new ResourceLocation(MODID, "recipes");
 
     if (isAELoaded())
       AE2Plugin.loadRecipes(group);

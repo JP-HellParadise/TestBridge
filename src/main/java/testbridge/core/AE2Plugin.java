@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
+import appeng.api.definitions.IBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -40,6 +41,7 @@ import appeng.util.prioritylist.MergedPriorityList;
 import testbridge.container.ContainerCraftingManager;
 import testbridge.container.ContainerSatelliteSelect;
 import testbridge.helpers.HideFakeItem;
+import testbridge.helpers.interfaces.IBlocks_TB;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.part.PartCraftingManager;
 import testbridge.part.PartSatelliteBus;
@@ -90,6 +92,7 @@ public class AE2Plugin {
 
   public static void loadRecipes(ResourceLocation group) {
     IMaterials materials = AE2Plugin.INSTANCE.api.definitions().materials();
+    IBlocks blocks = AE2Plugin.INSTANCE.api.definitions().blocks();
     // Satellite Bus
     ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, AE2Plugin.SATELLITE_BUS_SRC.stack(1),
         " c ",
@@ -99,35 +102,37 @@ public class AE2Plugin {
         'f', materials.formationCore().maybeStack(1).orElse(ItemStack.EMPTY),
         'i', "ingotIron",
         'c', materials.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
-        setRegistryName(new ResourceLocation(TestBridge.ID, "recipes/satellite_bus")));
+        setRegistryName(new ResourceLocation(TestBridge.MODID, "recipes/satellite_bus")));
 
     // ME Crafting Manager part
-    ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, AE2Plugin.CRAFTINGMANAGER_PART_SRC.stack(1), TB_ItemHandlers.tile_cm).
-        setRegistryName(new ResourceLocation(TestBridge.ID, "recipes/cm_block_to_part")));
+    ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, AE2Plugin.CRAFTINGMANAGER_PART_SRC.stack(1),
+        /* Input */ TB_ItemHandlers.tile_cm).
+        setRegistryName(new ResourceLocation(TestBridge.MODID, "recipes/cm_block_to_part")));
+
+    ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, TB_ItemHandlers.tile_cm,
+        /* Input */ AE2Plugin.CRAFTINGMANAGER_PART_SRC.stack(1)).
+        setRegistryName(new ResourceLocation(TestBridge.MODID, "recipes/cm_part_to_block")));
 
     // ME Crafting Manager block
     ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, TB_ItemHandlers.tile_cm,
         "dud",
                 "fca",
                 "lIl",
+        'd', materials.engProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
         'f', materials.formationCore().maybeStack(1).orElse(ItemStack.EMPTY),
         'a', materials.annihilationCore().maybeStack(1).orElse(ItemStack.EMPTY),
         'c', materials.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
         'u', materials.cardPatternExpansion().maybeStack(1).orElse(ItemStack.EMPTY),
-        'I', AE2Plugin.INSTANCE.api.definitions().blocks().iface().maybeStack(1).orElse(ItemStack.EMPTY),
-        'l', materials.logicProcessor().maybeStack(1).orElse(ItemStack.EMPTY),
-        'd', materials.engProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
-        setRegistryName(new ResourceLocation(TestBridge.ID, "recipes/craftingmanager_part")));
-
-    ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, TB_ItemHandlers.tile_cm, AE2Plugin.CRAFTINGMANAGER_PART_SRC.stack(1)).
-        setRegistryName(new ResourceLocation(TestBridge.ID, "recipes/cm_part_to_block")));
+        'I', blocks.iface().maybeStack(1).orElse(ItemStack.EMPTY),
+        'l', materials.logicProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
+        setRegistryName(new ResourceLocation(TestBridge.MODID, "recipes/craftingmanager_part")));
 
     // Item Package
     ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(TB_ItemHandlers.itemPackage),
         "pw",
         'p', Items.PAPER,
         'w', "plankWood").
-        setRegistryName(new ResourceLocation(TestBridge.ID, "recipes/item_package")));
+        setRegistryName(new ResourceLocation(TestBridge.MODID, "recipes/item_package")));
   }
 
   @SuppressWarnings("unchecked")

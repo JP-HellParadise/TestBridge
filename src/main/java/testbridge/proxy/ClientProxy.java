@@ -63,7 +63,7 @@ public class ClientProxy extends CommonProxy {
   public void registerRenderers() {
     TestBridge.log.info("Loading Renderers");
     for (Item item : renderers) {
-      ModelResourceLocation local = new ModelResourceLocation(new ResourceLocation(TestBridge.ID, item.getTranslationKey().substring(5)), "inventory");
+      ModelResourceLocation local = new ModelResourceLocation(new ResourceLocation(TestBridge.MODID, item.getTranslationKey().substring(5)), "inventory");
       addRenderToRegistry(item, 0, local);
     }
     renderers = null;

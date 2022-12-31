@@ -12,7 +12,7 @@ import testbridge.pipes.ResultPipe;
 
 @Mixin(ItemExtractionUpgrade.class)
 public abstract class TB_ItemExtraction {
-  @Inject(method = "isAllowedForPipe", at = @At(value = "RETURN"), cancellable = true)
+  @Inject(method = "isAllowedForPipe", at = @At(value = "HEAD"), cancellable = true)
   private void isResultPipe(CoreRoutedPipe pipe, CallbackInfoReturnable<Boolean> cir) {
     if (pipe instanceof ResultPipe) cir.setReturnValue(true);
   }

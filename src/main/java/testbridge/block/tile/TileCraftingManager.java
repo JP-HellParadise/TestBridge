@@ -46,6 +46,7 @@ import appeng.util.inv.InvOperation;
 
 import testbridge.core.AE2Plugin;
 import testbridge.helpers.DualityCraftingManager;
+import testbridge.helpers.interfaces.IBlocks_TB;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 
 public class TileCraftingManager extends AENetworkInvTile implements IGridTickable, IInventoryDestination, ICraftingManagerHost, IPriorityHost {
@@ -201,7 +202,7 @@ public class TileCraftingManager extends AENetworkInvTile implements IGridTickab
 
   @Override
   public ItemStack getItemStackRepresentation() {
-    return AEApi.instance().definitions().blocks().iface().maybeStack(1).orElse(ItemStack.EMPTY);
+    return ((IBlocks_TB) AEApi.instance().definitions().blocks()).cmBlock().maybeStack(1).orElse(ItemStack.EMPTY);
   }
 
   @Override

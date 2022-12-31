@@ -43,13 +43,13 @@ import testbridge.network.packets.resultpackethandler.TB_SyncNamePacket;
 
 public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe {
 
-  public static final ResourceLocation MODEL_BASE = new ResourceLocation( TestBridge.ID, "part/satellite_bus_base" );
+  public static final ResourceLocation MODEL_BASE = new ResourceLocation( TestBridge.MODID, "part/satellite_bus_base" );
   @PartModels
-  public static final IPartModel MODELS_OFF = new PartModel( MODEL_BASE, new ResourceLocation( TestBridge.ID, "part/satellite_bus_off" ) );
+  public static final IPartModel MODELS_OFF = new PartModel( MODEL_BASE, new ResourceLocation( TestBridge.MODID, "part/satellite_bus_off" ) );
   @PartModels
-  public static final IPartModel MODELS_ON = new PartModel( MODEL_BASE, new ResourceLocation( TestBridge.ID, "part/satellite_bus_on" ) );
+  public static final IPartModel MODELS_ON = new PartModel( MODEL_BASE, new ResourceLocation( TestBridge.MODID, "part/satellite_bus_on" ) );
   @PartModels
-  public static final IPartModel MODELS_HAS_CHANNEL = new PartModel( MODEL_BASE, new ResourceLocation( TestBridge.ID, "part/satellite_bus_has_channel" ) );
+  public static final IPartModel MODELS_HAS_CHANNEL = new PartModel( MODEL_BASE, new ResourceLocation( TestBridge.MODID, "part/satellite_bus_has_channel" ) );
 
   public static final Set<PartSatelliteBus> AllSatellites = Collections.newSetFromMap(new WeakHashMap<>());
   public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();

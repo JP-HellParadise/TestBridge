@@ -15,7 +15,7 @@ public class TBDataFixer {
   private TBDataFixer() {}
 
   public void init() {
-    ModFixs mf = FMLCommonHandler.instance().getDataFixer().init(TestBridge.ID, VERSION);
+    ModFixs mf = FMLCommonHandler.instance().getDataFixer().init(TestBridge.MODID, VERSION);
     MinecraftForge.EVENT_BUS.register(new MissingMappingHandler());
   }
 

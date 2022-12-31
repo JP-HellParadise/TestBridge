@@ -1,7 +1,6 @@
 package testbridge.mixins.appliedenergistics2;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,7 +18,6 @@ import testbridge.block.tile.TileCraftingManager;
 import testbridge.helpers.interfaces.IBlocks_TB;
 
 @Mixin(ApiBlocks.class)
-@Pseudo
 public abstract class TB_APIBlocks implements IBlocks_TB {
   @Unique
   private IBlockDefinition cmBlock;

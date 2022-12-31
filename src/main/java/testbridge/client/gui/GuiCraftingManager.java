@@ -47,7 +47,7 @@ public class GuiCraftingManager extends GuiUpgradeable {
     this.priority = new GuiTabButton(this.guiLeft + 154, this.guiTop, 2 + 4 * 16, GuiText.Priority.getLocal(), this.itemRender);
     this.buttonList.add(this.priority);
 
-    this.satellite = new GuiTabButton(this.guiLeft + 133, this.guiTop, TB_ItemHandlers.satelliteBus,
+    this.satellite = new GuiTabButton(this.guiLeft + 133, this.guiTop, AE2Plugin.SATELLITE_BUS_SRC.stack(1),
         I18n.format("gui.crafting_manager.satellite") , this.itemRender);
     this.buttonList.add(this.satellite);
 

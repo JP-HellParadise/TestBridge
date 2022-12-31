@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry.ItemStackHolder;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 
+import testbridge.helpers.interfaces.IBlocks_TB;
 import testbridge.items.FakeItem;
 import testbridge.items.VirtualPatternAE;
 
@@ -33,13 +34,7 @@ public class TB_ItemHandlers {
   public static Item upgradeBuffer;
 
   // Blocks
-
-  // Part
-  @ItemStackHolder(value = "appliedenergistics2:part", meta = 1024)
-  public static ItemStack satelliteBus;
-
-  @ObjectHolder(value = "appliedenergistics2:crafting_manager")
-  public static Item tile_cm;
+  public static ItemStack tile_cm = ((IBlocks_TB) AE2Plugin.INSTANCE.api.definitions().blocks()).cmBlock().maybeStack(1).orElse(ItemStack.EMPTY);
 
   // Items
 
@@ -59,7 +54,7 @@ public class TB_ItemHandlers {
     if (key.equals("")) {
       translationKey = "testbridge." + itemName;
     } else translationKey = key;
-    final Item result = item.setTranslationKey(translationKey).setRegistryName(TestBridge.ID, itemName);
+    final Item result = item.setTranslationKey(translationKey).setRegistryName(TestBridge.MODID, itemName);
     if (creativeTabs != null) {
       return result.setCreativeTab(creativeTabs);
     }
@@ -78,7 +73,7 @@ public class TB_ItemHandlers {
     if (key.equals("")) {
       translationKey = "testbridge." + itemName;
     } else translationKey = key;
-    final Block result = block.setTranslationKey(translationKey).setRegistryName(TestBridge.ID, itemName);
+    final Block result = block.setTranslationKey(translationKey).setRegistryName(TestBridge.MODID, itemName);
     if (creativeTabs != null) {
       return result.setCreativeTab(creativeTabs);
     }
