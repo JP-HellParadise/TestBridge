@@ -2,11 +2,13 @@ package testbridge.client.gui;
 
 import java.io.IOException;
 
-import net.minecraft.client.gui.GuiScreen;
+import lombok.Getter;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -48,12 +50,11 @@ import testbridge.pipes.upgrades.ModuleUpgradeManager;
 
 public class GuiCMPipe extends LogisticsBaseGuiScreen {
 
+  @Getter
   private static final String PREFIX = "gui.crafting_manager.";
   private final boolean hasBufferUpgrade;
   private final boolean hasContainer;
   private final PipeCraftingManager pipeCM;
-  private final TB_ModuleCM cmModule;
-  private final IInventory _moduleInventory;
   private final Slot[] upgradeslot;
   private final int[] excludedSlotIDs;
   private final PropertyLayer propertyLayer;
@@ -66,11 +67,10 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     super(null);
     hasBufferUpgrade = flag;
     hasContainer = container;
-    cmModule = module;
     this.pipeCM = pipeCM;
-    _moduleInventory = pipeCM.getModuleInventory();
+    IInventory _moduleInventory = pipeCM.getModuleInventory();
 
-    propertyLayer = new PropertyLayer(cmModule.getProperties());
+    propertyLayer = new PropertyLayer(module.getProperties());
 
     // Create dummy container
     DummyContainer dummy = new DummyContainer(_player.inventory, _moduleInventory);
@@ -99,7 +99,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
 
     inventorySlots = dummy;
 
-    blockingModeOverlay = propertyLayer.overlay(cmModule.getBlockingMode());
+    blockingModeOverlay = propertyLayer.overlay(module.getBlockingMode());
   }
 
   @Override
@@ -229,10 +229,10 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     if (pipeCM.getModules().getSlot().isInWorld()) {
       if (id == 1) {
         this.setSubGui(new GuiSelectSatellitePopup(pipeCM.getModules().getBlockPos(), uuid ->
-            MainProxy.sendPacketToServer(PacketHandler.getPacket(CMPipeSetSatResultPacket.class).setPipeID(uuid).setInteger(id).setModulePos(pipeCM.getModules()))));
+            MainProxy.sendPacketToServer(PacketHandler.getPacket(CMPipeSetSatResultPacket.class).setPipeUUID(uuid).setInteger(id).setModulePos(pipeCM.getModules()))));
       } else {
         this.setSubGui(new GuiSelectResultPopup(pipeCM.getModules().getBlockPos(), uuid ->
-            MainProxy.sendPacketToServer(PacketHandler.getPacket(CMPipeSetSatResultPacket.class).setPipeID(uuid).setInteger(id).setModulePos(pipeCM.getModules()))));
+            MainProxy.sendPacketToServer(PacketHandler.getPacket(CMPipeSetSatResultPacket.class).setPipeUUID(uuid).setInteger(id).setModulePos(pipeCM.getModules()))));
       }
     }
   }
@@ -277,7 +277,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     public void renderForground(int left, int top) {
       if (!isFullyExtended()) {
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240 / 1.0F, 240 / 1.0F);
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         RenderHelper.enableGUIStandardItemLighting();
@@ -321,7 +321,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     public void renderForground(int left, int top) {
       if (!isFullyExtended()) {
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240 / 1.0F, 240 / 1.0F);
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         RenderHelper.enableGUIStandardItemLighting();
@@ -332,13 +332,13 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
         itemRender.zLevel = 0.0F;
       } else {
         mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "blocking"), left + 9, top + 8, 0x404040);
-        mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "excluded"), left + 9, top + 39, 0x404040);
         if (hasContainer) {
           blockingButton.displayString = TextUtil.translate(PREFIX + "NoContainer");
           blockingButton.enabled = false;
         } else {
           blockingButton.enabled = true;
         }
+        mc.fontRenderer.drawString(TextUtil.translate(PREFIX + "excluded"), left + 9, top + 39, 0x404040);
         for (int x = 0; x < 3; x++) {
           GuiGraphics.drawSlotBackground(mc, left + 8 + x * 18, top + 50);
         }

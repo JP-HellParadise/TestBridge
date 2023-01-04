@@ -4,12 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
 
 import appeng.api.parts.IPart;
 import appeng.api.parts.IPartHost;
 import appeng.api.util.AEPartLocation;
-import appeng.tile.networking.TileCableBus;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -46,7 +44,7 @@ public class TB_SetNamePacket extends StringCoordinatesPacket {
     } else {
       try {
         LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.PIPE);
-        if (pipe != null && pipe.pipe instanceof ResultPipe) {
+        if (pipe.pipe instanceof ResultPipe) {
           ResultPipe resultPipe = (ResultPipe) pipe.pipe;
           if (resultPipe.getSatellitesOfType().stream().anyMatch(it -> it.getSatellitePipeName().equals(newName))) {
             result = SatelliteNamingResult.DUPLICATE_NAME;

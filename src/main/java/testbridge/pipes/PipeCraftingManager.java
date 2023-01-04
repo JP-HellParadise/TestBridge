@@ -476,6 +476,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
     if (entityplayer.isSneaking() && SimpleServiceLocator.configToolHandler.canWrench(entityplayer, entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND), container)) {
       if (MainProxy.isServer(getWorld())) {
         if (settings == null || settings.openGui) {
+          assert container != null; // Suppress NPE
           ((PipeCraftingManager) container.pipe).nextOrientation();
         } else {
           entityplayer.sendMessage(new TextComponentTranslation("lp.chat.permissiondenied"));
@@ -752,7 +753,12 @@ public class PipeCraftingManager extends CoreRoutedPipe
     return false;
   }
 
-  public int getBlockingMode() {
+  public int getBlockingByInt() {
     return moduleCM != null ? moduleCM.getBlockingMode().getValue().ordinal() : 0;
   }
+
+  public String translationKeyBlockMode() {
+    return moduleCM != null ? GuiCMPipe.getPREFIX() + "blocking." + moduleCM.getBlockingMode().getValue().toString().toLowerCase() : "";
+  }
+
 }

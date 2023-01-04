@@ -9,9 +9,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.ResourceLocation;
 
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.ticking.TickRateModulation;
@@ -26,6 +27,7 @@ import appeng.parts.PartModel;
 import appeng.parts.automation.PartSharedItemBus;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
+import appeng.util.SettingsFrom;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
@@ -35,6 +37,7 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 import network.rs485.logisticspipes.SatellitePipe;
+import network.rs485.logisticspipes.util.TextUtil;
 
 import testbridge.core.TestBridge;
 import testbridge.items.FakeItem;
@@ -135,6 +138,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
   }
 
   @Override
+  @SuppressWarnings("null")
   public boolean onPartActivate(final EntityPlayer player, final EnumHand hand, final Vec3d posIn ) {
     if (Platform.isServer()) {
       if (player.getHeldItem(hand).getItem() instanceof FakeItem) {
@@ -142,6 +146,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
         if (!is.hasTagCompound()) {
           is.setTagCompound(new NBTTagCompound());
         }
+        assert is.getTagCompound() != null; // Remove NPE warning
         is.getTagCompound().setString("__pkgDest", satPartName);
       } else {
         BlockPos pos = getTile().getPos();
@@ -207,5 +212,43 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
 
   public InventoryAdaptor getInvAdaptor() {
     return InventoryAdaptor.getAdaptor(this.getNeighborTE(), this.getTargets().getOpposite());
+  }
+
+  @Override
+  public NBTTagCompound downloadSettings(SettingsFrom from) {
+    NBTTagCompound output = new NBTTagCompound();
+    if (!satPartName.isEmpty())
+      output.setString("_satName", getSatellitePipeName());
+    return output;
+  }
+
+  @Override
+  public void uploadSettings(SettingsFrom from, NBTTagCompound compound, EntityPlayer player) {
+    if (compound.hasKey("_satName")) {
+      String newName = compound.getString("_satName");
+      if (this.getSatellitesOfType().stream().anyMatch(it -> it.getSatellitePipeName().equals(newName))) {
+        sendStatus(player, "Duplicated");
+      } else {
+        sendStatus(player, "Success");
+        this.setSatellitePipeName(newName);
+        this.getTile().markDirty();
+      }
+    }
+  }
+
+  private void sendStatus(EntityPlayer player, String result) {
+    if (Platform.isClient()) {
+      return;
+    }
+
+    switch (result){
+      case "Duplicated":
+        player.sendStatusMessage(new TextComponentString(TextUtil.translate("chat.testbridge.satellite_bus.duplicated")), true);
+        break;
+      case "Success":
+        player.sendStatusMessage(new TextComponentString(TextUtil.translate("chat.testbridge.satellite_bus.success")), true);
+        break;
+      default:
+    }
   }
 }

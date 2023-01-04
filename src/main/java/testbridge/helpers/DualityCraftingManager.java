@@ -201,17 +201,13 @@ public class DualityCraftingManager
     // Wait list on main sat
     this.waitingToSend = null;
     final NBTTagList waitingList = data.getTagList("waitingToSend", 10);
-    if (waitingList != null) {
-      for (int x = 0; x < waitingList.tagCount(); x++) {
-        final NBTTagCompound c = waitingList.getCompoundTagAt(x);
-        if (c != null) {
-          final ItemStack is = new ItemStack(c);
-          if (c.hasKey("stackSize")) {
-            is.setCount(c.getInteger("stackSize"));
-          }
-          this.addToSendList(is);
-        }
+    for (int x = 0; x < waitingList.tagCount(); x++) {
+      final NBTTagCompound c = waitingList.getCompoundTagAt(x);
+      final ItemStack is = new ItemStack(c);
+      if (c.hasKey("stackSize")) {
+        is.setCount(c.getInteger("stackSize"));
       }
+      this.addToSendList(is);
     }
 
     // Retrieve sat(s) list
@@ -234,30 +230,24 @@ public class DualityCraftingManager
           NBTTagList w = satItemList.getTagList(satName, 10);
           for (int x = 0; x < w.tagCount(); x++) {
             final NBTTagCompound c = w.getCompoundTagAt(x);
-            if (c != null) {
-              final ItemStack is = new ItemStack(c);
-              if (c.hasKey("stackSize")) {
-                is.setCount(c.getInteger("stackSize"));
-              }
-              this.addToSendListOnSat(is, satName);
+            final ItemStack is = new ItemStack(c);
+            if (c.hasKey("stackSize")) {
+              is.setCount(c.getInteger("stackSize"));
             }
+            this.addToSendListOnSat(is, satName);
           }
         }
 
         // Wait list on main sat
         this.createPkgList = null;
         final NBTTagList pkgList = data.getTagList("__pkgList", 10);
-        if (pkgList != null) {
-          for (int x = 0; x < pkgList.tagCount(); x++) {
-            final NBTTagCompound c = pkgList.getCompoundTagAt(x);
-            if (c != null) {
-              final ItemStack is = new ItemStack(c);
-              if (c.hasKey("stackSize")) {
-                is.setCount(c.getInteger("stackSize"));
-              }
-              addToCreatePkgList(is);
-            }
+        for (int x = 0; x < pkgList.tagCount(); x++) {
+          final NBTTagCompound c = pkgList.getCompoundTagAt(x);
+          final ItemStack is = new ItemStack(c);
+          if (c.hasKey("stackSize")) {
+            is.setCount(c.getInteger("stackSize"));
           }
+          addToCreatePkgList(is);
         }
       }
     }
@@ -335,6 +325,7 @@ public class DualityCraftingManager
     }
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   private void updateCraftingList() {
     final Boolean[] accountedFor = new Boolean[this.patterns.getSlots()];
     Arrays.fill(accountedFor, false);
@@ -439,7 +430,10 @@ public class DualityCraftingManager
         List<ItemStack> packageList = new ArrayList<>();
         visitArray(packageList, in, false);
         visitArray(packageList, cin, false);
-        packageList.stream().map(pkg -> VirtualPatternAE.newPattern(new ItemStack(pkg.getTagCompound().getCompoundTag("__itemHold")), pkg)).forEach(this.craftingList::add);
+        packageList.stream().map(pkg -> {
+          assert pkg.getTagCompound() != null; // Remove NPE warning
+          return VirtualPatternAE.newPattern(new ItemStack(pkg.getTagCompound().getCompoundTag("__itemHold")), pkg);
+        }).forEach(this.craftingList::add);
 
         this.craftingList.add(details);
       }
@@ -501,12 +495,13 @@ public class DualityCraftingManager
     try {
       this.items.setInternal(this.gridProxy.getStorage().getInventory(ITEMS));
     } catch (final GridAccessException gae) {
-      this.items.setInternal(new NullInventory<IAEItemStack>());
+      this.items.setInternal(new NullInventory<>());
     }
 
     this.notifyNeighbors();
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public AECableType getCableConnectionType(final AEPartLocation dir) {
     return AECableType.SMART;
   }
@@ -629,6 +624,7 @@ public class DualityCraftingManager
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T extends IAEStack<T>> IMEMonitor<T> getInventory(IStorageChannel<T> channel) {
     if (channel == ITEMS) {
       return (IMEMonitor<T>) this.items;
@@ -642,7 +638,7 @@ public class DualityCraftingManager
       return this.patterns;
     }
 
-    return null;
+    return new ItemStackHandler(0);
   }
 
   @Override
@@ -735,6 +731,7 @@ public class DualityCraftingManager
 
   /* Check if any sat in satelliteList or mainSat is available or not.
    */
+  @SuppressWarnings("ConstantConditions") // Remove NPE warning
   private boolean blockingChecker() {
     boolean isBusy = false;
     if (this.isBlocking()) {
@@ -838,6 +835,7 @@ public class DualityCraftingManager
     }
   }
 
+  @SuppressWarnings("Redundant")
   public IUpgradeableHost getHost() {
     if (this.getPart() instanceof IUpgradeableHost) {
       return (IUpgradeableHost) this.getPart();
@@ -856,6 +854,7 @@ public class DualityCraftingManager
     return this.craftingTracker.getRequestedJobs();
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public IAEItemStack injectCraftedItems(final ICraftingLink link, final IAEItemStack acquired, final Actionable mode) {
     return acquired;
   }
@@ -892,6 +891,7 @@ public class DualityCraftingManager
     this.iHost.saveChanges();
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   private void createPkg() {
     if (this.createPkgList == null) {
       return;
@@ -912,10 +912,13 @@ public class DualityCraftingManager
       if (inputArray[i] != null) {
         ItemStack is = inputArray[i].getDefinition();
         if (is.getItem() == TB_ItemHandlers.itemPackage) {
-          if(is.hasTagCompound() && is.getTagCompound().getBoolean("__actContainer") == isPlaceholder){
-            if (!isPlaceholder) {
-              is.getTagCompound().setBoolean("__actContainer", true);
-              inputArray[i] = ITEMS.createStack(is);
+          if(is.hasTagCompound()) {
+            assert is.getTagCompound() != null; // Remove NPE warning
+            if (is.getTagCompound().getBoolean("__actContainer") == isPlaceholder) {
+              if (!isPlaceholder) {
+                is.getTagCompound().setBoolean("__actContainer", true);
+                inputArray[i] = ITEMS.createStack(is);
+              }
             }
           }
           packageList.add(is);
@@ -924,7 +927,7 @@ public class DualityCraftingManager
     }
   }
 
-  private PartSatelliteBus findSatellite(String name) {
+  public PartSatelliteBus findSatellite(String name) {
     if (name.equals("")) {
       return null;
     }

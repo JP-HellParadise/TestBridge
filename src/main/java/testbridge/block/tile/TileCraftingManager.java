@@ -53,11 +53,13 @@ public class TileCraftingManager extends AENetworkInvTile implements IGridTickab
   private final DualityCraftingManager duality = new DualityCraftingManager(this.getProxy(), this);
 
   @MENetworkEventSubscribe
+  @SuppressWarnings("unused") // Used by AE2
   public void stateChange(final MENetworkChannelsChanged c) {
     this.duality.notifyNeighbors();
   }
 
   @MENetworkEventSubscribe
+  @SuppressWarnings("unused") // Used by AE2
   public void stateChange(final MENetworkPowerStatusChange c) {
     this.duality.notifyNeighbors();
   }
@@ -224,6 +226,8 @@ public class TileCraftingManager extends AENetworkInvTile implements IGridTickab
         ((AppEngInternalInventory) inv).writeToNBT(output, "patterns");
       }
     }
+    if (!getSatellite().isEmpty())
+      output.setString("__satSelect", getSatellite());
     return output;
   }
 
@@ -249,7 +253,6 @@ public class TileCraftingManager extends AENetworkInvTile implements IGridTickab
         }
       }
 
-
       for (int x = 0; x < tmp.getSlots(); x++) {
         if (!tmp.getStackInSlot(x).isEmpty()) {
           boolean found = false;
@@ -270,5 +273,8 @@ public class TileCraftingManager extends AENetworkInvTile implements IGridTickab
         player.sendMessage(PlayerMessages.MissingPatternsToEncode.get());
       }
     }
+
+    if (compound.hasKey("__satSelect"))
+      setSatellite(compound.getString("__satSelect"));
   }
 }

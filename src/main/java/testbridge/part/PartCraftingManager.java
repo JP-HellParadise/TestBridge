@@ -264,6 +264,8 @@ public class PartCraftingManager extends PartBasicState
         ((AppEngInternalInventory) inv).writeToNBT(output, "patterns");
       }
     }
+    if (!getSatellite().isEmpty())
+      output.setString("__satSelect", getSatellite());
     return output;
   }
 
@@ -309,6 +311,8 @@ public class PartCraftingManager extends PartBasicState
         player.sendMessage(PlayerMessages.MissingPatternsToEncode.get());
       }
     }
+    if (compound.hasKey("__satSelect"))
+      setSatellite(compound.getString("__satSelect"));
   }
 
   @Override

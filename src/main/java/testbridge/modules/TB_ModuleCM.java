@@ -39,8 +39,10 @@ import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.*;
+import network.rs485.logisticspipes.util.TextUtil;
 
 import testbridge.helpers.interfaces.ISatellitePipe;
+import testbridge.interfaces.ITOPAddon;
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeUpdatePacket;
 import testbridge.pipes.PipeCraftingManager;
@@ -57,9 +59,9 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   @Getter
   private final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
   @Getter
-  private ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
+  private final ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
   private final List<Property<?>> properties;
-  private List<List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>>> bufferList = new ArrayList<>();
+  private final List<List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>>> bufferList = new ArrayList<>();
   private int sendCooldown = 0;
   private UpdateSatResultFromIDs updateSatResultFromIDs = null;
   private final PipeCraftingManager parentPipe;
@@ -229,6 +231,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
     }
   }
 
+  @SuppressWarnings("ConstantConditions") // LPNeighborTileEntityKt::getInventoryUtil won't give null since there is inv checker
   private void enabledUpdateEntity() {
     if (!parentPipe.isNthTick(5)) {
       return;
@@ -360,7 +363,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
         .setModulePos(this);
   }
 
-  private String getSatResultNameForUUID(UUID uuid) {
+  public String getSatResultNameForUUID(UUID uuid) {
     if (UUIDPropertyKt.isZero(uuid)) {
       return "";
     }
@@ -374,7 +377,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
         return ((ResultPipe) pipe).getSatellitePipeName();
       }
     }
-    return "UNKNOWN NAME";
+    return TextUtil.translate(ITOPAddon.tb$prefix + "crafting_manager.router_error");
   }
 
   public void handleCMUpdatePacket(CMPipeUpdatePacket packet) {
@@ -454,9 +457,11 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
       }
 
       case REDSTONE_HIGH:
+        assert getWorld() != null; // Remove NPE warning
         return getWorld().isBlockPowered(parentPipe.getPos());
 
       case REDSTONE_LOW:
+        assert getWorld() != null; // Remove NPE warning
         return !getWorld().isBlockPowered(parentPipe.getPos());
 
 //      case WAIT_FOR_RESULT: { // TODO check if this work

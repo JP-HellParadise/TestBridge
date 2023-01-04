@@ -2,8 +2,7 @@
 	"credit": "Made with Blockbench",
 	"parent": "testbridge:block/crafting_manager",
 	"textures": {
-		"0": "testbridge:blocks/crafting_manager_back",
-		"particle": "testbridge:blocks/crafting_manager_back"
+		"0": "testbridge:blocks/crafting_manager"
 	},
 	"elements": [
 		{

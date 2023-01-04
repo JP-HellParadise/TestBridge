@@ -2,6 +2,7 @@ package testbridge.core;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.init.Items;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import net.minecraft.block.Block;
@@ -9,8 +10,10 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-import net.minecraftforge.fml.common.registry.GameRegistry.ItemStackHolder;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
+
+import logisticspipes.LPItems;
+import logisticspipes.modules.ModuleCrafter;
 
 import testbridge.helpers.interfaces.IBlocks_TB;
 import testbridge.items.FakeItem;
@@ -44,7 +47,7 @@ public class TB_ItemHandlers {
 
   public static Item createItem(@Nonnull final Item item, @Nonnull final String name, @Nonnull final String key, CreativeTabs creativeTabs) {
     String itemName;
-    String translationKey = "";
+    String translationKey;
     if (!name.equals("")) {
       itemName = "item_" + name;
     } else {
@@ -78,6 +81,11 @@ public class TB_ItemHandlers {
       return result.setCreativeTab(creativeTabs);
     }
     return result;
+  }
+
+  public static ItemStack getCrafterModule() {
+    Item item = Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
+    return new ItemStack(item == null ? Items.AIR : item);
   }
 
 }

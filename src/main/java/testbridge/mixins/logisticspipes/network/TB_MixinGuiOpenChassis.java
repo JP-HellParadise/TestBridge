@@ -29,7 +29,7 @@ public abstract class TB_MixinGuiOpenChassis extends CoordinatesPacket {
       PipeCraftingManager cm = (PipeCraftingManager) pipe.pipe;
       NewGuiHandler.getGui(CMGuiProvider.class)
           .setBufferUpgrade(cm.hasBufferUpgrade())
-          .setBlockingMode(cm.getBlockingMode())
+          .setBlockingMode(cm.getBlockingByInt())
           .setContainerConnected(cm.getAvailableAdjacent().inventories().isEmpty())
           .setSlot(LogisticsModule.ModulePositionType.IN_PIPE)
           .setPositionInt(0).setPosX(getPosX()).setPosY(getPosY()).setPosZ(getPosZ()).open(player);

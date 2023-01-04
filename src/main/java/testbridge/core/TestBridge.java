@@ -23,15 +23,17 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.SidedProxy;
 
+import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity.ProgrammCategories;
 import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.recipes.NBTIngredient;
 import logisticspipes.recipes.RecipeManager;
 
 import testbridge.helpers.datafixer.TBDataFixer;
+import testbridge.integration.IntegrationRegistry;
+import testbridge.integration.IntegrationType;
 import testbridge.network.GuiHandler;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.PipeCraftingManager;
@@ -40,8 +42,8 @@ import testbridge.pipes.upgrades.BufferCMUpgrade;
 import testbridge.proxy.CommonProxy;
 import testbridge.client.TB_Textures;
 
-@Mod(modid = TestBridge.MODID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "", acceptedMinecraftVersions = "1.12.2")
-public class TestBridge extends LogisticsPipes {
+@Mod(modid = TestBridge.MODID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, acceptedMinecraftVersions = "1.12.2")
+public class TestBridge {
 
   public static final String MODID = "testbridge";
   public static final String NAME = "Test Bridge";
@@ -75,7 +77,7 @@ public class TestBridge extends LogisticsPipes {
   private static boolean TOPLoaded;
 
   @Mod.EventHandler
-  public void _preInit(FMLPreInitializationEvent event) {
+  public void preInit(FMLPreInitializationEvent event) {
     log.info("==================================================================================");
     log.info("Test Bridge: Start Pre Initialization");
     long tM = System.currentTimeMillis();
@@ -87,6 +89,10 @@ public class TestBridge extends LogisticsPipes {
 
     proxy.preInit(event);
 
+    for (final IntegrationType type : IntegrationType.values()) {
+      IntegrationRegistry.INSTANCE.add(type);
+    }
+
     if (AELoaded) {
       AE2Plugin.preInit();
     }
@@ -94,6 +100,8 @@ public class TestBridge extends LogisticsPipes {
     if (RSLoaded) {
       // TODO
     }
+
+    IntegrationRegistry.INSTANCE.preInit();
 
     MinecraftForge.EVENT_BUS.register(TB_EventHandlers.class);
     proxy.registerRenderers();
@@ -103,7 +111,7 @@ public class TestBridge extends LogisticsPipes {
   }
 
   @Mod.EventHandler
-  public void _init(FMLInitializationEvent evt) {
+  public void init(FMLInitializationEvent evt) {
     log.info("==================================================================================");
     log.info("Start Initialization");
     long tM = System.currentTimeMillis();
@@ -117,28 +125,30 @@ public class TestBridge extends LogisticsPipes {
       TestBridge.TBTextures.registerBlockIcons(null);
     }
 
-
     loadRecipes();
     proxy.init(evt);
+
+    IntegrationRegistry.INSTANCE.init();
 
     log.info("Initialization took in {} milliseconds", (System.currentTimeMillis() - tM));
     log.info("==================================================================================");
   }
 
   @Mod.EventHandler
-  public void _postInit(FMLPostInitializationEvent event) {
+  public void postInit(FMLPostInitializationEvent event) {
     log.info("==================================================================================");
     log.info("Start Post Initialization");
     long tM = System.currentTimeMillis();
 
     //TODO: onPostInit
 
+    IntegrationRegistry.INSTANCE.postInit();
+
     log.info("Post Initialization took in {} milliseconds", (System.currentTimeMillis() - tM));
     log.info("==================================================================================");
   }
 
   @SubscribeEvent
-  @Override
   public void initItems(RegistryEvent.Register<Item> event) {
     IForgeRegistry<Item> registry = event.getRegistry();
     //Items
@@ -148,21 +158,19 @@ public class TestBridge extends LogisticsPipes {
       registry.register(TB_ItemHandlers.virtualPattern);
     }
     // Pipe
-    registerPipe(registry, "result", ResultPipe::new);
-    registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
+    LogisticsBlockGenericPipe.registerPipe(registry, "result", ResultPipe::new);
+    LogisticsBlockGenericPipe.registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
     // Upgrade
     ItemUpgrade.registerUpgrade(registry, BufferCMUpgrade.getName(), BufferCMUpgrade::new);
   }
 
   @SubscribeEvent
-  @Override
   public void initBlocks(RegistryEvent.Register<Block> event) {
     IForgeRegistry<Block> registry = event.getRegistry();
     // TODO Block
   }
 
   @Mod.EventHandler
-  @Override
   public void cleanup(FMLServerStoppingEvent event) {
     ResultPipe.cleanup();
     if (AELoaded) {
@@ -231,9 +239,15 @@ public class TestBridge extends LogisticsPipes {
     );
   }
 
+  @SuppressWarnings("null")
   private static Ingredient getIngredientForProgrammer(Item targetPipe) {
     ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer);
     programmerStack.setTagCompound(new NBTTagCompound());
+
+    // Suppress NPE warning
+    assert programmerStack.getTagCompound() != null;
+    assert targetPipe.getRegistryName() != null;
+
     programmerStack.getTagCompound().setString("LogisticsRecipeTarget", targetPipe.getRegistryName().toString());
     return NBTIngredient.fromStacks(programmerStack);
   }

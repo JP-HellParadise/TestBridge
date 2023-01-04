@@ -21,7 +21,7 @@ public class CMPipeSetSatResultPacket extends IntegerModuleCoordinatesPacket {
 
   @Getter
   @Setter
-  private UUID pipeID;
+  private UUID pipeUUID;
 
   public CMPipeSetSatResultPacket(int id) {
     super(id);
@@ -30,13 +30,13 @@ public class CMPipeSetSatResultPacket extends IntegerModuleCoordinatesPacket {
   @Override
   public void readData(LPDataInput input) {
     super.readData(input);
-    pipeID = input.readUUID();
+    pipeUUID = input.readUUID();
   }
 
   @Override
   public void writeData(LPDataOutput output) {
     super.writeData(output);
-    output.writeUUID(pipeID);
+    output.writeUUID(pipeUUID);
   }
 
   @Override
@@ -46,9 +46,9 @@ public class CMPipeSetSatResultPacket extends IntegerModuleCoordinatesPacket {
       return;
     }
     if (getInteger() == 1) {
-      module.setSatelliteUUID(getPipeID());
+      module.setSatelliteUUID(pipeUUID);
     } else if (getInteger() == 2) {
-      module.setResultUUID(getPipeID());
+      module.setResultUUID(pipeUUID);
     }
   }
 
