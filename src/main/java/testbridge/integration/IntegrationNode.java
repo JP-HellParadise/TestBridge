@@ -22,9 +22,9 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModAPIManager;
 
 import appeng.api.exceptions.ModNotInstalledException;
-import appeng.core.AEConfig;
-import appeng.core.AELog;
-import appeng.integration.IIntegrationModule;
+import org.apache.logging.log4j.Level;
+import testbridge.core.TBConfig;
+import testbridge.core.TestBridge;
 
 final class IntegrationNode {
 
@@ -66,10 +66,10 @@ final class IntegrationNode {
             final ModAPIManager apiManager = ModAPIManager.INSTANCE;
             boolean enabled = this.modID == null || Loader.isModLoaded(this.modID) || apiManager.hasAPI(this.modID);
 
-            AEConfig.instance()
+            TBConfig.instance()
                 .addCustomCategoryComment("ModIntegration",
                     "Valid Values are 'AUTO', 'ON', or 'OFF' - defaults to 'AUTO' ; Suggested that you leave this alone unless your experiencing an issue, or wish to disable the integration for a reason.");
-            final String mode = AEConfig.instance().get("ModIntegration", this.displayName.replace(" ", ""), "AUTO").getString();
+            final String mode = TBConfig.instance().get("ModIntegration", this.displayName.replace(" ", ""), "AUTO").getString();
 
             if (mode.equalsIgnoreCase("ON")) {
               enabled = true;
@@ -108,14 +108,14 @@ final class IntegrationNode {
       }
     }
 
-    if (stage == IntegrationStage.POST_INIT) {
+    if (stage == IntegrationStage.POST_INIT && TestBridge.isLoggingEnabled()) {
       if (this.getState() == IntegrationStage.FAILED) {
-        AELog.info(this.displayName + " - Integration Disabled");
-        if (!(this.exception instanceof ModNotInstalledException)) {
-          AELog.integration(this.exception);
+        TestBridge.log.info(this.displayName + " - Integration Disabled");
+        if (!(this.exception instanceof ModNotInstalledException) && TBConfig.instance().isFeatureEnabled(TBConfig.TBFeature.INTEGRATION_LOGGING)) {
+          TestBridge.log.log(Level.DEBUG, "Exception: ", this.exception);
         }
       } else {
-        AELog.info(this.displayName + " - Integration Enable");
+        TestBridge.log.info(this.displayName + " - Integration Enable");
       }
     }
   }

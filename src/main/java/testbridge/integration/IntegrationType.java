@@ -1,10 +1,20 @@
 package testbridge.integration;
 
-import appeng.integration.IIntegrationModule;
-
+import testbridge.integration.modules.logisticspipe.LPModule;
 import testbridge.integration.modules.theoneprobe.TOPModule;
 
 public enum IntegrationType {
+
+  LOGISTICS_PIPES(IntegrationSide.BOTH, "LogisticsPipe", "logisticspipes") {
+    @Override
+    public IIntegrationModule createInstance() {
+      return new LPModule();
+    }
+  },
+
+  APPLIED_ENERGISTICS_2(IntegrationSide.BOTH, "AppliedEnergistics2", "appliedenergistics2") {
+
+  },
 
   THE_ONE_PROBE(IntegrationSide.BOTH, "TheOneProbe", "theoneprobe") {
     @Override

@@ -1,6 +1,6 @@
 package testbridge.core;
 
-import net.minecraftforge.fml.relauncher.Side;
+import com.google.common.base.Stopwatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,16 +12,16 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.registries.IForgeRegistry;
 
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
@@ -42,7 +42,9 @@ import testbridge.pipes.upgrades.BufferCMUpgrade;
 import testbridge.proxy.CommonProxy;
 import testbridge.client.TB_Textures;
 
-@Mod(modid = TestBridge.MODID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, acceptedMinecraftVersions = "1.12.2")
+import java.util.concurrent.TimeUnit;
+
+@Mod(modid = TestBridge.MODID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "testbridge.client.gui.config.ConfigGuiFactory", acceptedMinecraftVersions = "1.12.2")
 public class TestBridge {
 
   public static final String MODID = "testbridge";
@@ -70,20 +72,22 @@ public class TestBridge {
   public static TB_Textures TBTextures = new TB_Textures();
 
   @Getter
+  private static boolean LPLoaded;
+  @Getter
   private static boolean AELoaded;
   @Getter
   private static boolean RSLoaded;
-  @Getter
-  private static boolean TOPLoaded;
 
   @Mod.EventHandler
   public void preInit(FMLPreInitializationEvent event) {
-    log.info("==================================================================================");
-    log.info("Test Bridge: Start Pre Initialization");
-    long tM = System.currentTimeMillis();
+    final Stopwatch watch = Stopwatch.createStarted();
+    if (isLoggingEnabled()){
+      log.info("==================================================================================");
+      log.info("Test Bridge: Start Pre Initialization");
+    }
+    LPLoaded = Loader.isModLoaded("logisticspipes");
     AELoaded = Loader.isModLoaded("appliedenergistics2");
     RSLoaded = Loader.isModLoaded("refinedstorage");
-    TOPLoaded = Loader.isModLoaded("theoneprobe");
 
     //TODO: preInit
 
@@ -105,16 +109,19 @@ public class TestBridge {
 
     MinecraftForge.EVENT_BUS.register(TB_EventHandlers.class);
     proxy.registerRenderers();
-
-    log.info("Pre Initialization took in {} milliseconds", (System.currentTimeMillis() - tM));
-    log.info("==================================================================================");
+    if (isLoggingEnabled()) {
+      log.info("Pre Initialization took in {} ms", watch.elapsed(TimeUnit.MILLISECONDS));
+      log.info("==================================================================================");
+    }
   }
 
   @Mod.EventHandler
   public void init(FMLInitializationEvent evt) {
-    log.info("==================================================================================");
-    log.info("Start Initialization");
-    long tM = System.currentTimeMillis();
+    final Stopwatch watch = Stopwatch.createStarted();
+    if (isLoggingEnabled()) {
+      log.info("==================================================================================");
+      log.info("Start Initialization");
+    }
 
     //TODO: init
 
@@ -130,38 +137,46 @@ public class TestBridge {
 
     IntegrationRegistry.INSTANCE.init();
 
-    log.info("Initialization took in {} milliseconds", (System.currentTimeMillis() - tM));
-    log.info("==================================================================================");
+    if (isLoggingEnabled()) {
+      log.info("Initialization took in {} ms", watch.elapsed(TimeUnit.MILLISECONDS));
+      log.info("==================================================================================");
+    }
   }
 
   @Mod.EventHandler
   public void postInit(FMLPostInitializationEvent event) {
-    log.info("==================================================================================");
-    log.info("Start Post Initialization");
-    long tM = System.currentTimeMillis();
+    final Stopwatch watch = Stopwatch.createStarted();
+    if (isLoggingEnabled()) {
+      log.info("==================================================================================");
+      log.info("Start Post Initialization");
+    }
 
     //TODO: onPostInit
 
     IntegrationRegistry.INSTANCE.postInit();
 
-    log.info("Post Initialization took in {} milliseconds", (System.currentTimeMillis() - tM));
-    log.info("==================================================================================");
+    if (isLoggingEnabled()) {
+      log.info("Post Initialization took in {} milliseconds", watch.elapsed(TimeUnit.MILLISECONDS));
+      log.info("==================================================================================");
+    }
   }
 
   @SubscribeEvent
   public void initItems(RegistryEvent.Register<Item> event) {
     IForgeRegistry<Item> registry = event.getRegistry();
     //Items
-    if (AELoaded){
+    if (AELoaded) {
 //      registry.register(TB_ItemHandlers.itemHolder);
       registry.register(TB_ItemHandlers.itemPackage);
       registry.register(TB_ItemHandlers.virtualPattern);
     }
-    // Pipe
-    LogisticsBlockGenericPipe.registerPipe(registry, "result", ResultPipe::new);
-    LogisticsBlockGenericPipe.registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
-    // Upgrade
-    ItemUpgrade.registerUpgrade(registry, BufferCMUpgrade.getName(), BufferCMUpgrade::new);
+    if (LPLoaded) {
+      // Pipe
+      LogisticsBlockGenericPipe.registerPipe(registry, "result", ResultPipe::new);
+      LogisticsBlockGenericPipe.registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
+      // Upgrade
+      ItemUpgrade.registerUpgrade(registry, BufferCMUpgrade.getName(), BufferCMUpgrade::new);
+    }
   }
 
   @SubscribeEvent
@@ -172,7 +187,9 @@ public class TestBridge {
 
   @Mod.EventHandler
   public void cleanup(FMLServerStoppingEvent event) {
-    ResultPipe.cleanup();
+    if (LPLoaded) {
+      ResultPipe.cleanup();
+    }
     if (AELoaded) {
       PartSatelliteBus.cleanup();
     }
@@ -239,7 +256,6 @@ public class TestBridge {
     );
   }
 
-  @SuppressWarnings("null")
   private static Ingredient getIngredientForProgrammer(Item targetPipe) {
     ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer);
     programmerStack.setTagCompound(new NBTTagCompound());
@@ -250,5 +266,9 @@ public class TestBridge {
 
     programmerStack.getTagCompound().setString("LogisticsRecipeTarget", targetPipe.getRegistryName().toString());
     return NBTIngredient.fromStacks(programmerStack);
+  }
+
+  public static boolean isLoggingEnabled() {
+    return TBConfig.instance() == null || TBConfig.instance().isFeatureEnabled(TBConfig.TBFeature.LOGGING);
   }
 }

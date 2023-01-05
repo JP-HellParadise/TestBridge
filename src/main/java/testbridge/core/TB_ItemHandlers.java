@@ -45,17 +45,23 @@ public class TB_ItemHandlers {
   public static Item itemPackage = createItem(new FakeItem(true), "package", "", CreativeTabs.MISC);
   public static Item virtualPattern = createItem(new VirtualPatternAE(), "virtualpattern", "", null);
 
+  public static ItemStack getCrafterModule() {
+    Item item = Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
+    return new ItemStack(item == null ? Items.AIR : item);
+  }
+
   public static Item createItem(@Nonnull final Item item, @Nonnull final String name, @Nonnull final String key, CreativeTabs creativeTabs) {
     String itemName;
     String translationKey;
     if (!name.equals("")) {
       itemName = "item_" + name;
     } else {
-      TestBridge.log.error("Item don't have name properly, will create random name instead");
+      if (TBConfig.instance().isFeatureEnabled(TBConfig.TBFeature.LOGGING))
+        TestBridge.log.error("{} don't have name properly, will create random name instead!", item.getClass().getName());
       itemName = "randomItem_" + RandomStringUtils.randomAlphabetic(10);
     }
     if (key.equals("")) {
-      translationKey = "testbridge." + itemName;
+      translationKey = TestBridge.MODID + "." + itemName;
     } else translationKey = key;
     final Item result = item.setTranslationKey(translationKey).setRegistryName(TestBridge.MODID, itemName);
     if (creativeTabs != null) {
@@ -70,22 +76,18 @@ public class TB_ItemHandlers {
     if (!name.equals("")) {
       itemName = "block_" + name;
     } else {
-      TestBridge.log.error("Item don't have name properly, will create random name instead");
+      if (TBConfig.instance().isFeatureEnabled(TBConfig.TBFeature.LOGGING))
+        TestBridge.log.error("{} don't have name properly, will create random name instead!", block.getClass().getName());
       itemName = "randomBlock_" + RandomStringUtils.randomAlphabetic(10);
     }
     if (key.equals("")) {
-      translationKey = "testbridge." + itemName;
+      translationKey = TestBridge.MODID + "." + itemName;
     } else translationKey = key;
     final Block result = block.setTranslationKey(translationKey).setRegistryName(TestBridge.MODID, itemName);
     if (creativeTabs != null) {
       return result.setCreativeTab(creativeTabs);
     }
     return result;
-  }
-
-  public static ItemStack getCrafterModule() {
-    Item item = Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
-    return new ItemStack(item == null ? Items.AIR : item);
   }
 
 }

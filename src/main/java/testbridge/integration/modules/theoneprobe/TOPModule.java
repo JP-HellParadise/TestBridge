@@ -6,9 +6,9 @@ import net.minecraftforge.fml.common.event.FMLInterModComms;
 
 import mcjty.theoneprobe.api.ITheOneProbe;
 
-import appeng.integration.IIntegrationModule;
-
+import testbridge.core.TBConfig;
 import testbridge.core.TestBridge;
+import testbridge.integration.IIntegrationModule;
 
 public class TOPModule implements IIntegrationModule, Function<ITheOneProbe, Void> {
 
@@ -21,7 +21,8 @@ public class TOPModule implements IIntegrationModule, Function<ITheOneProbe, Voi
   public Void apply(ITheOneProbe input) {
     input.registerProvider(new TileInfoProvider());
     input.registerProvider(new PartInfoProvider());
-        TestBridge.log.info("The One Probe integration loaded.");
+    if (TBConfig.instance().isFeatureEnabled(TBConfig.TBFeature.LOGGING))
+      TestBridge.log.info("The One Probe integration loaded.");
     return null;
   }
 
