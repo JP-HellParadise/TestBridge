@@ -1,17 +1,17 @@
 package testbridge.core;
 
+import java.io.File;
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.base.Stopwatch;
+import net.minecraft.creativetab.CreativeTabs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import lombok.Getter;
 
 import net.minecraft.block.Block;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -19,30 +19,21 @@ import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity.ProgrammCategories;
-import logisticspipes.LPItems;
 import logisticspipes.items.ItemUpgrade;
-import logisticspipes.recipes.NBTIngredient;
-import logisticspipes.recipes.RecipeManager;
+import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 
 import testbridge.helpers.datafixer.TBDataFixer;
 import testbridge.integration.IntegrationRegistry;
 import testbridge.integration.IntegrationType;
+import testbridge.items.FakeItem;
+import testbridge.items.VirtualPatternAE;
 import testbridge.network.GuiHandler;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 import testbridge.pipes.upgrades.BufferCMUpgrade;
-import testbridge.proxy.CommonProxy;
-import testbridge.client.TB_Textures;
-
-import java.util.concurrent.TimeUnit;
 
 @Mod(modid = TestBridge.MODID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "testbridge.client.gui.config.ConfigGuiFactory", acceptedMinecraftVersions = "1.12.2")
 public class TestBridge {
@@ -62,19 +53,8 @@ public class TestBridge {
   @Mod.Instance(TestBridge.MODID)
   public static TestBridge INSTANCE;
 
-  @SidedProxy(
-      clientSide = "testbridge.proxy.ClientProxy",
-      serverSide = "testbridge.proxy.CommonProxy")
-  public static CommonProxy proxy;
-
   public static final Logger log = LogManager.getLogger(NAME);
 
-  public static TB_Textures TBTextures = new TB_Textures();
-
-  @Getter
-  private static boolean LPLoaded;
-  @Getter
-  private static boolean AELoaded;
   @Getter
   private static boolean RSLoaded;
 
@@ -85,30 +65,22 @@ public class TestBridge {
       log.info("==================================================================================");
       log.info("Test Bridge: Start Pre Initialization");
     }
-    LPLoaded = Loader.isModLoaded("logisticspipes");
-    AELoaded = Loader.isModLoaded("appliedenergistics2");
     RSLoaded = Loader.isModLoaded("refinedstorage");
 
-    //TODO: preInit
+    final File configFile = new File(event.getModConfigurationDirectory().getPath(), "TestBridge.cfg");
 
-    proxy.preInit(event);
-
-    for (final IntegrationType type : IntegrationType.values()) {
-      IntegrationRegistry.INSTANCE.add(type);
-    }
-
-    if (AELoaded) {
-      AE2Plugin.preInit();
-    }
+    TB_Config.init(configFile);
 
     if (RSLoaded) {
       // TODO
     }
 
+    for (final IntegrationType type : IntegrationType.values()) {
+      IntegrationRegistry.INSTANCE.add(type);
+    }
+
     IntegrationRegistry.INSTANCE.preInit();
 
-    MinecraftForge.EVENT_BUS.register(TB_EventHandlers.class);
-    proxy.registerRenderers();
     if (isLoggingEnabled()) {
       log.info("Pre Initialization took in {} ms", watch.elapsed(TimeUnit.MILLISECONDS));
       log.info("==================================================================================");
@@ -123,17 +95,8 @@ public class TestBridge {
       log.info("Start Initialization");
     }
 
-    //TODO: init
-
     NetworkRegistry.INSTANCE.registerGuiHandler(TestBridge.INSTANCE, new GuiHandler());
     TBDataFixer.INSTANCE.init();
-
-    if (evt.getSide() == Side.SERVER) {
-      TestBridge.TBTextures.registerBlockIcons(null);
-    }
-
-    loadRecipes();
-    proxy.init(evt);
 
     IntegrationRegistry.INSTANCE.init();
 
@@ -151,12 +114,12 @@ public class TestBridge {
       log.info("Start Post Initialization");
     }
 
-    //TODO: onPostInit
-
     IntegrationRegistry.INSTANCE.postInit();
 
+    TB_Config.instance().save();
+
     if (isLoggingEnabled()) {
-      log.info("Post Initialization took in {} milliseconds", watch.elapsed(TimeUnit.MILLISECONDS));
+      log.info("Post Initialization took in {} ms", watch.elapsed(TimeUnit.MILLISECONDS));
       log.info("==================================================================================");
     }
   }
@@ -165,18 +128,16 @@ public class TestBridge {
   public void initItems(RegistryEvent.Register<Item> event) {
     IForgeRegistry<Item> registry = event.getRegistry();
     //Items
-    if (AELoaded) {
-//      registry.register(TB_ItemHandlers.itemHolder);
+    if (IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.APPLIED_ENERGISTICS_2)) {
+      registry.register(TB_ItemHandlers.itemHolder);
       registry.register(TB_ItemHandlers.itemPackage);
       registry.register(TB_ItemHandlers.virtualPattern);
     }
-    if (LPLoaded) {
-      // Pipe
-      LogisticsBlockGenericPipe.registerPipe(registry, "result", ResultPipe::new);
-      LogisticsBlockGenericPipe.registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
-      // Upgrade
-      ItemUpgrade.registerUpgrade(registry, BufferCMUpgrade.getName(), BufferCMUpgrade::new);
-    }
+    // Pipe
+    LogisticsBlockGenericPipe.registerPipe(registry, "result", ResultPipe::new);
+    LogisticsBlockGenericPipe.registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
+    // Upgrade
+    ItemUpgrade.registerUpgrade(registry, BufferCMUpgrade.getName(), BufferCMUpgrade::new);
   }
 
   @SubscribeEvent
@@ -187,88 +148,13 @@ public class TestBridge {
 
   @Mod.EventHandler
   public void cleanup(FMLServerStoppingEvent event) {
-    if (LPLoaded) {
-      ResultPipe.cleanup();
-    }
-    if (AELoaded) {
+    ResultPipe.cleanup();
+    if (IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.APPLIED_ENERGISTICS_2)) {
       PartSatelliteBus.cleanup();
     }
   }
 
-  @Mod.EventHandler
-  public void onServerLoad(FMLServerStartingEvent event) {
-    // TODO
-  }
-
-  private static void loadRecipes() {
-    ResourceLocation resultPipe = TB_ItemHandlers.pipeResult.getRegistryName();
-    ResourceLocation craftingMgrPipe = TB_ItemHandlers.pipeCraftingManager.getRegistryName();
-    ResourceLocation bufferUpgrage = TB_ItemHandlers.upgradeBuffer.getRegistryName();
-
-    LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(resultPipe);
-    LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(craftingMgrPipe);
-    LogisticsProgramCompilerTileEntity.programByCategory.get(ProgrammCategories.MODDED).add(bufferUpgrage);
-    ResourceLocation group = new ResourceLocation(MODID, "recipes");
-
-    if (isAELoaded())
-      AE2Plugin.loadRecipes(group);
-
-    //  Result Pipe
-    RecipeManager.craftingManager.addRecipe(new ItemStack(TB_ItemHandlers.pipeResult),
-        new RecipeManager.RecipeLayout(
-            " p ",
-            "rfr",
-            " s "
-        ),
-        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TB_ItemHandlers.pipeResult)),
-        new RecipeManager.RecipeIndex('r', "dustRedstone"),
-        new RecipeManager.RecipeIndex('f', LPItems.chipFPGA),
-        new RecipeManager.RecipeIndex('s', LPItems.pipeBasic)
-    );
-
-    // Crafting Manager pipe
-    RecipeManager.craftingManager.addRecipe(new ItemStack(TB_ItemHandlers.pipeCraftingManager),
-        new RecipeManager.RecipeLayout(
-            "fpf",
-            "bsb",
-            "fdf"
-        ),
-        new RecipeManager.RecipeIndex('b', LPItems.chipAdvanced),
-        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TB_ItemHandlers.pipeCraftingManager)),
-        new RecipeManager.RecipeIndex('s', LPItems.pipeCrafting),
-        new RecipeManager.RecipeIndex('d', "gemDiamond"),
-        new RecipeManager.RecipeIndex('f', LPItems.chipFPGA)
-    );
-
-    // Buffer Upgrade
-    RecipeManager.craftingManager.addRecipe(new ItemStack(TB_ItemHandlers.upgradeBuffer, 1),
-        new RecipeManager.RecipeLayout(
-            "rpr",
-            "gag",
-            "qnq"
-        ),
-        new RecipeManager.RecipeIndex('r', "dustRedstone"),
-        new RecipeManager.RecipeIndex('p', getIngredientForProgrammer(TB_ItemHandlers.upgradeBuffer)),
-        new RecipeManager.RecipeIndex('g', "ingotGold"),
-        new RecipeManager.RecipeIndex('a', LPItems.chipAdvanced),
-        new RecipeManager.RecipeIndex('q', "paper"),
-        new RecipeManager.RecipeIndex('n', "nuggetGold")
-    );
-  }
-
-  private static Ingredient getIngredientForProgrammer(Item targetPipe) {
-    ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer);
-    programmerStack.setTagCompound(new NBTTagCompound());
-
-    // Suppress NPE warning
-    assert programmerStack.getTagCompound() != null;
-    assert targetPipe.getRegistryName() != null;
-
-    programmerStack.getTagCompound().setString("LogisticsRecipeTarget", targetPipe.getRegistryName().toString());
-    return NBTIngredient.fromStacks(programmerStack);
-  }
-
   public static boolean isLoggingEnabled() {
-    return TBConfig.instance() == null || TBConfig.instance().isFeatureEnabled(TBConfig.TBFeature.LOGGING);
+    return TB_Config.instance() == null || TB_Config.instance().isFeatureEnabled(TB_Config.TBFeature.LOGGING);
   }
 }

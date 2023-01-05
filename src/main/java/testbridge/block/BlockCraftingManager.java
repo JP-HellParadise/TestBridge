@@ -15,7 +15,7 @@ import appeng.block.AEBaseTileBlock;
 import appeng.util.Platform;
 
 import testbridge.block.tile.TileCraftingManager;
-import testbridge.core.AE2Plugin;
+import testbridge.integration.modules.appliedenergistics2.AE2Module;
 
 public class BlockCraftingManager extends AEBaseTileBlock {
   public BlockCraftingManager() {
@@ -31,7 +31,7 @@ public class BlockCraftingManager extends AEBaseTileBlock {
     final TileCraftingManager tg = this.getTileEntity(w, pos);
     if (tg != null) {
       if (Platform.isServer()) {
-        Platform.openGUI(p, tg, AEPartLocation.fromFacing(side), AE2Plugin.GUI_CRAFTINGMANAGER);
+        Platform.openGUI(p, tg, AEPartLocation.fromFacing(side), AE2Module.GUI_CRAFTINGMANAGER);
       }
       return true;
     }

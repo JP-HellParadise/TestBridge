@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import appeng.container.implementations.ContainerInterface;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.gui.GuiButton;
@@ -17,7 +16,6 @@ import appeng.api.config.YesNo;
 import appeng.client.gui.implementations.GuiUpgradeable;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
-import appeng.client.gui.widgets.GuiToggleButton;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
@@ -27,8 +25,7 @@ import appeng.core.sync.packets.PacketSwitchGuis;
 import logisticspipes.utils.gui.GuiGraphics;
 
 import testbridge.container.ContainerCraftingManager;
-import testbridge.core.AE2Plugin;
-import testbridge.core.TB_ItemHandlers;
+import testbridge.integration.modules.appliedenergistics2.AE2Module;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 
 public class GuiCraftingManager extends GuiUpgradeable {
@@ -47,7 +44,7 @@ public class GuiCraftingManager extends GuiUpgradeable {
     this.priority = new GuiTabButton(this.guiLeft + 154, this.guiTop, 2 + 4 * 16, GuiText.Priority.getLocal(), this.itemRender);
     this.buttonList.add(this.priority);
 
-    this.satellite = new GuiTabButton(this.guiLeft + 133, this.guiTop, AE2Plugin.SATELLITE_BUS_SRC.stack(1),
+    this.satellite = new GuiTabButton(this.guiLeft + 133, this.guiTop, AE2Module.SATELLITE_BUS_SRC.stack(1),
         I18n.format("gui.crafting_manager.satellite") , this.itemRender);
     this.buttonList.add(this.satellite);
 
@@ -93,7 +90,7 @@ public class GuiCraftingManager extends GuiUpgradeable {
     }
 
     if (btn == this.satellite) {
-      NetworkHandler.instance().sendToServer(new PacketSwitchGuis(AE2Plugin.GUI_SATELLITESELECT));
+      NetworkHandler.instance().sendToServer(new PacketSwitchGuis(AE2Module.GUI_SATELLITESELECT));
     }
 
     if (btn == this.BlockMode) {

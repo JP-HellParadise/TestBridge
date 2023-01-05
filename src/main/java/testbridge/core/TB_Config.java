@@ -1,20 +1,20 @@
 package testbridge.core;
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.EnumSet;
 
-public class TBConfig extends Configuration {
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 
-  private static TBConfig instance;
+public class TB_Config extends Configuration {
+
+  private static TB_Config instance;
   private final EnumSet<TBFeature> loggingFlags = EnumSet.noneOf(TBFeature.class);
   private final File configFile;
 
-  private TBConfig(final File configFile) {
+  private TB_Config(final File configFile) {
     super(configFile);
     this.configFile = configFile;
 
@@ -33,10 +33,10 @@ public class TBConfig extends Configuration {
   }
 
   public static void init(final File configFile) {
-    instance = new TBConfig(configFile);
+    instance = new TB_Config(configFile);
   }
 
-  public static TBConfig instance() {
+  public static TB_Config instance() {
     return instance;
   }
 

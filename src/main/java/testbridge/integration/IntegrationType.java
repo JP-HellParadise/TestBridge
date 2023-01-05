@@ -1,5 +1,6 @@
 package testbridge.integration;
 
+import testbridge.integration.modules.appliedenergistics2.AE2Module;
 import testbridge.integration.modules.logisticspipe.LPModule;
 import testbridge.integration.modules.theoneprobe.TOPModule;
 
@@ -13,7 +14,10 @@ public enum IntegrationType {
   },
 
   APPLIED_ENERGISTICS_2(IntegrationSide.BOTH, "AppliedEnergistics2", "appliedenergistics2") {
-
+    @Override
+    public IIntegrationModule createInstance() {
+      return AE2Module.INSTANCE;
+    }
   },
 
   THE_ONE_PROBE(IntegrationSide.BOTH, "TheOneProbe", "theoneprobe") {

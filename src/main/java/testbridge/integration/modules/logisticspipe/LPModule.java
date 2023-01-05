@@ -1,58 +1,37 @@
 package testbridge.integration.modules.logisticspipe;
 
-import logisticspipes.LPItems;
-import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
-import logisticspipes.items.ItemUpgrade;
-import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
-import logisticspipes.recipes.NBTIngredient;
-import logisticspipes.recipes.RecipeManager;
-import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.TextureStitchEvent;
+
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.registries.IForgeRegistry;
+
+import logisticspipes.LPItems;
+import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
+import logisticspipes.recipes.NBTIngredient;
+import logisticspipes.recipes.RecipeManager;
+
+import testbridge.client.TB_Textures;
 import testbridge.core.TB_ItemHandlers;
 import testbridge.core.TestBridge;
 import testbridge.integration.IIntegrationModule;
-import testbridge.pipes.PipeCraftingManager;
-import testbridge.pipes.ResultPipe;
-import testbridge.pipes.upgrades.BufferCMUpgrade;
 
 public class LPModule implements IIntegrationModule {
+  public static TB_Textures TBTextures = new TB_Textures();
   public void preInit() {
-    MinecraftForge.EVENT_BUS.register(this);
+    MinecraftForge.EVENT_BUS.register(LPEventHandler.preInit.class);
   }
 
   public void init(){
     if (FMLLaunchHandler.side() == Side.SERVER) {
-      TestBridge.TBTextures.registerBlockIcons(null);
+      TBTextures.registerBlockIcons(null);
     }
 
     loadRecipes();
-  }
-
-  @SubscribeEvent
-  @SideOnly(Side.CLIENT)
-  public static void textureLoad(TextureStitchEvent.Pre event) {
-    TestBridge.TBTextures.registerBlockIcons(Minecraft.getMinecraft().getTextureMapBlocks());
-  }
-
-  @SubscribeEvent
-  private void initItems(RegistryEvent.Register<Item> event) {
-    // Pipe
-    LogisticsBlockGenericPipe.registerPipe(registry, "result", ResultPipe::new);
-    LogisticsBlockGenericPipe.registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
-    // Upgrade
-    ItemUpgrade.registerUpgrade(registry, BufferCMUpgrade.getName(), BufferCMUpgrade::new);
   }
 
   private static void loadRecipes() {

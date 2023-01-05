@@ -7,6 +7,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import net.minecraftforge.fml.common.network.IGuiHandler;
+
 import appeng.api.parts.IPart;
 import appeng.api.parts.IPartHost;
 import appeng.api.util.AEPartLocation;
@@ -21,16 +23,16 @@ import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.ResultPipe;
 import testbridge.client.gui.GuiResultPipe;
 
-public class GuiHandler extends logisticspipes.network.GuiHandler {
+public class GuiHandler implements IGuiHandler {
 
   @Override
   public Object getServerGuiElement(int ID, EntityPlayer player, World world, final int x, final int y, final int z) {
     // Satellite Bus checker
-    if(ID >= GuiIDs.GUI_SatelliteBus_ID && ID < GuiIDs.GUI_SatelliteBus_ID + 6){
-      AEPartLocation side = AEPartLocation.fromOrdinal( ID - GuiIDs.GUI_SatelliteBus_ID );
-      TileEntity TE = world.getTileEntity( new BlockPos( x, y, z ) );
-      if( TE instanceof IPartHost ) {
-        IPart part = ( (IPartHost) TE ).getPart( side );
+    if(ID >= GuiIDs.GUI_SatelliteBus_ID && ID < GuiIDs.GUI_SatelliteBus_ID + 6) {
+      AEPartLocation side = AEPartLocation.fromOrdinal(ID - GuiIDs.GUI_SatelliteBus_ID);
+      TileEntity TE = world.getTileEntity(new BlockPos(x, y, z));
+      if(TE instanceof IPartHost) {
+        IPart part = ((IPartHost) TE).getPart(side);
         if(part instanceof PartSatelliteBus){
           return new DummyContainer(player.inventory, null);
         }
@@ -38,16 +40,15 @@ public class GuiHandler extends logisticspipes.network.GuiHandler {
       return null;
     }
 
-    TileEntity tile = null;
-    if (y != -1) {
-      tile = world.getTileEntity(new BlockPos(x, y, z));
-    }
-    LogisticsTileGenericPipe pipe = null;
-    if (tile instanceof LogisticsTileGenericPipe) {
-      pipe = (LogisticsTileGenericPipe) tile;
-    }
-
     if (ID < 100 && ID > 0) {
+      TileEntity tile = null;
+      if (y != -1) {
+        tile = world.getTileEntity(new BlockPos(x, y, z));
+      }
+      LogisticsTileGenericPipe pipe = null;
+      if (tile instanceof LogisticsTileGenericPipe) {
+        pipe = (LogisticsTileGenericPipe) tile;
+      }
       switch (GuiIDs.ENUM.values()[ID]) {
         case RESULT_PIPE:
           if (pipe != null && pipe.pipe instanceof ResultPipe) {
@@ -72,11 +73,11 @@ public class GuiHandler extends logisticspipes.network.GuiHandler {
   @Override
   public Object getClientGuiElement(int ID, EntityPlayer player, final World world, int x, int y, int z) {
     // Satellite Bus checker
-    if(ID >= GuiIDs.GUI_SatelliteBus_ID && ID < GuiIDs.GUI_SatelliteBus_ID + 6){
-      AEPartLocation side = AEPartLocation.fromOrdinal( ID - GuiIDs.GUI_SatelliteBus_ID );
-      TileEntity TE = world.getTileEntity( new BlockPos( x, y, z ) );
-      if( TE instanceof IPartHost) {
-        IPart part = ((IPartHost) TE).getPart( side );
+    if (ID >= GuiIDs.GUI_SatelliteBus_ID && ID < GuiIDs.GUI_SatelliteBus_ID + 6) {
+      AEPartLocation side = AEPartLocation.fromOrdinal(ID - GuiIDs.GUI_SatelliteBus_ID);
+      TileEntity TE = world.getTileEntity(new BlockPos(x, y, z));
+      if(TE instanceof IPartHost) {
+        IPart part = ((IPartHost) TE).getPart(side);
         if(part instanceof PartSatelliteBus) {
           return new GuiResultPipe<>((PartSatelliteBus) part, "gui.satellite.");
         }
@@ -84,13 +85,12 @@ public class GuiHandler extends logisticspipes.network.GuiHandler {
       return null;
     }
 
-    TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
-    LogisticsTileGenericPipe pipe = null;
-    if (tile instanceof LogisticsTileGenericPipe) {
-      pipe = (LogisticsTileGenericPipe) tile;
-    }
-
     if (ID < 100 && ID > 0) {
+      TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
+      LogisticsTileGenericPipe pipe = null;
+      if (tile instanceof LogisticsTileGenericPipe) {
+        pipe = (LogisticsTileGenericPipe) tile;
+      }
       switch (GuiIDs.ENUM.values()[ID]) {
         case RESULT_PIPE:
           if (pipe != null && pipe.pipe instanceof ResultPipe) {
@@ -111,6 +111,5 @@ public class GuiHandler extends logisticspipes.network.GuiHandler {
     }
     return null;
   }
-
 }
 

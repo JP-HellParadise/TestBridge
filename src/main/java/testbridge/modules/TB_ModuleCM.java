@@ -63,7 +63,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   private final List<Property<?>> properties;
   private final List<List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>>> bufferList = new ArrayList<>();
   private int sendCooldown = 0;
-  private UpdateSatResultFromIDs updateSatResultFromIDs = null;
+  private UpdateSatResultFromNames updateSatResultFromNames = null;
   private final PipeCraftingManager parentPipe;
   private final SlottedModuleListProperty modules;
 
@@ -202,24 +202,24 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
     final IPipeServiceProvider service = _service;
     if (service == null) return;
     enabledUpdateEntity();
-    if (updateSatResultFromIDs != null && service.isNthTick(100)) {
-      if (updateSatResultFromIDs.satelliteId != -1) {
-        UUID uuid = getUUIDForSatelliteName(Integer.toString(updateSatResultFromIDs.satelliteId));
+    if (updateSatResultFromNames != null && service.isNthTick(100)) {
+      if (!updateSatResultFromNames.satelliteName.isEmpty()) {
+        UUID uuid = getUUIDForSatelliteName(updateSatResultFromNames.satelliteName);
         if (uuid != null) {
-          updateSatResultFromIDs.satelliteId = -1;
+          updateSatResultFromNames.satelliteName = "";
           satelliteUUID.setValue(uuid);
         }
       }
-      if (updateSatResultFromIDs.resultId != -1) {
-        UUID uuid = getUUIDForResultName(Integer.toString(updateSatResultFromIDs.resultId));
+      if (!updateSatResultFromNames.resultName.isEmpty()) {
+        UUID uuid = getUUIDForResultName(updateSatResultFromNames.resultName);
         if (uuid != null) {
-          updateSatResultFromIDs.resultId = -1;
+          updateSatResultFromNames.resultName = "";
           resultUUID.setValue(uuid);
         }
       }
-      if (updateSatResultFromIDs.satelliteId == -1
-          && updateSatResultFromIDs.resultId == -1) {
-        updateSatResultFromIDs = null;
+      if (updateSatResultFromNames.satelliteName.isEmpty()
+          && updateSatResultFromNames.resultName.isEmpty()) {
+        updateSatResultFromNames = null;
       }
     }
     for (SlottedModule slottedModule : modules) {
@@ -348,10 +348,10 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
         .forEach(slottedModule -> Objects.requireNonNull(slottedModule.getModule())
             .readFromNBT(tag.getCompoundTag("slot" + slottedModule.getSlot())));
     // Showing update sat and result info
-    if (tag.hasKey("satelliteid") || tag.hasKey("resultid")) {
-      updateSatResultFromIDs = new UpdateSatResultFromIDs();
-      updateSatResultFromIDs.satelliteId = tag.getInteger("satelliteid");
-      updateSatResultFromIDs.resultId = tag.getInteger("resultid");
+    if (tag.hasKey("satellitename") || tag.hasKey("resultname")) {
+      updateSatResultFromNames = new UpdateSatResultFromNames();
+      updateSatResultFromNames.satelliteName = tag.getString("satellitename");
+      updateSatResultFromNames.resultName = tag.getString("resultname");
     }
   }
 
@@ -401,7 +401,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
       satelliteUUID.setValue(pipeID);
     }
     updateSatResultsOnClient();
-    updateSatResultFromIDs = null;
+    updateSatResultFromNames = null;
   }
 
   public void setResultUUID(@Nullable UUID pipeID) {
@@ -411,12 +411,12 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
       resultUUID.setValue(pipeID);
     }
     updateSatResultsOnClient();
-    updateSatResultFromIDs = null;
+    updateSatResultFromNames = null;
   }
 
-  private static class UpdateSatResultFromIDs {
-    public int satelliteId;
-    public int resultId;
+  private static class UpdateSatResultFromNames {
+    public String satelliteName;
+    public String resultName;
   }
 
   public static class ClientSideSatResultNames {
