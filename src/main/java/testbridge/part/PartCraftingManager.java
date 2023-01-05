@@ -55,7 +55,7 @@ import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.InvOperation;
 
-import testbridge.core.AE2Plugin;
+import testbridge.integration.modules.appliedenergistics2.AE2Module;
 import testbridge.core.TestBridge;
 import testbridge.helpers.DualityCraftingManager;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
@@ -144,7 +144,7 @@ public class PartCraftingManager extends PartBasicState
   @Override
   public boolean onPartActivate(final EntityPlayer p, final EnumHand hand, final Vec3d posIn) {
     if (Platform.isServer()) {
-      Platform.openGUI(p, getTile(), getSide(), AE2Plugin.GUI_CRAFTINGMANAGER);
+      Platform.openGUI(p, getTile(), getSide(), AE2Module.GUI_CRAFTINGMANAGER);
     }
     return true;
   }
@@ -242,12 +242,12 @@ public class PartCraftingManager extends PartBasicState
 
   @Override
   public ItemStack getItemStackRepresentation() {
-    return AE2Plugin.CRAFTINGMANAGER_PART_SRC.stack(1);
+    return AE2Module.CRAFTINGMANAGER_PART_SRC.stack(1);
   }
 
   @Override
   public GuiBridge getGuiBridge() {
-    return AE2Plugin.GUI_CRAFTINGMANAGER;
+    return AE2Module.GUI_CRAFTINGMANAGER;
   }
 
   @Override

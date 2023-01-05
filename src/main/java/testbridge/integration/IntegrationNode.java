@@ -18,13 +18,15 @@
 
 package testbridge.integration;
 
+import org.apache.logging.log4j.Level;
+
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModAPIManager;
 
 import appeng.api.exceptions.ModNotInstalledException;
-import appeng.core.AEConfig;
-import appeng.core.AELog;
-import appeng.integration.IIntegrationModule;
+
+import testbridge.core.TB_Config;
+import testbridge.core.TestBridge;
 
 final class IntegrationNode {
 
@@ -66,10 +68,12 @@ final class IntegrationNode {
             final ModAPIManager apiManager = ModAPIManager.INSTANCE;
             boolean enabled = this.modID == null || Loader.isModLoaded(this.modID) || apiManager.hasAPI(this.modID);
 
-            AEConfig.instance()
+            TB_Config.instance()
                 .addCustomCategoryComment("ModIntegration",
                     "Valid Values are 'AUTO', 'ON', or 'OFF' - defaults to 'AUTO' ; Suggested that you leave this alone unless your experiencing an issue, or wish to disable the integration for a reason.");
-            final String mode = AEConfig.instance().get("ModIntegration", this.displayName.replace(" ", ""), "AUTO").getString();
+            // Validate check for LP because im suck
+            final String mode = this.modID != null && this.modID.equals("logisticspipes") ?
+                "AUTO" : TB_Config.instance().get("ModIntegration", this.displayName.replace(" ", ""), "AUTO").getString();
 
             if (mode.equalsIgnoreCase("ON")) {
               enabled = true;
@@ -108,14 +112,14 @@ final class IntegrationNode {
       }
     }
 
-    if (stage == IntegrationStage.POST_INIT) {
+    if (stage == IntegrationStage.POST_INIT && TestBridge.isLoggingEnabled()) {
       if (this.getState() == IntegrationStage.FAILED) {
-        AELog.info(this.displayName + " - Integration Disabled");
-        if (!(this.exception instanceof ModNotInstalledException)) {
-          AELog.integration(this.exception);
+        TestBridge.log.info(this.displayName + " - Integration Disabled");
+        if (!(this.exception instanceof ModNotInstalledException) && TB_Config.instance().isFeatureEnabled(TB_Config.TBFeature.INTEGRATION_LOGGING)) {
+          TestBridge.log.log(Level.DEBUG, "Exception: ", this.exception);
         }
       } else {
-        AELog.info(this.displayName + " - Integration Enable");
+        TestBridge.log.info(this.displayName + " - Integration Enable");
       }
     }
   }

@@ -77,7 +77,11 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
   @Override
   public void readFromNBT(final NBTTagCompound extra) {
     super.readFromNBT(extra);
-    this.satPartName = extra.getString("__satName");
+
+    if (extra.hasKey("satName"))
+      this.satPartName = extra.getString("satName");
+    else
+      this.satPartName = extra.getString("__satName");
 
     if (MainProxy.isServer(getTile().getWorld())) {
       ensureAllSatelliteStatus();

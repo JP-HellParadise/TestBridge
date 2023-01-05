@@ -44,7 +44,7 @@ import appeng.util.SettingsFrom;
 import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.InvOperation;
 
-import testbridge.core.AE2Plugin;
+import testbridge.integration.modules.appliedenergistics2.AE2Module;
 import testbridge.helpers.DualityCraftingManager;
 import testbridge.helpers.interfaces.IBlocks_TB;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
@@ -209,7 +209,7 @@ public class TileCraftingManager extends AENetworkInvTile implements IGridTickab
 
   @Override
   public GuiBridge getGuiBridge() {
-    return AE2Plugin.GUI_CRAFTINGMANAGER;
+    return AE2Module.GUI_CRAFTINGMANAGER;
   }
 
   @Override

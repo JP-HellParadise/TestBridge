@@ -1,6 +1,7 @@
 package testbridge.items;
 
 import java.util.List;
+import javax.annotation.Nonnull;
 
 import lombok.Getter;
 
@@ -26,8 +27,6 @@ import appeng.util.Platform;
 import testbridge.core.TB_ItemHandlers;
 import testbridge.core.TestBridge;
 import testbridge.network.GuiIDs;
-
-import javax.annotation.Nonnull;
 
 import static testbridge.utils.NBTItemHelper.NBTHelper;
 

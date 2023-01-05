@@ -2,11 +2,11 @@ package testbridge.core;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.init.Items;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -15,7 +15,6 @@ import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import logisticspipes.LPItems;
 import logisticspipes.modules.ModuleCrafter;
 
-import testbridge.helpers.interfaces.IBlocks_TB;
 import testbridge.items.FakeItem;
 import testbridge.items.VirtualPatternAE;
 
@@ -37,13 +36,16 @@ public class TB_ItemHandlers {
   public static Item upgradeBuffer;
 
   // Blocks
-  public static ItemStack tile_cm = ((IBlocks_TB) AE2Plugin.INSTANCE.api.definitions().blocks()).cmBlock().maybeStack(1).orElse(ItemStack.EMPTY);
 
   // Items
+  public static Item itemHolder = TB_ItemHandlers.createItem(new FakeItem(false), "placeholder", "", null);
+  public static Item itemPackage = TB_ItemHandlers.createItem(new FakeItem(true), "package", "", CreativeTabs.MISC);
+  public static Item virtualPattern = TB_ItemHandlers.createItem(new VirtualPatternAE(), "virtualpattern", "", null);
 
-  public static Item itemHolder = createItem(new FakeItem(false), "placeholder", "", null);
-  public static Item itemPackage = createItem(new FakeItem(true), "package", "", CreativeTabs.MISC);
-  public static Item virtualPattern = createItem(new VirtualPatternAE(), "virtualpattern", "", null);
+  public static ItemStack getCrafterModule() {
+    Item item = Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
+    return new ItemStack(item == null ? Items.AIR : item);
+  }
 
   public static Item createItem(@Nonnull final Item item, @Nonnull final String name, @Nonnull final String key, CreativeTabs creativeTabs) {
     String itemName;
@@ -51,11 +53,12 @@ public class TB_ItemHandlers {
     if (!name.equals("")) {
       itemName = "item_" + name;
     } else {
-      TestBridge.log.error("Item don't have name properly, will create random name instead");
+      if (TB_Config.instance().isFeatureEnabled(TB_Config.TBFeature.LOGGING))
+        TestBridge.log.error("{} don't have name properly, will create random name instead!", item.getClass().getName());
       itemName = "randomItem_" + RandomStringUtils.randomAlphabetic(10);
     }
     if (key.equals("")) {
-      translationKey = "testbridge." + itemName;
+      translationKey = TestBridge.MODID + "." + itemName;
     } else translationKey = key;
     final Item result = item.setTranslationKey(translationKey).setRegistryName(TestBridge.MODID, itemName);
     if (creativeTabs != null) {
@@ -70,22 +73,18 @@ public class TB_ItemHandlers {
     if (!name.equals("")) {
       itemName = "block_" + name;
     } else {
-      TestBridge.log.error("Item don't have name properly, will create random name instead");
+      if (TB_Config.instance().isFeatureEnabled(TB_Config.TBFeature.LOGGING))
+        TestBridge.log.error("{} don't have name properly, will create random name instead!", block.getClass().getName());
       itemName = "randomBlock_" + RandomStringUtils.randomAlphabetic(10);
     }
     if (key.equals("")) {
-      translationKey = "testbridge." + itemName;
+      translationKey = TestBridge.MODID + "." + itemName;
     } else translationKey = key;
     final Block result = block.setTranslationKey(translationKey).setRegistryName(TestBridge.MODID, itemName);
     if (creativeTabs != null) {
       return result.setCreativeTab(creativeTabs);
     }
     return result;
-  }
-
-  public static ItemStack getCrafterModule() {
-    Item item = Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
-    return new ItemStack(item == null ? Items.AIR : item);
   }
 
 }
