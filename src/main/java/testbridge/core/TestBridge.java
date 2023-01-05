@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Stopwatch;
-import net.minecraft.creativetab.CreativeTabs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import lombok.Getter;
@@ -27,8 +26,6 @@ import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import testbridge.helpers.datafixer.TBDataFixer;
 import testbridge.integration.IntegrationRegistry;
 import testbridge.integration.IntegrationType;
-import testbridge.items.FakeItem;
-import testbridge.items.VirtualPatternAE;
 import testbridge.network.GuiHandler;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.PipeCraftingManager;
