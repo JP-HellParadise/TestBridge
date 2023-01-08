@@ -10,24 +10,21 @@ import mcjty.theoneprobe.api.ProbeMode;
 
 import appeng.api.parts.IPart;
 
-import network.rs485.logisticspipes.util.TextUtil;
-
+import testbridge.helpers.TBText;
+import testbridge.interfaces.ITranslationKey;
 import testbridge.part.PartSatelliteBus;
 
-public class SatelliteBusProvider implements IPartProbInfoProvider{
+public class SatelliteBusProvider implements IPartProbInfoProvider, ITranslationKey {
 
   @Override
   public void addProbeInfo(IPart part, ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
     if (part instanceof PartSatelliteBus) {
-      probeInfo.text(getSatName((PartSatelliteBus) part));
+      String satName = ((PartSatelliteBus) part).getSatellitePipeName();
+      if (satName.isEmpty())
+        probeInfo.text(new TBText(top$sat_prefix + "no_name").getTranslated());
+      else {
+        probeInfo.text(new TBText(top$sat_prefix + "name").addArgument(satName).getTranslated());
+      }
     }
-  }
-
-  private String getSatName(PartSatelliteBus part) {
-    String satName = part.getSatellitePipeName();
-    if (satName.isEmpty())
-      return TextUtil.translate(prefix_LP + "pipe.satellite.no_name");
-    else
-      return TextUtil.translate(prefix_LP + "pipe.satellite.name", satName);
   }
 }

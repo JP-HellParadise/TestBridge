@@ -11,7 +11,6 @@ import appeng.container.implementations.ContainerUpgradeable;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.util.Platform;
 
-import testbridge.helpers.DualityCraftingManager;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 
 public class ContainerCraftingManager extends ContainerUpgradeable {
@@ -19,18 +18,12 @@ public class ContainerCraftingManager extends ContainerUpgradeable {
   @GuiSync(2)
   public YesNo bMode = YesNo.NO;
 
-//  public final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
-
-  private final DualityCraftingManager myDuality;
-
   public ContainerCraftingManager(final InventoryPlayer ip, final ICraftingManagerHost te) {
     super(ip, te.getCMDuality().getHost());
 
-    this.myDuality = te.getCMDuality();
-
     for (int row = 0; row < 3; ++row) {
       for (int x = 0; x < 9; x++) {
-        this.addSlotToContainer(new SlotRestrictedInput(SlotRestrictedInput.PlacableItemType.ENCODED_PATTERN, this.myDuality
+        this.addSlotToContainer(new SlotRestrictedInput(SlotRestrictedInput.PlacableItemType.ENCODED_PATTERN, te.getCMDuality()
                 .getPatterns(), x + row * 9, 8 + 18 * x, 36 + (18 * row), this.getInventoryPlayer()).setStackLimit(1));
       }
     }

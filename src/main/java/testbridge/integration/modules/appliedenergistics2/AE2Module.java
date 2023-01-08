@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -12,10 +11,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -101,19 +100,22 @@ public class AE2Module implements IIntegrationModule {
     // PreInit event handler
     MinecraftForge.EVENT_BUS.register(AE2EventHandler.preInit.class);
 
-    // Register Render
-    this.registerRenderers();
+    if (FMLLaunchHandler.side() == Side.CLIENT) { // Client only
+      this.registerRenderers();
+    }
   }
 
   public void init() {
-    // Hacking to the terminal
-    try {
-      GuiMEMonitorable_Repo = GuiMEMonitorable.class.getDeclaredField("repo");
-      GuiMEMonitorable_Repo.setAccessible(true);
-      ItemRepo_myPartitionList = ItemRepo.class.getDeclaredField("myPartitionList");
-      ItemRepo_myPartitionList.setAccessible(true);
-    } catch (SecurityException | NoSuchFieldException e) {
-      throw new RuntimeException(e);
+    if (FMLLaunchHandler.side() == Side.CLIENT) { // Client only
+      // Hacking to the terminal
+      try {
+        GuiMEMonitorable_Repo = GuiMEMonitorable.class.getDeclaredField("repo");
+        GuiMEMonitorable_Repo.setAccessible(true);
+        ItemRepo_myPartitionList = ItemRepo.class.getDeclaredField("myPartitionList");
+        ItemRepo_myPartitionList.setAccessible(true);
+      } catch (SecurityException | NoSuchFieldException e) {
+        throw new RuntimeException(e);
+      }
     }
 
     // Init event handler
@@ -203,13 +205,6 @@ public class AE2Module implements IIntegrationModule {
     } catch (Exception e) {
       throw new RuntimeException("Error registering part model", e);
     }
-
-    //OBJLoader.INSTANCE.addDomain(LogisticsBridge.ID);
-  }
-
-  private static void addRenderToRegistry(Item item, int meta, ModelResourceLocation local) {
-    ModelLoader.setCustomModelResourceLocation(item, meta, local);
-    Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, local);
   }
 
   // Hacking stuff
@@ -233,10 +228,10 @@ public class AE2Module implements IIntegrationModule {
             r.updateView();
           }
         }else{
-          MergedPriorityList<IAEItemStack> mlist = new MergedPriorityList<>();
-          ItemRepo_myPartitionList.set(r, mlist);
-          if(pl != null) mlist.addNewList(pl, true);
-          mlist.addNewList(AE2Module.HIDE_FAKE_ITEM, false);
+          MergedPriorityList<IAEItemStack> mList = new MergedPriorityList<>();
+          ItemRepo_myPartitionList.set(r, mList);
+          if(pl != null) mList.addNewList(pl, true);
+          mList.addNewList(AE2Module.HIDE_FAKE_ITEM, false);
           r.updateView();
         }
       } catch (Exception ignore) {}

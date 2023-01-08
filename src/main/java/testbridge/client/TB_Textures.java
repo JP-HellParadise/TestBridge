@@ -15,9 +15,9 @@ public class TB_Textures extends Textures {
   public static String TESTBRIDGE_CMPIPE_TEXTURE_FILE = "pipes/crafting_manager";
 
   // Just hidden
-  private static String TESTBRIDGE_OVERLAY_POWERED_TEXTURE_FILE = "pipes/status_overlay/powered-pipe";
-  private static String TESTBRIDGE_OVERLAY_UNPOWERED_TEXTURE_FILE = "pipes/status_overlay/un-powered-pipe";
-  private static String TESTBRIDGE_UN_OVERLAY_TEXTURE_FILE = "pipes/status_overlay/un-overlayed";
+  private final static String TESTBRIDGE_OVERLAY_POWERED_TEXTURE_FILE = "pipes/status_overlay/powered-pipe";
+  private final static String TESTBRIDGE_OVERLAY_UNPOWERED_TEXTURE_FILE = "pipes/status_overlay/un-powered-pipe";
+  private final static String TESTBRIDGE_UN_OVERLAY_TEXTURE_FILE = "pipes/status_overlay/un-overlayed";
 
   private int index = 0;
   private int newTextureIndex = 0;
@@ -28,18 +28,15 @@ public class TB_Textures extends Textures {
     newTextureIndex = 100;
 
     // Standalone pipes
-    TESTBRIDGE_RESULT_TEXTURE = registerTexture(par1IIconRegister, TB_Textures.TESTBRIDGE_RESULT_TEXTURE_FILE);
-    TESTBRIDGE_CMPIPE_TEXTURE = registerTexture(par1IIconRegister, TB_Textures.TESTBRIDGE_CMPIPE_TEXTURE_FILE);
+    TESTBRIDGE_RESULT_TEXTURE = registerTexture(par1IIconRegister, TB_Textures.TESTBRIDGE_RESULT_TEXTURE_FILE, 1);
+    TESTBRIDGE_CMPIPE_TEXTURE = registerTexture(par1IIconRegister, TB_Textures.TESTBRIDGE_CMPIPE_TEXTURE_FILE, 1);
 
     if (TestBridge.isDebug()) {
       System.out.println("TB: pipetextures " + index);
     }
   }
 
-  private TextureType registerTexture(Object par1IIconRegister, String fileName) {
-    return registerTexture(par1IIconRegister, fileName, 1);
-  }
-
+  @SuppressWarnings("deprecation") // Removed if LP get update to newer version
   private TextureType registerTexture(Object par1IIconRegister, String fileName, int flag) {
     TextureType texture = new TextureType();
     texture.normal = index++;

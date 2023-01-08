@@ -12,10 +12,7 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
@@ -23,7 +20,6 @@ import appeng.me.GridAccessException;
 
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.network.exception.TargetNotFoundException;
 import logisticspipes.utils.StaticResolve;
 
 import net.minecraftforge.fml.common.Optional;
@@ -39,7 +35,7 @@ import testbridge.items.FakeItem;
 import testbridge.part.PartSatelliteBus;
 
 @StaticResolve
-public class TB_CustomAE2Packet extends CoordinatesPacket {
+public class TB_CustomAE2Packet<T> extends CoordinatesPacket {
   @Getter
   @Setter
   private String key;
@@ -58,7 +54,7 @@ public class TB_CustomAE2Packet extends CoordinatesPacket {
 
   @Getter
   @Setter
-  private List list;
+  private List<T> list;
 
   public TB_CustomAE2Packet(int id) {
     super(id);
@@ -107,7 +103,7 @@ public class TB_CustomAE2Packet extends CoordinatesPacket {
   }
 
   @Optional.Method(modid = "appliedenergistics2")
-  private void retrieveSatList(EntityPlayer player){
+  private void retrieveSatList(EntityPlayer player) {
     List<String> list = new ArrayList<>();
     final Container c = player.openContainer;
     if (c instanceof ContainerSatelliteSelect) {
@@ -138,7 +134,7 @@ public class TB_CustomAE2Packet extends CoordinatesPacket {
 
   @Override
   public ModernPacket template() {
-    return new TB_CustomAE2Packet(getId());
+    return new TB_CustomAE2Packet<>(getId());
   }
 
   @Override
@@ -157,15 +153,5 @@ public class TB_CustomAE2Packet extends CoordinatesPacket {
     this.value = input.readUTF();
     this.is = input.readItemStack();
     this.setting = input.readBoolean();
-  }
-
-  private static TileEntity getWorldTile(Object whosAsking, World world, BlockPos blockPos) {
-    if (world == null) {
-      throw new TargetNotFoundException("World was null", whosAsking);
-    } else if (world.isAirBlock(blockPos)) {
-      throw new TargetNotFoundException("Only found air at: " + blockPos, whosAsking);
-    } else {
-      return world.getTileEntity(blockPos);
-    }
   }
 }

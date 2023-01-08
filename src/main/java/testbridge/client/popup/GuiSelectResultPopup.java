@@ -23,8 +23,7 @@ import testbridge.network.packets.gui.RequestResultPipeListPacket;
 
 public class GuiSelectResultPopup extends SubGuiScreen {
 
-  String GUI_LANG_KEY = "gui.popup.selectresult.";
-
+  private final String GUI_LANG_KEY = "gui.popup.selectresult.";
   private final Consumer<UUID> handleResult;
   private List<Pair<String, UUID>> pipeList = Collections.EMPTY_LIST;
   private final TextListDisplay textList;
@@ -60,9 +59,9 @@ public class GuiSelectResultPopup extends SubGuiScreen {
   public void initGui() {
     super.initGui();
     buttonList.clear();
-    buttonList.add(new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, TextUtil.translate(GuiSelectSatellitePopup.GUI_LANG_KEY + "select")));
-    buttonList.add(new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, TextUtil.translate(GuiSelectSatellitePopup.GUI_LANG_KEY + "exit")));
-    buttonList.add(new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, TextUtil.translate(GuiSelectSatellitePopup.GUI_LANG_KEY + "unset")));
+    buttonList.add(new SmallGuiButton(0, xCenter + 16, bottom - 27, 50, 10, TextUtil.translate("gui.popup.selectsatellite.select")));
+    buttonList.add(new SmallGuiButton(1, xCenter + 16, bottom - 15, 50, 10, TextUtil.translate("gui.popup.selectsatellite.exit")));
+    buttonList.add(new SmallGuiButton(2, xCenter - 66, bottom - 27, 50, 10, TextUtil.translate("gui.popup.selectsatellite.unset")));
     buttonList.add(new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\"));
     buttonList.add(new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/"));
   }

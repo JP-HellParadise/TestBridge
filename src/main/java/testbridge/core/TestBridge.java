@@ -17,7 +17,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import logisticspipes.items.ItemUpgrade;
@@ -52,25 +51,15 @@ public class TestBridge {
 
   public static final Logger log = LogManager.getLogger(NAME);
 
-  @Getter
-  private static boolean RSLoaded;
-
   @Mod.EventHandler
   public void preInit(FMLPreInitializationEvent event) {
     final Stopwatch watch = Stopwatch.createStarted();
-    if (isLoggingEnabled()){
-      log.info("==================================================================================");
-      log.info("Test Bridge: Start Pre Initialization");
-    }
-    RSLoaded = Loader.isModLoaded("refinedstorage");
+    log.info("==================================================================================");
+    log.info("Start Pre Initialization");
 
+    log.info("Initial config file");
     final File configFile = new File(event.getModConfigurationDirectory().getPath(), "TestBridge.cfg");
-
     TB_Config.init(configFile);
-
-    if (RSLoaded) {
-      // TODO
-    }
 
     for (final IntegrationType type : IntegrationType.values()) {
       IntegrationRegistry.INSTANCE.add(type);
@@ -78,47 +67,37 @@ public class TestBridge {
 
     IntegrationRegistry.INSTANCE.preInit();
 
-    if (isLoggingEnabled()) {
-      log.info("Pre Initialization took in {} ms", watch.elapsed(TimeUnit.MILLISECONDS));
-      log.info("==================================================================================");
-    }
+    log.info("Pre Initialization took in {} ms", watch.elapsed(TimeUnit.MILLISECONDS));
+    log.info("==================================================================================");
   }
 
   @Mod.EventHandler
   public void init(FMLInitializationEvent evt) {
     final Stopwatch watch = Stopwatch.createStarted();
-    if (isLoggingEnabled()) {
-      log.info("==================================================================================");
-      log.info("Start Initialization");
-    }
+    log.info("==================================================================================");
+    log.info("Start Initialization");
 
     NetworkRegistry.INSTANCE.registerGuiHandler(TestBridge.INSTANCE, new GuiHandler());
     TBDataFixer.INSTANCE.init();
-
     IntegrationRegistry.INSTANCE.init();
 
-    if (isLoggingEnabled()) {
-      log.info("Initialization took in {} ms", watch.elapsed(TimeUnit.MILLISECONDS));
-      log.info("==================================================================================");
-    }
+    log.info("Initialization took in {} ms", watch.elapsed(TimeUnit.MILLISECONDS));
+    log.info("==================================================================================");
   }
 
   @Mod.EventHandler
   public void postInit(FMLPostInitializationEvent event) {
     final Stopwatch watch = Stopwatch.createStarted();
-    if (isLoggingEnabled()) {
-      log.info("==================================================================================");
-      log.info("Start Post Initialization");
-    }
+    log.info("==================================================================================");
+    log.info("Start Post Initialization");
 
     IntegrationRegistry.INSTANCE.postInit();
 
+    log.info("Saving Config file");
     TB_Config.instance().save();
 
-    if (isLoggingEnabled()) {
-      log.info("Post Initialization took in {} ms", watch.elapsed(TimeUnit.MILLISECONDS));
-      log.info("==================================================================================");
-    }
+    log.info("Post Initialization took in {} ms", watch.elapsed(TimeUnit.MILLISECONDS));
+    log.info("==================================================================================");
   }
 
   @SubscribeEvent
@@ -149,9 +128,5 @@ public class TestBridge {
     if (IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.APPLIED_ENERGISTICS_2)) {
       PartSatelliteBus.cleanup();
     }
-  }
-
-  public static boolean isLoggingEnabled() {
-    return TB_Config.instance() == null || TB_Config.instance().isFeatureEnabled(TB_Config.TBFeature.LOGGING);
   }
 }

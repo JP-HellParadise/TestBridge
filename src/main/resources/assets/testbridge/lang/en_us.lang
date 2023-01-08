@@ -83,14 +83,13 @@ top.testbridge.pipe.result.no_name=Result name $REDnot set$RESET.
 top.testbridge.crafting_manager.no_modules=$REDNo modules installed.
 top.testbridge.crafting_manager.no_patterns=$REDNo patterns installed.
 
-top.testbridge.crafting_manager.select_sat=Satellite: %s.
-top.testbridge.crafting_manager.select_result=Result: %s.
-top.testbridge.crafting_manager.blocking=Blocking Mode: %s.
+top.testbridge.crafting_manager.select_sat=Satellite: %s
+top.testbridge.crafting_manager.select_result=Result: %s
+top.testbridge.crafting_manager.blocking=Blocking Mode: %s
 top.testbridge.crafting_manager.none=$YELLOWNone
-top.testbridge.crafting_manager.valid=$BLUE%s
-top.testbridge.crafting_manager.sat_error=$REDNo satellite with name $YELLOW%s $REDexist
-top.testbridge.crafting_manager.result_error=$REDNo result with name $YELLOW%s $REDexist
-top.testbridge.crafting_manager.router_error=$REDNot valid Router
+top.testbridge.crafting_manager.valid=$AQUA%s
+top.testbridge.crafting_manager.sat_error=$REDNot found$RESET.
+top.testbridge.crafting_manager.router_error=$REDRouter not found$RESET.
 
 # Chat
 

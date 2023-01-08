@@ -27,6 +27,7 @@ import appeng.util.Platform;
 import testbridge.core.TB_ItemHandlers;
 import testbridge.core.TestBridge;
 import testbridge.network.GuiIDs;
+import testbridge.utils.NBTItemHelper.ItemInfo;
 
 import static testbridge.utils.NBTItemHelper.NBTHelper;
 
@@ -48,18 +49,17 @@ public class FakeItem extends Item {
     if (isPackage) {
       ItemStack is = player.getHeldItem(hand);
       final boolean isHolder = is.hasTagCompound() && is.getTagCompound().getBoolean("__actContainer");
-      if (isHolder && !w.isRemote && NBTHelper.getItemStack(is) != null && !NBTHelper.getItemStack(is).isEmpty()) {
+      if (isHolder && !w.isRemote && !NBTHelper.getItemStack(is, true).isEmpty()) {
         if (player.isSneaking()) {
-          for (int i = 0 ; i< is.getCount() ; i++){
-            w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, NBTHelper.getItemStack(is).copy()));
+          for (int i = 0 ; i < is.getCount() ; i++) {
+            w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, NBTHelper.getItemStack(is, true).copy()));
           }
           is.shrink(is.getCount());
-          return new ActionResult<>(EnumActionResult.SUCCESS, is);
         } else {
-          w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, NBTHelper.getItemStack(is).copy()));
+          w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, NBTHelper.getItemStack(is, true).copy()));
           is.shrink(1);
-          return new ActionResult<>(EnumActionResult.SUCCESS, is);
         }
+        return new ActionResult<>(EnumActionResult.SUCCESS, is);
       } else if (player.isSneaking()) {
         this.clearPackage(is, player);
         return new ActionResult<>(EnumActionResult.SUCCESS, is);
@@ -106,13 +106,13 @@ public class FakeItem extends Item {
   public void addInformation(final ItemStack stack, final World world, final List<String> tooltip, final ITooltipFlag advancedTooltips) {
     if (isPackage) {
       if (stack.hasTagCompound()) {
-        if (!NBTHelper.getItemStack(stack).isEmpty()) {
+        if (!NBTHelper.getItemStack(stack, false).isEmpty()) {
           if (stack.getTagCompound().getBoolean("__actContainer"))
-            tooltip.add(I18n.format("tooltip.testbridge.placeholder", NBTHelper.getItemInfo(stack, "default")));
+            tooltip.add(I18n.format("tooltip.testbridge.placeholder", NBTHelper.getItemInfo(stack, ItemInfo.FULL_INFO)));
           else
-            tooltip.add(I18n.format("tooltip.testbridge.package_content", NBTHelper.getItemInfo(stack, "default")));
+            tooltip.add(I18n.format("tooltip.testbridge.package_content", NBTHelper.getItemInfo(stack, ItemInfo.FULL_INFO)));
         }
-        String name = NBTHelper.getItemInfo(stack, "destination");
+        String name = NBTHelper.getItemInfo(stack, ItemInfo.DESTINATION);
         if (!name.isEmpty())
           tooltip.add(I18n.format("tooltip.testbridge.satName", name));
         if (tooltip.size() < 2)
@@ -120,7 +120,7 @@ public class FakeItem extends Item {
       }
     } else {
       if (stack.hasTagCompound())
-        tooltip.add(I18n.format("tooltip.testbridge.request", NBTHelper.getItemInfo(stack, "default")));
+        tooltip.add(I18n.format("tooltip.testbridge.request", NBTHelper.getItemInfo(stack, ItemInfo.FULL_INFO)));
       else
         tooltip.add(I18n.format("tooltip.testbridge.fakeItemNull"));
       tooltip.add(I18n.format("tooltip.testbridge.techItem"));
@@ -131,10 +131,10 @@ public class FakeItem extends Item {
   @Override
   public String getItemStackDisplayName(ItemStack stack) {
     if(isPackage && stack.hasTagCompound()){
-      String sat = stack.getTagCompound().getString("__pkgDest");
-      if(!sat.equals("") && !(NBTHelper.getItemInfo(stack, "default").isEmpty())){
+      String satName = stack.getTagCompound().getString("__pkgDest");
+      if(!satName.equals("") && !(NBTHelper.getItemInfo(stack, ItemInfo.FULL_INFO).isEmpty())){
         return net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tooltip.testbridge.packageName",
-            NBTHelper.getItemInfo(stack, "default"), sat);
+            NBTHelper.getItemInfo(stack, ItemInfo.FULL_INFO), satName);
       }
     }
     return super.getItemStackDisplayName(stack);

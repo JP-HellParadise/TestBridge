@@ -12,22 +12,18 @@ import mcjty.theoneprobe.config.Config;
 
 import appeng.tile.AEBaseTile;
 
-import network.rs485.logisticspipes.util.TextUtil;
-
 import testbridge.block.tile.TileCraftingManager;
-import testbridge.helpers.DualityCraftingManager;
-import testbridge.part.PartSatelliteBus;
+import testbridge.helpers.TBText;
+import testbridge.interfaces.ITranslationKey;
 
-public class CraftingManagerProvider implements ITileProbInfoProvider {
+public class CraftingManagerProvider implements ITileProbInfoProvider, ITranslationKey {
 
   @Override
   public void addProbeInfo(AEBaseTile tile, ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
     if (tile instanceof TileCraftingManager) {
-      IProbeInfo cmInfo = probeInfo.vertical();
-      DualityCraftingManager duality = ((TileCraftingManager) tile).getCMDuality();
-      cmInfo.text(getSatName(duality.getSatellite(), duality.findSatellite(duality.getSatellite())));
+      addConnectInfo((TileCraftingManager) tile, probeInfo);
 
-      IItemHandler patternInv = duality.getInventoryByName("patterns");
+      IItemHandler patternInv = ((TileCraftingManager) tile).getInventoryByName("patterns");
       int patternCount = 0;
 
       for (int i = 0; i < patternInv.getSlots(); i++) {
@@ -45,17 +41,15 @@ public class CraftingManagerProvider implements ITileProbInfoProvider {
           infoRow.item(patternInv.getStackInSlot(i));
         }
       } else
-        cmInfo.text(TextUtil.translate(prefix_TB + "crafting_manager.no_patterns"));
+        probeInfo.text(new TBText(top$cm_prefix + "no_patterns").getTranslated());
     }
   }
 
-
-  private String getSatName(String satName, PartSatelliteBus part) {
-    if (satName.isEmpty()) {
-      return TextUtil.translate(prefix_TB + "crafting_manager.select_sat", TextUtil.translate(prefix_TB + "crafting_manager.none"));
-    } else if (part != null) {
-      return TextUtil.translate(prefix_TB + "crafting_manager.select_sat", TextUtil.translate(prefix_TB + "crafting_manager.valid", satName));
-    }
-    return TextUtil.translate(prefix_TB + "crafting_manager.select_sat", TextUtil.translate(prefix_TB + "crafting_manager.sat_error", satName));
+  private void addConnectInfo(TileCraftingManager tile, IProbeInfo probeInfo) {
+    String satName = tile.getSatelliteName();
+    probeInfo.text(new TBText(top$cm_prefix + "select_sat")
+        .addArgument(new TBText(satName.isEmpty() ? top$cm_prefix + "none" : tile.getSatellitePart() != null ?
+            top$cm_prefix + "valid" : top$cm_prefix + "sat_error").addArgument(satName).getTranslated())
+        .getTranslated());
   }
 }

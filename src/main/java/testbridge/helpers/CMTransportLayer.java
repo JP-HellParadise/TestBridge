@@ -37,14 +37,14 @@ public class CMTransportLayer extends TransportLayer {
       _cmPipe.notifyOfItemArival(item.getInfo());
       return false;
     }
-    final ItemIdentifierStack itemidStack = item.getItemIdentifierStack();
-    SinkReply reply = module.sinksItem(itemidStack.makeNormalStack(), itemidStack.getItem(), -1, 0, true, false, false);
+    final ItemIdentifierStack itemIDStack = item.getItemIdentifierStack();
+    SinkReply reply = module.sinksItem(itemIDStack.makeNormalStack(), itemIDStack.getItem(), -1, 0, true, false, false);
     if (reply == null || reply.maxNumberOfItems < 0) {
       _cmPipe.notifyOfItemArival(item.getInfo());
       return false;
     }
 
-    if (reply.maxNumberOfItems > 0 && itemidStack.getStackSize() > reply.maxNumberOfItems) {
+    if (reply.maxNumberOfItems > 0 && itemIDStack.getStackSize() > reply.maxNumberOfItems) {
       EnumFacing o = _cmPipe.getPointedOrientation();
       if (o == null) {
         o = EnumFacing.UP;

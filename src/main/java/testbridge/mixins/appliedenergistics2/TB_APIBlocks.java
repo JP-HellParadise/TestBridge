@@ -25,7 +25,7 @@ public abstract class TB_APIBlocks implements IBlocks_TB {
   @Override
   public IBlockDefinition cmBlock() {
     return cmBlock;
-  };
+  }
 
   @Inject(method = "<init>", at = @At(value = "RETURN"))
   public void setCmBlock(FeatureFactory registry, PartModels partModels, CallbackInfo ci){

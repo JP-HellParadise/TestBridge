@@ -21,7 +21,7 @@ import logisticspipes.LPConstants;
 import testbridge.core.TestBridge;
 
 public class MissingMappingHandler {
-  private Map<String, String> itemIDMap = ImmutableMap.<String, String>builder()
+  private final Map<String, String> itemIDMap = ImmutableMap.<String, String>builder()
       //pipe
       .put("pipe_lb.resultpipe", "lp:pipe_result")
       .put("pipe_lb.craftingmanager", "lp:pipe_crafting_manager")
@@ -33,7 +33,7 @@ public class MissingMappingHandler {
       .put("lb.package", "tb:item_package")
       .build();
 
-  private Map<String, String> blockIDMap = ImmutableMap.<String, String>builder()
+  private final Map<String, String> blockIDMap = ImmutableMap.<String, String>builder()
       .put("lb.crafting_managerae", "ae2:crafting_manager")
       .build();
 
@@ -59,7 +59,7 @@ public class MissingMappingHandler {
     }
   }
 
-  private List<String> ignoreItems = Arrays.asList(
+  private final List<String> ignoreItems = Arrays.asList(
 //      "solid_block", "tile.block"
   );
 

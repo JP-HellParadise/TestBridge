@@ -22,8 +22,9 @@ public class AE2EventHandler {
 
   public static class init {
     @SubscribeEvent
-    public void onDrawBackgroundEventPost(GuiScreenEvent.BackgroundDrawnEvent event) {
-      AE2Module.hideFakeItems(event);
+    @SideOnly(Side.CLIENT)
+    public static void onDrawBackgroundEventPost(GuiScreenEvent.BackgroundDrawnEvent event) {
+//      AE2Module.hideFakeItems(event);
     }
   }
 }

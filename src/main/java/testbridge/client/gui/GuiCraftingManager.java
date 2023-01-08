@@ -28,11 +28,11 @@ import testbridge.container.ContainerCraftingManager;
 import testbridge.integration.modules.appliedenergistics2.AE2Module;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 
+@SuppressWarnings("unused") // Handle by AE2
 public class GuiCraftingManager extends GuiUpgradeable {
   private GuiTabButton priority;
   private GuiTabButton satellite;
   private GuiImgButton BlockMode;
-//  private GuiToggleButton interfaceMode;
 
   public GuiCraftingManager(final InventoryPlayer ip, final ICraftingManagerHost te) {
     super(new ContainerCraftingManager(ip, te));
@@ -94,8 +94,6 @@ public class GuiCraftingManager extends GuiUpgradeable {
     }
 
     if (btn == this.BlockMode) {
-//      final BlockingMode newMode = blockingModeOverlay.write(EnumProperty::next);
-//      BlockMode.displayString = TextUtil.translate(PREFIX + "blocking." + newMode.toString().toLowerCase());
       NetworkHandler.instance().sendToServer(new PacketConfigButton(this.BlockMode.getSetting(), backwards));
     }
   }

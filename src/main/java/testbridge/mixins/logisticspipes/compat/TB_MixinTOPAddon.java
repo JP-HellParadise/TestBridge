@@ -26,17 +26,16 @@ import logisticspipes.kotlin.text.StringsKt;
 import logisticspipes.modules.*;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 
-import network.rs485.logisticspipes.compat.TheOneProbeIntegration;
-import network.rs485.logisticspipes.util.TextUtil;
-
 import testbridge.client.gui.GuiCMPipe;
 import testbridge.core.TB_ItemHandlers;
-import testbridge.interfaces.ITOPAddon;
+import testbridge.helpers.TBText;
+import testbridge.interfaces.ITranslationKey;
+import testbridge.modules.TB_ModuleCM;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 
 @Mixin(targets = "network.rs485.logisticspipes.compat.TheOneProbeIntegration$PipeInfoProvider", remap = false)
-public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITOPAddon {
+public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslationKey {
 
   @Shadow
   @Final
@@ -74,28 +73,21 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITOPAddon 
     }
   }
 
-  @Shadow(aliases = "TheOneProbeIntegration")
-  private TheOneProbeIntegration this$0;
-
   @Unique
   private void addResultPipeInfo(@Nonnull ResultPipe pipe, IProbeInfo probeInfo) {
     String resultPipeName = pipe.getSatellitePipeName();
     if (!StringsKt.isBlank(resultPipeName)) {
-      TheOneProbeIntegration.LPText var4 = this$0.new LPText(tb$prefix + "pipe.result.name");
-      var4.getArguments().add(resultPipeName);
-      probeInfo.element(var4);
+      probeInfo.text(new TBText(top$result_prefix + "name").addArgument(resultPipeName).getTranslated());
     } else {
-      probeInfo.element(this$0.new LPText(tb$prefix + "pipe.result.no_name"));
+      probeInfo.text(new TBText(top$result_prefix + "no_name").getTranslated());
     }
   }
 
   @Unique
   private void addCMPipeInfo(PipeCraftingManager pipe, IProbeInfo probeInfo, ProbeMode mode) {
-    IProbeInfo pipeInfo = probeInfo.vertical();
-    pipeInfo.text(getName(pipe, false));
-    pipeInfo.text(getName(pipe, true));
+    this.addConnectInfo(pipe.getModules(), probeInfo);
     if (pipe.hasBufferUpgrade()) {
-      pipeInfo.text(getBlockingMode(pipe));
+      this.addBlockModeInfo(pipe, probeInfo);
     }
 
     IProbeInfo chassisColumn = probeInfo.vertical();
@@ -116,7 +108,7 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITOPAddon 
           IProbeInfo infoCol = this.addItemWithText(chassisColumn, stack, "");
           addCraftingModuleInfo((ModuleCrafter) module, infoCol, mode, true);
         });
-      } else if (!stack.isEmpty()){
+      } else if (!stack.isEmpty()) {
         IProbeInfo inv = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(Config.chestContentsBorderColor).spacing(0));
         IProbeInfo infoRow = null;
         for (int i = 0 ; i < modules.size() ; i++) {
@@ -127,25 +119,26 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITOPAddon 
         }
       }
     } else {
-      chassisColumn.element(this$0.new LPText(tb$prefix + "crafting_manager.no_modules"));
+      chassisColumn.text(new TBText(top$cm_prefix + "no_modules").getTranslated());
     }
   }
 
-  private String getName(PipeCraftingManager pipe, boolean isResult) {
-    String name = pipe.getModules().getSatResultNameForUUID(!isResult ? pipe.getModules().getSatelliteUUID().getValue() : pipe.getModules().getResultUUID().getValue());
-    String translationKey = !isResult ? "crafting_manager.select_sat" : "crafting_manager.select_result";
-    if (name.isEmpty()) {
-      return TextUtil.translate(tb$prefix + translationKey, TextUtil.translate(tb$prefix + "crafting_manager.none"));
-    } else {
-      return TextUtil.translate(tb$prefix + translationKey, TextUtil.translate(tb$prefix + "crafting_manager.valid", name));
-    }
+  @Unique
+  private void addConnectInfo(TB_ModuleCM module, IProbeInfo probeInfo) {
+    String name = module.getSatResultNameByUUID(module.getSatelliteUUID().getValue());
+    probeInfo.text(new TBText(top$cm_prefix + "select_sat")
+        .addArgument(name.isEmpty() ? new TBText(top$cm_prefix + "none").getTranslated() : name)
+        .getTranslated());
+
+    name = module.getSatResultNameByUUID(module.getResultUUID().getValue());
+    probeInfo.text(new TBText(top$cm_prefix + "select_result")
+        .addArgument(name.isEmpty() ? new TBText(top$cm_prefix + "none").getTranslated() : name)
+        .getTranslated());
   }
 
-  private String getBlockingMode(PipeCraftingManager pipe) {
-    if (pipe.getAvailableAdjacent().inventories().isEmpty()) {
-      return TextUtil.translate(GuiCMPipe.getPREFIX() + "NoContainer");
-    } else {
-      return TextUtil.translate(tb$prefix + "crafting_manager.blocking", TextUtil.translate(pipe.translationKeyBlockMode()));
-    }
+  @Unique
+  private void addBlockModeInfo(PipeCraftingManager pipe, IProbeInfo probeInfo) {
+    String mode = new TBText(pipe.getAvailableAdjacent().inventories().isEmpty() ? gui$cm_prefix + "NoContainer" : pipe.getKeyBlockMode()).getTranslated();
+    probeInfo.text(new TBText(top$cm_prefix + "blocking").addArgument(mode).getTranslated());
   }
 }
