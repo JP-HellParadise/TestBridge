@@ -26,7 +26,6 @@ import logisticspipes.kotlin.text.StringsKt;
 import logisticspipes.modules.*;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 
-import testbridge.client.gui.GuiCMPipe;
 import testbridge.core.TB_ItemHandlers;
 import testbridge.helpers.TBText;
 import testbridge.interfaces.ITranslationKey;
@@ -125,15 +124,12 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslati
 
   @Unique
   private void addConnectInfo(TB_ModuleCM module, IProbeInfo probeInfo) {
-    String name = module.getSatResultNameByUUID(module.getSatelliteUUID().getValue());
-    probeInfo.text(new TBText(top$cm_prefix + "select_sat")
-        .addArgument(name.isEmpty() ? new TBText(top$cm_prefix + "none").getTranslated() : name)
-        .getTranslated());
-
-    name = module.getSatResultNameByUUID(module.getResultUUID().getValue());
-    probeInfo.text(new TBText(top$cm_prefix + "select_result")
-        .addArgument(name.isEmpty() ? new TBText(top$cm_prefix + "none").getTranslated() : name)
-        .getTranslated());
+    for (int i = 0 ; i < 2 ; i++) {
+      String result = module.getSatelliteNameByUUID(i == 0 ?
+          module.getSatelliteUUID().getValue() : module.getResultUUID().getValue(), i != 0);
+      probeInfo.text(new TBText(top$cm_prefix + (i == 0 ? "select_sat" : "select_result"))
+          .addArgument(result).getTranslated());
+    }
   }
 
   @Unique

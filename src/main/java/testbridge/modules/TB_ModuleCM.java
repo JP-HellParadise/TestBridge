@@ -28,7 +28,7 @@ import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.objects.CCSinkResponder;
-import logisticspipes.routing.IRouter;
+import logisticspipes.routing.ExitRoute;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
@@ -357,26 +357,32 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
 
   public ModernPacket getCMPipePacket() {
     return PacketHandler.getPacket(CMPipeUpdatePacket.class)
-        .setSatelliteName(getSatResultNameByUUID(satelliteUUID.getValue()))
-        .setResultName(getSatResultNameByUUID(resultUUID.getValue()))
+        .setSatelliteName(getSatelliteNameByUUID(satelliteUUID.getValue(), false))
+        .setResultName(getSatelliteNameByUUID(resultUUID.getValue(), true))
         .setBlockingMode(blockingMode.getValue().ordinal())
         .setModulePos(this);
   }
 
-  public String getSatResultNameByUUID(UUID uuid) {
+  public String getSatelliteNameByUUID(UUID uuid, boolean isResult) {
     if (UUIDPropertyKt.isZero(uuid)) {
-      return "";
+      return new TBText(top$cm_prefix + "none").getTranslated();
     }
-    int simpleId = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
-    IRouter router = SimpleServiceLocator.routerManager.getRouter(simpleId);
-    if (router != null) {
-      CoreRoutedPipe pipe = router.getPipe();
-      if (pipe instanceof PipeItemsSatelliteLogistics) {
-        return new TBText(top$cm_prefix + "valid").addArgument(((PipeItemsSatelliteLogistics) pipe).getSatellitePipeName()).getTranslated();
-      } else if (pipe instanceof ResultPipe) {
-        return new TBText(top$cm_prefix + "valid").addArgument(((ResultPipe) pipe).getSatellitePipeName()).getTranslated();
+    int routerId = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
+    try {
+      List<ExitRoute> exitRoutes = parentPipe.getRouter().getRouteTable().get(routerId);
+      if (exitRoutes != null && !exitRoutes.isEmpty()) {
+        CoreRoutedPipe pipe = SimpleServiceLocator.routerManager.getRouter(routerId).getPipe();
+        if (!isResult && pipe instanceof PipeItemsSatelliteLogistics) {
+          String name = ((PipeItemsSatelliteLogistics) pipe).getSatellitePipeName();
+          return new TBText(top$cm_prefix + "valid")
+              .addArgument(name.isEmpty() ? new TBText(top$cm_prefix + "none").getTranslated() : name).getTranslated();
+        } else if (isResult && pipe instanceof ResultPipe) {
+          String name = ((ResultPipe) pipe).getSatellitePipeName();
+          return new TBText(top$cm_prefix + "valid")
+              .addArgument(name.isEmpty() ? new TBText(top$cm_prefix + "none").getTranslated() : name).getTranslated();
+        }
       }
-    }
+    } catch (IndexOutOfBoundsException ignore) {}
     return new TBText(top$cm_prefix + "router_error").getTranslated();
   }
 

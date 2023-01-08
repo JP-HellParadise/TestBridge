@@ -359,7 +359,7 @@ public class DualityCraftingManager
         visitArray(packageList, in, false);
         visitArray(packageList, cin, false);
 
-        packageList.stream().map(pkg -> VirtualPatternAE.newPattern(NBTHelper.getItemStack(pkg, true), pkg)).forEach(this.craftingList::add);
+        packageList.stream().map(pkg -> VirtualPatternAE.newPattern(NBTHelper.getItemStack(pkg, true, true), pkg)).forEach(this.craftingList::add);
 
         this.craftingList.add(details);
       }
@@ -539,7 +539,7 @@ public class DualityCraftingManager
     if (patternDetails instanceof VirtualPatternHelper) {
       ItemStack output = patternDetails.getCondensedOutputs()[0].getDefinition();
       // If pattern has output contains package, we will work here first instead
-      if (output.getItem() == TB_ItemHandlers.itemPackage && !NBTHelper.getItemStack(output, true).isEmpty()) {
+      if (output.getItem() == TB_ItemHandlers.itemPackage && !NBTHelper.getItemStack(output, true, true).isEmpty()) {
         this.addToCreatePkgList(output);
         return true;
       }
@@ -552,7 +552,7 @@ public class DualityCraftingManager
     for (int x = 0; x < table.getSizeInventory(); x++) {
       final ItemStack is = table.getStackInSlot(x);
       if (!is.isEmpty()) {
-        if (is.getItem() == TB_ItemHandlers.itemPackage && !NBTHelper.getItemStack(is, true).isEmpty()) {
+        if (is.getItem() == TB_ItemHandlers.itemPackage && !NBTHelper.getItemStack(is, true, true).isEmpty()) {
           String satName = NBTHelper.getItemInfo(is, ItemInfo.DESTINATION);
           if (!satName.isEmpty()) this.addToSatList(satName);
           else return this.cleanCrafting();
@@ -576,7 +576,7 @@ public class DualityCraftingManager
             if (!is.isEmpty()) {
               if (is.getItem() == TB_ItemHandlers.itemPackage) {
                 String name = NBTHelper.getItemInfo(is, ItemInfo.DESTINATION);
-                ItemStack holder = NBTHelper.getItemStack(is, true);
+                ItemStack holder = NBTHelper.getItemStack(is, true, false);
                 if (satName.equals(name) && !holder.isEmpty()) {
                   this.addToSendListOnSat(satName, holder);
                   table.removeStackFromSlot(x);
@@ -733,7 +733,7 @@ public class DualityCraftingManager
       for (final ItemStack is : this.createPkgList) {
         if (!is.isEmpty()) {
           // Return items instead of not useful placeholder
-          drops.add(NBTHelper.getItemStack(is, true));
+          drops.add(NBTHelper.getItemStack(is, true, false));
         }
       }
     }
@@ -824,7 +824,7 @@ public class DualityCraftingManager
   private void visitArray(List<ItemStack> output, IAEItemStack[] input, boolean isPlaceholder) {
     for (int i = 0 ; i < input.length ; i++ ) {
       if (input[i] != null) {
-        ItemStack is = input[i].getDefinition();
+        ItemStack is = input[i].createItemStack();
         if (is.getItem() == TB_ItemHandlers.itemPackage) {
           if(is.hasTagCompound() && is.getTagCompound().getBoolean("__actContainer") == isPlaceholder) {
             if (!isPlaceholder) {
@@ -833,6 +833,7 @@ public class DualityCraftingManager
               input[i] = ITEMS.createStack(is);
             }
           }
+          is.setCount(1);
           output.add(is);
         }
       }

@@ -38,6 +38,7 @@ tooltip.testbridge.fakeItemNull=Auto Craft token
 tooltip.testbridge.request=Requests %s from Logistics Pipes Network
 tooltip.testbridge.techItem=This item used for requesting & crafting logic. You have no use for it! Throw it away!
 tooltip.testbridge.placeholder=Package Contains %s
+tooltip.testbridge.placeholder.rightclick=R-Click to unpack one, or combine with shift for all
 tooltip.testbridge.package_content=Package Template for %s
 tooltip.testbridge.package_empty=Package Empty
 tooltip.testbridge.satName=Satellite Name: %s
@@ -88,8 +89,7 @@ top.testbridge.crafting_manager.select_result=Result: %s
 top.testbridge.crafting_manager.blocking=Blocking Mode: %s
 top.testbridge.crafting_manager.none=$YELLOWNone
 top.testbridge.crafting_manager.valid=$AQUA%s
-top.testbridge.crafting_manager.sat_error=$REDNot found$RESET.
-top.testbridge.crafting_manager.router_error=$REDRouter not found$RESET.
+top.testbridge.crafting_manager.router_error=$REDRouter not found
 
 # Chat
 

@@ -49,14 +49,14 @@ public class FakeItem extends Item {
     if (isPackage) {
       ItemStack is = player.getHeldItem(hand);
       final boolean isHolder = is.hasTagCompound() && is.getTagCompound().getBoolean("__actContainer");
-      if (isHolder && !w.isRemote && !NBTHelper.getItemStack(is, true).isEmpty()) {
+      if (isHolder && !w.isRemote && !NBTHelper.getItemStack(is, true, true).isEmpty()) {
         if (player.isSneaking()) {
           for (int i = 0 ; i < is.getCount() ; i++) {
-            w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, NBTHelper.getItemStack(is, true).copy()));
+            w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, NBTHelper.getItemStack(is, true, true).copy()));
           }
           is.shrink(is.getCount());
         } else {
-          w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, NBTHelper.getItemStack(is, true).copy()));
+          w.spawnEntity(new EntityItem(w, player.posX, player.posY, player.posZ, NBTHelper.getItemStack(is, true, true).copy()));
           is.shrink(1);
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, is);
@@ -106,10 +106,11 @@ public class FakeItem extends Item {
   public void addInformation(final ItemStack stack, final World world, final List<String> tooltip, final ITooltipFlag advancedTooltips) {
     if (isPackage) {
       if (stack.hasTagCompound()) {
-        if (!NBTHelper.getItemStack(stack, false).isEmpty()) {
-          if (stack.getTagCompound().getBoolean("__actContainer"))
+        if (!NBTHelper.getItemStack(stack, false, true).isEmpty()) {
+          if (stack.getTagCompound().getBoolean("__actContainer")) {
             tooltip.add(I18n.format("tooltip.testbridge.placeholder", NBTHelper.getItemInfo(stack, ItemInfo.FULL_INFO)));
-          else
+            tooltip.add(I18n.format("tooltip.testbridge.placeholder.rightclick"));
+          } else
             tooltip.add(I18n.format("tooltip.testbridge.package_content", NBTHelper.getItemInfo(stack, ItemInfo.FULL_INFO)));
         }
         String name = NBTHelper.getItemInfo(stack, ItemInfo.DESTINATION);

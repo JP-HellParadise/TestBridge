@@ -8,18 +8,24 @@ import appeng.util.Platform;
 public class NBTItemHelper {
   public static NBTItemHelper NBTHelper = new NBTItemHelper();
 
-  /* Check if item has NBTTag, properly contain Item form data
-   * And if this is Item Holder rather than a Package
+  /** Get ItemStack
+   * @param is ItemStack contains "__itemHold" tag
+   * @param checkContainer Check if Package is Item Holder
+   * @param singleStack Get definition of ItemStack
+   * @return Stored ItemStack with correct count
    */
-  public final ItemStack getItemStack(final ItemStack is, final boolean checkContainer) {
-    if (is.getTagCompound() != null && is.getTagCompound().hasKey("__itemHold") && (!checkContainer || is.getTagCompound().getBoolean("__actContainer")))
-      return new ItemStack(is.getTagCompound().getCompoundTag("__itemHold"));
+  public final ItemStack getItemStack(final ItemStack is, final boolean checkContainer, final boolean singleStack) {
+    if (is.getTagCompound() != null && is.getTagCompound().hasKey("__itemHold") && (!checkContainer || is.getTagCompound().getBoolean("__actContainer"))) {
+      final ItemStack holder = new ItemStack(is.getTagCompound().getCompoundTag("__itemHold"));
+      if (!singleStack) holder.setCount(holder.getCount() * is.getCount());
+      return holder;
+    }
     return new ItemStack(Items.AIR);
   }
 
   public final String getItemInfo(final ItemStack is, final ItemInfo info) {
-    if (this.getItemStack(is, false).isEmpty()) return "";
-    final ItemStack item = this.getItemStack(is, false);
+    if (this.getItemStack(is, false, true).isEmpty()) return "";
+    final ItemStack item = this.getItemStack(is, false, true);
     switch (info) {
       case DESTINATION:
         return this.getDestination(is);

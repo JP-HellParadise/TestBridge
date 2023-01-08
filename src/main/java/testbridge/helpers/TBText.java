@@ -30,6 +30,10 @@ public class TBText {
   @Setter
   private String key;
 
+  public TBText(String key) {
+    this.key = key;
+  }
+
   public String getTranslated() {
     return this.key == null ? "" : TextUtil.translate(
         this.key,
@@ -47,9 +51,5 @@ public class TBText {
 
   private String translateIfApplicable(String text) {
     return translationKeyRegex.matches(text) ? TextUtil.translate(text) : text;
-  }
-
-  public TBText(String key) {
-    this.key = key;
   }
 }

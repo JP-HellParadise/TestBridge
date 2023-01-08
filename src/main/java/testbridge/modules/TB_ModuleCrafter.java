@@ -45,6 +45,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
+import network.rs485.logisticspipes.property.UUIDProperty;
 
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.PipeCraftingManager.CMTargetInformation;
@@ -248,30 +249,27 @@ public class TB_ModuleCrafter extends ModuleCrafter {
 
   @Override
   public boolean isSatelliteConnected() {
-    //final List<ExitRoute> routes = getRouter().getIRoutersByCost();
+    if (!checkConnectionByUUID(pipeCM.getModules().getResultUUID())) {
+      return false;
+    }
+
     if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
-      // Make sure own CM doesn't idiot screw up
-      if (!(pipeCM.getModules().getResultUUID().isZero() || pipeCM.getModules().getSatelliteUUID().isZero())) {
-        int satModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(pipeCM.getModules().getSatelliteUUID().getValue());
-        int resultModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(pipeCM.getModules().getResultUUID().getValue());
-        if (satModuleRouterId != -1 && resultModuleRouterId != -1) {
-          List<ExitRoute> sat_rt = getRouter().getRouteTable().get(satModuleRouterId);
-          List<ExitRoute> result_rt = getRouter().getRouteTable().get(satModuleRouterId);
-          return sat_rt != null && !sat_rt.isEmpty() && result_rt != null && !result_rt.isEmpty();
-        }
-      } else {
+      if (!checkConnectionByUUID(pipeCM.getModules().getSatelliteUUID())) {
         return false;
       }
+
       if (satelliteUUID.isZero()) {
         return true;
       }
-      int satModuleRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID.getValue());
-      if (satModuleRouterId != -1) {
-        List<ExitRoute> rt = getRouter().getRouteTable().get(satModuleRouterId);
-        return rt != null && !rt.isEmpty();
-      }
+
+      return checkConnectionByUUID(satelliteUUID);
     } else {
       boolean foundAll = true;
+
+      if (!checkConnectionByUUID(pipeCM.getModules().getSatelliteUUID())) {
+        return false;
+      }
+
       for (int i = 0; i < 9; i++) {
         boolean foundOne = false;
         if (advancedSatelliteUUIDList.isZero(i)) {
@@ -292,7 +290,6 @@ public class TB_ModuleCrafter extends ModuleCrafter {
       return foundAll;
     }
     //TODO check for FluidCrafter
-    return false;
   }
 
   public void enabledUpdateEntity() {
@@ -608,6 +605,24 @@ public class TB_ModuleCrafter extends ModuleCrafter {
       }
     }
     return retstack;
+  }
+
+  /**
+   * Simple method to check if pipe is present on route table
+   * @param UUID UUIDProperty
+   * @return Connecting state
+   */
+  private boolean checkConnectionByUUID(UUIDProperty UUID) {
+    try {
+      if (!UUID.isZero()) {
+        int routerId = SimpleServiceLocator.routerManager.getIDforUUID(UUID.getValue());
+        if (routerId != -1) {
+          List<ExitRoute> exitRoutes = getRouter().getRouteTable().get(routerId);
+          return exitRoutes != null && !exitRoutes.isEmpty();
+        }
+      }
+    } catch (IndexOutOfBoundsException ignore) {}
+    return false;
   }
 
   @Override

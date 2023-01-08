@@ -30,19 +30,19 @@ public class RequestResultPipeListPacket extends BooleanCoordinatesPacket {
     if (pipe == null || !(pipe.pipe instanceof CoreRoutedPipe)) {
       return;
     }
-    CoreRoutedPipe rPipe = (CoreRoutedPipe) pipe.pipe;
+    CoreRoutedPipe cmPipe = (CoreRoutedPipe) pipe.pipe;
     List<Pair<String, UUID>> list;
-    if (rPipe.getRouter() == null || rPipe.getRouter().getRouteTable() == null) {
+    if (cmPipe.getRouter() == null || cmPipe.getRouter().getRouteTable() == null) {
       return;
     }
     list = ResultPipe.AllResults.stream()
         .filter(Objects::nonNull)
         .filter(it -> it.getRouter() != null)
         .filter(it -> {
-          List<List<ExitRoute>> routingTable = rPipe.getRouter().getRouteTable();
+          List<List<ExitRoute>> routingTable = cmPipe.getRouter().getRouteTable();
           return routingTable.size() > it.getRouterId() && routingTable.get(it.getRouterId()) != null && !routingTable.get(it.getRouterId()).isEmpty();
         })
-        .sorted(Comparator.comparingDouble(it -> rPipe.getRouter().getRouteTable().get(it.getRouterId()).stream().map(it1 -> it1.distanceToDestination).min(Double::compare).get()))
+        .sorted(Comparator.comparingDouble(it -> cmPipe.getRouter().getRouteTable().get(it.getRouterId()).stream().map(it1 -> it1.distanceToDestination).min(Double::compare).get()))
         .map(it -> new Pair<>(it.getSatellitePipeName(), it.getRouter().getId()))
         .collect(Collectors.toList());
     MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ProvideResultPipeListPacket.class).setList(list), player);

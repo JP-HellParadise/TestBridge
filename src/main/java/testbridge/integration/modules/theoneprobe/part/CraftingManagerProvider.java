@@ -49,7 +49,7 @@ public class CraftingManagerProvider implements IPartProbInfoProvider, ITranslat
     String satName = part.getSatelliteName();
     probeInfo.text(new TBText(top$cm_prefix + "select_sat")
         .addArgument(new TBText(satName.isEmpty() ? top$cm_prefix + "none" : (part.getSatellitePart() != null ?
-            top$cm_prefix + "valid" : top$cm_prefix + "sat_error")).addArgument(satName).getTranslated())
+            top$cm_prefix + "valid" : top$cm_prefix + "router_error")).addArgument(satName).getTranslated())
         .getTranslated());
   }
 }
