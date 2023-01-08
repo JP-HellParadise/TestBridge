@@ -19,7 +19,7 @@ public class TOPModule implements IIntegrationModule, Function<ITheOneProbe, Voi
 
   @Override
   public Void apply(ITheOneProbe input) {
-      if (IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.APPLIED_ENERGISTICS_2)){
+    if (IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.APPLIED_ENERGISTICS_2)){
       input.registerProvider(new TileInfoProvider());
       input.registerProvider(new PartInfoProvider());
     }
