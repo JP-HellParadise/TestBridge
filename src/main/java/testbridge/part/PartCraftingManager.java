@@ -231,8 +231,13 @@ public class PartCraftingManager extends PartBasicState
   }
 
   @Override
-  public String getSatellite() {
-    return this.duality.getSatellite();
+  public String getSatelliteName() {
+    return this.duality.getSatelliteName();
+  }
+
+  @Override
+  public PartSatelliteBus getSatellitePart() {
+    return this.duality.getSatellitePart();
   }
 
   @Override
@@ -264,8 +269,8 @@ public class PartCraftingManager extends PartBasicState
         ((AppEngInternalInventory) inv).writeToNBT(output, "patterns");
       }
     }
-    if (!getSatellite().isEmpty())
-      output.setString("__satSelect", getSatellite());
+    if (!getSatelliteName().isEmpty())
+      output.setString("__satSelect", getSatelliteName());
     return output;
   }
 

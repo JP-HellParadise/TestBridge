@@ -28,7 +28,7 @@ import logisticspipes.pipefxhandlers.Particles;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.objects.CCSinkResponder;
-import logisticspipes.routing.IRouter;
+import logisticspipes.routing.ExitRoute;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
@@ -39,16 +39,16 @@ import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.*;
-import network.rs485.logisticspipes.util.TextUtil;
 
+import testbridge.helpers.TBText;
 import testbridge.helpers.interfaces.ISatellitePipe;
-import testbridge.interfaces.ITOPAddon;
+import testbridge.interfaces.ITranslationKey;
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeUpdatePacket;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 
-public class TB_ModuleCM extends LogisticsModule implements Gui {
+public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey {
 
   public final InventoryProperty excludedInventory = new InventoryProperty(
       new ItemIdentifierInventory(3, "Excluded Filter Item", 1), "ExcludedInv");
@@ -126,7 +126,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
   @Override
   public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
                              boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-    SinkReply bestresult = null;
+    SinkReply bestResult = null;
     for (SlottedModule slottedModule : modules) {
       final LogisticsModule module = slottedModule.getModule();
       if (module != null) {
@@ -135,7 +135,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
               .sinksItem(stack, item, bestPriority, bestCustomPriority, allowDefault, includeInTransit,
                   forcePassive);
           if (result != null && result.maxNumberOfItems >= 0) {
-            bestresult = result;
+            bestResult = result;
             bestPriority = result.fixedPriority.ordinal();
             bestCustomPriority = result.customPriority;
           }
@@ -143,12 +143,12 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
       }
     }
 
-    if (bestresult == null) {
+    if (bestResult == null) {
       return null;
     }
     //Always deny items when we can't put the item anywhere
     final ISlotUpgradeManager upgradeManager = parentPipe.getUpgradeManager(ModulePositionType.SLOT,
-        ((PipeCraftingManager.CMTargetInformation) bestresult.addInfo).getModuleSlot());
+        ((PipeCraftingManager.CMTargetInformation) bestResult.addInfo).getModuleSlot());
     IInventoryUtil invUtil = PipeServiceProviderUtilKt.availableSneakyInventories(parentPipe, upgradeManager)
         .stream().findFirst().orElse(null);
     if (invUtil == null) {
@@ -168,10 +168,10 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
       return null;
     }
 
-    if (bestresult.maxNumberOfItems == 0) {
-      return new SinkReply(bestresult, roomForItem);
+    if (bestResult.maxNumberOfItems == 0) {
+      return new SinkReply(bestResult, roomForItem);
     }
-    return new SinkReply(bestresult, Math.min(bestresult.maxNumberOfItems, roomForItem));
+    return new SinkReply(bestResult, Math.min(bestResult.maxNumberOfItems, roomForItem));
   }
 
   @Override
@@ -357,27 +357,33 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
 
   public ModernPacket getCMPipePacket() {
     return PacketHandler.getPacket(CMPipeUpdatePacket.class)
-        .setSatelliteName(getSatResultNameForUUID(satelliteUUID.getValue()))
-        .setResultName(getSatResultNameForUUID(resultUUID.getValue()))
+        .setSatelliteName(getSatelliteNameByUUID(satelliteUUID.getValue(), false))
+        .setResultName(getSatelliteNameByUUID(resultUUID.getValue(), true))
         .setBlockingMode(blockingMode.getValue().ordinal())
         .setModulePos(this);
   }
 
-  public String getSatResultNameForUUID(UUID uuid) {
+  public String getSatelliteNameByUUID(UUID uuid, boolean isResult) {
     if (UUIDPropertyKt.isZero(uuid)) {
-      return "";
+      return new TBText(top$cm_prefix + "none").getTranslated();
     }
-    int simpleId = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
-    IRouter router = SimpleServiceLocator.routerManager.getRouter(simpleId);
-    if (router != null) {
-      CoreRoutedPipe pipe = router.getPipe();
-      if (pipe instanceof PipeItemsSatelliteLogistics) {
-        return ((PipeItemsSatelliteLogistics) pipe).getSatellitePipeName();
-      } else if (pipe instanceof ResultPipe) {
-        return ((ResultPipe) pipe).getSatellitePipeName();
+    int routerId = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
+    try {
+      List<ExitRoute> exitRoutes = parentPipe.getRouter().getRouteTable().get(routerId);
+      if (exitRoutes != null && !exitRoutes.isEmpty()) {
+        CoreRoutedPipe pipe = SimpleServiceLocator.routerManager.getRouter(routerId).getPipe();
+        if (!isResult && pipe instanceof PipeItemsSatelliteLogistics) {
+          String name = ((PipeItemsSatelliteLogistics) pipe).getSatellitePipeName();
+          return new TBText(top$cm_prefix + "valid")
+              .addArgument(name.isEmpty() ? new TBText(top$cm_prefix + "none").getTranslated() : name).getTranslated();
+        } else if (isResult && pipe instanceof ResultPipe) {
+          String name = ((ResultPipe) pipe).getSatellitePipeName();
+          return new TBText(top$cm_prefix + "valid")
+              .addArgument(name.isEmpty() ? new TBText(top$cm_prefix + "none").getTranslated() : name).getTranslated();
+        }
       }
-    }
-    return TextUtil.translate(ITOPAddon.tb$prefix + "crafting_manager.router_error");
+    } catch (IndexOutOfBoundsException ignore) {}
+    return new TBText(top$cm_prefix + "router_error").getTranslated();
   }
 
   public void handleCMUpdatePacket(CMPipeUpdatePacket packet) {
@@ -457,11 +463,9 @@ public class TB_ModuleCM extends LogisticsModule implements Gui {
       }
 
       case REDSTONE_HIGH:
-        assert getWorld() != null; // Remove NPE warning
         return getWorld().isBlockPowered(parentPipe.getPos());
 
       case REDSTONE_LOW:
-        assert getWorld() != null; // Remove NPE warning
         return !getWorld().isBlockPowered(parentPipe.getPos());
 
 //      case WAIT_FOR_RESULT: { // TODO check if this work

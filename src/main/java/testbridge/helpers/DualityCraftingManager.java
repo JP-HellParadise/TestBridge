@@ -62,13 +62,12 @@ import appeng.util.inv.InvOperation;
 
 import de.ellpeck.actuallyadditions.api.tile.IPhantomTile;
 
-import network.rs485.logisticspipes.property.EnumProperty;
-
 import testbridge.core.TB_ItemHandlers;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.items.VirtualPatternAE;
-import testbridge.modules.TB_ModuleCM.BlockingMode;
 import testbridge.part.PartSatelliteBus;
+import testbridge.utils.NBTItemHelper;
+import testbridge.utils.NBTItemHelper.ItemInfo;
 
 import static testbridge.utils.NBTItemHelper.NBTHelper;
 
@@ -83,13 +82,11 @@ public class DualityCraftingManager
   private final ConfigManager cm = new ConfigManager(this);
   private final AppEngInternalInventory patterns = new AppEngInternalInventory(this, NUMBER_OF_PATTERN_SLOTS);
   private final MEMonitorPassThrough<IAEItemStack> items = new MEMonitorPassThrough<>(new NullInventory<IAEItemStack>(), ITEMS);
-  public final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
-  final MachineSource actionSource;
+  private final MachineSource actionSource;
   private int priority;
   private List<ICraftingPatternDetails> craftingList = null;
-  private List<ItemStack> waitingToSend = null;
   private List<ItemStack> createPkgList = null;
-  private HashMap<String, List<ItemStack>> waitingToSendOnSat = new HashMap<>();
+  private HashMap<String, List<ItemStack>> waitingToSend = new HashMap<>();
   private Set<String> satelliteList = null;
   private String mainSatName = "";
 
@@ -127,58 +124,29 @@ public class DualityCraftingManager
     this.cm.writeToNBT(data);
     this.craftingTracker.writeToNBT(data);
     data.setString("mainSatName", this.mainSatName);
-    data.setInteger("blockingMode", this.blockingMode.getValue().ordinal());
     data.setInteger("priority", this.priority);
 
-    // This is for main Sat
-    final NBTTagList waitingToSend = new NBTTagList();
-    if (this.waitingToSend != null) {
-      for (final ItemStack is : this.waitingToSend) {
-        final NBTTagCompound item = new NBTTagCompound();
-        is.writeToNBT(item);
-        if (is.getCount() > Byte.MAX_VALUE) {
-          item.setInteger("stackSize", is.getCount());
-        }
-        waitingToSend.appendTag(item);
-      }
-    }
-    data.setTag("waitingToSend", waitingToSend);
-
-    // For additional sat(s) used in Pattern contain package
-    NBTTagList satList = new NBTTagList();
-    if (this.satelliteList != null && !this.satelliteList.isEmpty()) {
-      String[] list = this.satelliteList.toArray(new String[0]);
-      for (int i = 0 ; i < list.length ; i++) {
-        NBTTagCompound satTag = new NBTTagCompound();
-        satTag.setString("satId_" + i, list[i]);
-        satList.appendTag(satTag);
-      }
-    }
-    data.setTag("satList", satList);
-
-    // List of items base on sat name
+    // Saved list of Items of each satellite for next session
     NBTTagCompound satItemList = new NBTTagCompound();
-    if (this.waitingToSendOnSat != null && this.satelliteList != null) {
-      for (String satName : this.satelliteList) {
+    if (this.waitingToSend != null) {
+      for (String satName : this.waitingToSend.keySet()) {
         // Store list of item to each satellite that is in used
-        NBTTagList waitingListSided = new NBTTagList();
-        if (this.waitingToSendOnSat.containsKey(satName)) {
-          for (final ItemStack is : this.waitingToSendOnSat.get(satName)) {
-            final NBTTagCompound item = new NBTTagCompound();
-            is.writeToNBT(item);
-            if (is.getCount() > Byte.MAX_VALUE) {
-              item.setInteger("stackSize", is.getCount());
-            }
-            waitingListSided.appendTag(item);
+        NBTTagList waitingList = new NBTTagList();
+        for (final ItemStack is : this.waitingToSend.get(satName)) {
+          final NBTTagCompound item = new NBTTagCompound();
+          is.writeToNBT(item);
+          if (is.getCount() > Byte.MAX_VALUE) {
+            item.setInteger("stackSize", is.getCount());
           }
-          satItemList.setTag(satName, waitingListSided);
+          waitingList.appendTag(item);
         }
+        satItemList.setTag(satName, waitingList);
       }
     }
 
     data.setTag("satItemList", satItemList);
 
-    NBTTagCompound pkgList = new NBTTagCompound();
+    NBTTagList pkgList = new NBTTagList();
     if (this.createPkgList != null) {
       for (final ItemStack is : this.createPkgList) {
         final NBTTagCompound item = new NBTTagCompound();
@@ -186,7 +154,7 @@ public class DualityCraftingManager
         if (is.getCount() > Byte.MAX_VALUE) {
           item.setInteger("stackSize", is.getCount());
         }
-        waitingToSend.appendTag(item);
+        pkgList.appendTag(item);
       }
     }
 
@@ -196,10 +164,8 @@ public class DualityCraftingManager
   public void readFromNBT(final NBTTagCompound data) {
     // Just to be sure
     this.mainSatName = data.getString("mainSatName");
-    this.blockingMode.setValue(BlockingMode.values()[data.getInteger("blockingMode")]);
 
-    // Wait list on main sat
-    this.waitingToSend = null;
+    // Convert old data to new if player update
     final NBTTagList waitingList = data.getTagList("waitingToSend", 10);
     for (int x = 0; x < waitingList.tagCount(); x++) {
       final NBTTagCompound c = waitingList.getCompoundTagAt(x);
@@ -207,49 +173,35 @@ public class DualityCraftingManager
       if (c.hasKey("stackSize")) {
         is.setCount(c.getInteger("stackSize"));
       }
-      this.addToSendList(is);
-    }
-
-    // Retrieve sat(s) list
-    this.satelliteList = null;
-    NBTTagList satList = data.getTagList("satList", 10);
-
-    for (int i = 0; i < satList.tagCount(); i++) {
-      NBTTagCompound tag = satList.getCompoundTagAt(i);
-      String satName = tag.getString("satId_" + i);
-      addToSatList(satName);
+      this.addToSendListOnSat(this.mainSatName, is);
     }
 
     // Retrieve item list base on sat list
-    this.waitingToSendOnSat = null;
+    this.waitingToSend = null;
+
     final NBTTagCompound satItemList = data.getCompoundTag("satItemList");
-
-    if (this.satelliteList != null){
-      for (String satName : this.satelliteList) {
-        if (satItemList.hasKey(satName)) {
-          NBTTagList w = satItemList.getTagList(satName, 10);
-          for (int x = 0; x < w.tagCount(); x++) {
-            final NBTTagCompound c = w.getCompoundTagAt(x);
-            final ItemStack is = new ItemStack(c);
-            if (c.hasKey("stackSize")) {
-              is.setCount(c.getInteger("stackSize"));
-            }
-            this.addToSendListOnSat(is, satName);
-          }
+    for (String satName : satItemList.getKeySet()) {
+      NBTTagList w = satItemList.getTagList(satName, 10);
+      for (int x = 0; x < w.tagCount(); x++) {
+        final NBTTagCompound c = w.getCompoundTagAt(x);
+        final ItemStack is = new ItemStack(c);
+        if (c.hasKey("stackSize")) {
+          is.setCount(c.getInteger("stackSize"));
         }
-
-        // Wait list on main sat
-        this.createPkgList = null;
-        final NBTTagList pkgList = data.getTagList("__pkgList", 10);
-        for (int x = 0; x < pkgList.tagCount(); x++) {
-          final NBTTagCompound c = pkgList.getCompoundTagAt(x);
-          final ItemStack is = new ItemStack(c);
-          if (c.hasKey("stackSize")) {
-            is.setCount(c.getInteger("stackSize"));
-          }
-          addToCreatePkgList(is);
-        }
+        this.addToSendListOnSat(satName, is);
       }
+    }
+
+    // Wait list on main sat
+    this.createPkgList = null;
+    final NBTTagList pkgList = data.getTagList("__pkgList", 10);
+    for (int x = 0; x < pkgList.tagCount(); x++) {
+      final NBTTagCompound c = pkgList.getCompoundTagAt(x);
+      final ItemStack is = new ItemStack(c);
+      if (c.hasKey("stackSize")) {
+        is.setCount(c.getInteger("stackSize"));
+      }
+      addToCreatePkgList(is);
     }
 
     this.craftingTracker.readFromNBT(data);
@@ -257,24 +209,6 @@ public class DualityCraftingManager
     this.priority = data.getInteger("priority");
     this.cm.readFromNBT(data);
     this.updateCraftingList();
-  }
-
-  private void addToSendList(final ItemStack is) {
-    if (is.isEmpty()) {
-      return;
-    }
-
-    if (this.waitingToSend == null) {
-      this.waitingToSend = new ArrayList<>();
-    }
-
-    this.waitingToSend.add(is);
-
-    try {
-      this.gridProxy.getTick().wakeDevice(this.gridProxy.getNode());
-    } catch (final GridAccessException e) {
-      // :P
-    }
   }
 
   private void addToSatList(final String satName) {
@@ -289,17 +223,17 @@ public class DualityCraftingManager
     this.satelliteList.add(satName);
   }
 
-  private void addToSendListOnSat(final ItemStack is, String satName) {
+  private void addToSendListOnSat(final String satName, final ItemStack is) {
     if (is.isEmpty()) {
       return;
     }
-    if (this.waitingToSendOnSat == null) {
-      this.waitingToSendOnSat = new HashMap<>();
+    if (this.waitingToSend == null) {
+      this.waitingToSend = new HashMap<>();
     }
 
-    this.waitingToSendOnSat.computeIfAbsent(satName, k -> new ArrayList<>());
+    this.waitingToSend.computeIfAbsent(satName, k -> new ArrayList<>());
 
-    this.waitingToSendOnSat.get(satName).add(is);
+    this.waitingToSend.get(satName).add(is);
 
     try {
       this.gridProxy.getTick().wakeDevice(this.gridProxy.getNode());
@@ -334,55 +268,48 @@ public class DualityCraftingManager
       return;
     }
 
-    boolean removed = false;
-
     if (this.craftingList != null) {
+      this.craftingList.removeIf(details -> {
+        for (int x = 0; x < accountedFor.length; x++) {
+          final ItemStack is = this.patterns.getStackInSlot(x);
+          if (details.getPattern() == is) {
+            accountedFor[x] = true; // Our pattern truly exist!!!
+            return false;
+          }
+        }
+        return !(details instanceof VirtualPatternHelper);
+      });
+
       List<ItemStack> packageList = new ArrayList<>();
       for (ICraftingPatternDetails details : this.craftingList) {
-        visitArray(packageList, details.getOutputs(), true);
+        visitArray(packageList, details.getInputs(), true);
+        visitArray(packageList, details.getCondensedInputs(), true);
       }
-      final Iterator<ICraftingPatternDetails> i = this.craftingList.iterator();
-      while (i.hasNext()) {
-        final ICraftingPatternDetails details = i.next();
-        boolean found = false;
 
-        if (!packageList.isEmpty()) {
-          IAEItemStack[] out = details.getCondensedOutputs();
-          for (IAEItemStack iaeItemStack : out) {
-            ItemStack is = iaeItemStack == null ? ItemStack.EMPTY : iaeItemStack.asItemStackRepresentation();
-            if (!is.isEmpty() && is.getItem() == TB_ItemHandlers.itemPackage && packageList.stream().anyMatch(s -> ItemStack.areItemStackTagsEqual(s, is))) {
-              found = true;
-              break;
-            }
-          }
-        }
-
-        if (!found) {
-          for (int x = 0; x < accountedFor.length; x++) {
-            final ItemStack pattern = this.patterns.getStackInSlot(x);
-            if (details instanceof VirtualPatternHelper) {
-              if (details.getPattern() == pattern) {
-                accountedFor[x] = found = true; // Our pattern truly exist!!!
+      this.craftingList.removeIf(details -> {
+        for (int x = 0; x < accountedFor.length; x++) {
+          if (details instanceof VirtualPatternHelper) {
+            if (!packageList.isEmpty()) {
+              IAEItemStack[] in = details.getCondensedOutputs();
+              for (IAEItemStack iaeItemStack : in) {
+                ItemStack is = iaeItemStack == null ? ItemStack.EMPTY : iaeItemStack.asItemStackRepresentation();
+                if (!is.isEmpty() && is.getItem() == TB_ItemHandlers.itemPackage && packageList.stream().anyMatch(s -> ItemStack.areItemStackTagsEqual(s, is))) {
+                  return false;
+                }
               }
             }
-          }
+          } else return false;
         }
-
-        if (!found) {
-          removed = true;
-          i.remove();
-        }
-      }
+        return true;
+      });
     }
-
-    boolean newPattern = false;
 
     for (int x = 0; x < accountedFor.length; x++) {
       if (!accountedFor[x]) {
-        newPattern = true;
         this.addToCraftingList(this.patterns.getStackInSlot(x));
       }
     }
+
     try {
       this.gridProxy.getGrid().postEvent(new MENetworkCraftingPatternChange(this, this.gridProxy.getNode()));
     } catch (GridAccessException e) {
@@ -391,7 +318,7 @@ public class DualityCraftingManager
   }
 
   private boolean hasWorkToDo() {
-    return this.hasItemsToSend() || this.hasItemsToSendOnSat() || this.hasPkgToCreate();
+    return this.hasItemsToSend() || this.hasPkgToCreate();
   }
 
   public void notifyNeighbors() {
@@ -424,16 +351,15 @@ public class DualityCraftingManager
           this.craftingList = new ArrayList<>();
         }
 
-        IAEItemStack[] in = details.getInputs();
-        IAEItemStack[] cin = details.getCondensedInputs();
-
         List<ItemStack> packageList = new ArrayList<>();
+
+        final IAEItemStack[] in = details.getInputs();
+        final IAEItemStack[] cin = details.getCondensedInputs();
+
         visitArray(packageList, in, false);
         visitArray(packageList, cin, false);
-        packageList.stream().map(pkg -> {
-          assert pkg.getTagCompound() != null; // Remove NPE warning
-          return VirtualPatternAE.newPattern(new ItemStack(pkg.getTagCompound().getCompoundTag("__itemHold")), pkg);
-        }).forEach(this.craftingList::add);
+
+        packageList.stream().map(pkg -> VirtualPatternAE.newPattern(NBTHelper.getItemStack(pkg, true, true), pkg)).forEach(this.craftingList::add);
 
         this.craftingList.add(details);
       }
@@ -445,13 +371,9 @@ public class DualityCraftingManager
   }
 
   private boolean hasItemsToSend() {
-    return this.waitingToSend != null && !this.waitingToSend.isEmpty();
-  }
-
-  private boolean hasItemsToSendOnSat() {
-    if (this.waitingToSendOnSat != null) {
-      for (String satName : this.waitingToSendOnSat.keySet()) {
-        if (!this.waitingToSendOnSat.get(satName).isEmpty()) {
+    if (this.waitingToSend != null) {
+      for (String satName : this.waitingToSend.keySet()) {
+        if (!this.waitingToSend.get(satName).isEmpty()) {
           return true;
         }
       }
@@ -525,67 +447,24 @@ public class DualityCraftingManager
       return TickRateModulation.SLEEP;
     }
 
-    //Previous version might have items saved in this list
-    //recover them
-    if (this.hasItemsToSend()) {
-      this.pushItemsOutMain();
-    }
-
-    if (this.hasItemsToSendOnSat()) {
-      this.pushItemsOutCustom(this.waitingToSendOnSat.keySet());
-    }
-
     if (this.hasPkgToCreate()) {
       this.createPkg();
       return TickRateModulation.URGENT;
     }
 
+    if (this.hasItemsToSend()) {
+      this.pushItemsOutCustom();
+    }
+
     return this.hasWorkToDo() ? TickRateModulation.SLOWER : TickRateModulation.SLEEP;
   }
 
-  private void pushItemsOutMain() {
-    if (!this.hasItemsToSend() || this.mainSatName.isEmpty()) {
+  private void pushItemsOutCustom() {
+    if (!this.hasItemsToSend()) {
       return;
     }
 
-    final PartSatelliteBus part = this.findSatellite(mainSatName);
-    if (part == null) return;
-
-    final World w = part.getTile().getWorld();
-    final TileEntity te = w.getTileEntity(part.getTile().getPos().offset(part.getTargets()));
-    final InventoryAdaptor ad = InventoryAdaptor.getAdaptor(te, part.getTargets().getOpposite());
-    if (ad == null) return;
-
-    final Iterator<ItemStack> i = this.waitingToSend.iterator();
-
-    while (i.hasNext()) {
-      ItemStack whatToSend = i.next();
-
-      final ItemStack result = ad.addItems(whatToSend);
-
-      if (result.isEmpty()) {
-        whatToSend = ItemStack.EMPTY;
-      } else {
-        whatToSend.setCount(result.getCount());
-        whatToSend.setTagCompound(result.getTagCompound());
-      }
-
-      if (whatToSend.isEmpty()) {
-        i.remove();
-      }
-    }
-
-    if (this.waitingToSend.isEmpty()) {
-      this.waitingToSend = null;
-    }
-  }
-
-  private void pushItemsOutCustom(final Set<String> satList) {
-    if (!this.hasItemsToSendOnSat()) {
-      return;
-    }
-
-    for (String satName : satList){
+    for (String satName : this.waitingToSend.keySet()) {
       final PartSatelliteBus part = findSatellite(satName);
       if (part == null) return;
 
@@ -594,7 +473,7 @@ public class DualityCraftingManager
       final InventoryAdaptor ad = InventoryAdaptor.getAdaptor(te, part.getTargets().getOpposite());
       if (ad == null) return;
 
-      Iterator<ItemStack> i = this.waitingToSendOnSat.get(satName).iterator();
+      Iterator<ItemStack> i = this.waitingToSend.get(satName).iterator();
 
       while (i.hasNext()) {
         ItemStack whatToSend = i.next();
@@ -614,8 +493,8 @@ public class DualityCraftingManager
       }
     }
 
-    if (this.waitingToSendOnSat.isEmpty()) {
-      this.waitingToSendOnSat = null;
+    if (this.waitingToSend.isEmpty()) {
+      this.waitingToSend = null;
     }
   }
 
@@ -658,110 +537,140 @@ public class DualityCraftingManager
   @Override
   public boolean pushPattern(final ICraftingPatternDetails patternDetails, final InventoryCrafting table) {
     if (patternDetails instanceof VirtualPatternHelper) {
-      ItemStack first = patternDetails.getCondensedOutputs()[0].getDefinition();
-      // If pattern has output contains package, we will working here first instead
-      if (first.getItem() == TB_ItemHandlers.itemPackage && first.getTagCompound() != null && !first.getTagCompound().isEmpty()) {
-        this.addToCreatePkgList(first);
+      ItemStack output = patternDetails.getCondensedOutputs()[0].getDefinition();
+      // If pattern has output contains package, we will work here first instead
+      if (output.getItem() == TB_ItemHandlers.itemPackage && !NBTHelper.getItemStack(output, true, true).isEmpty()) {
+        this.addToCreatePkgList(output);
         return true;
       }
     }
 
-    if (this.hasItemsToSend() || this.hasItemsToSendOnSat() || !this.gridProxy.isActive() || !this.craftingList.contains(patternDetails) || this.blockingChecker()) {
+    if (this.hasItemsToSend() || this.hasItemsToSend() || !this.gridProxy.isActive() || !this.craftingList.contains(patternDetails) || this.satelliteList != null) {
       return false;
     }
 
-    final PartSatelliteBus mainSat = this.findSatellite(this.mainSatName);
-    if (mainSat == null) return false;
-    if (!this.blockingChecker()) {
-      if (this.isSatListValid()) this.satelliteList = null;
-      if (this.acceptsItems(mainSat.getInvAdaptor(), table)) {
-        for (int x = 0; x < table.getSizeInventory(); x++) {
-          final ItemStack is = table.getStackInSlot(x);
-          if (!is.isEmpty()) {
-            if (!NBTHelper.getItemStack(is).isEmpty()) {
-              String satName = NBTHelper.getItemInfo(is, "destination");
-              if (!satName.isEmpty()) this.addToSatList(satName);
-            } else {
-              this.addToSendList(is);
-              table.removeStackFromSlot(x);
-            }
-          }
+    for (int x = 0; x < table.getSizeInventory(); x++) {
+      final ItemStack is = table.getStackInSlot(x);
+      if (!is.isEmpty()) {
+        if (is.getItem() == TB_ItemHandlers.itemPackage && !NBTHelper.getItemStack(is, true, true).isEmpty()) {
+          String satName = NBTHelper.getItemInfo(is, ItemInfo.DESTINATION);
+          if (!satName.isEmpty()) this.addToSatList(satName);
+          else return this.cleanCrafting();
+        } else {
+          if (!mainSatName.isEmpty()) this.addToSatList(mainSatName);
+          else return this.cleanCrafting();
         }
       }
     }
 
-    if (this.isSatListValid() && !this.blockingChecker()) {
+    if (!this.blockCheckAll()) {
       for (String satName : this.satelliteList) {
         final PartSatelliteBus sat = this.findSatellite(satName);
-        if (sat != null) {
-          final World w = sat.getTile().getWorld();
-          final TileEntity te = w.getTileEntity(sat.getTile().getPos().offset(sat.getTargets()));
-          InventoryAdaptor ad = InventoryAdaptor.getAdaptor(te, sat.getTargets().getOpposite());
-          if (this.acceptsItems(ad, table)) {
-            for (int x = 0; x < table.getSizeInventory(); x++) {
-              final ItemStack is = table.getStackInSlot(x);
-              if (!is.isEmpty() && is.getItem() == TB_ItemHandlers.itemPackage && is.getTagCompound() != null && !is.getTagCompound().isEmpty()) {
-                String name = NBTHelper.getItemInfo(is, "destination");
-                if (!name.isEmpty() && name.equals(satName)) {
-                  ItemStack holder = NBTHelper.getItemStack(is);
-                  this.addToSendListOnSat(holder, satName);
+        if (sat == null) return this.cleanCrafting();
+        final World w = sat.getTile().getWorld();
+        final TileEntity te = w.getTileEntity(sat.getTile().getPos().offset(sat.getTargets()));
+        InventoryAdaptor ad = InventoryAdaptor.getAdaptor(te, sat.getTargets().getOpposite());
+        if (this.acceptsItems(ad, table)) {
+          for (int x = 0; x < table.getSizeInventory(); x++) {
+            final ItemStack is = table.getStackInSlot(x);
+            if (!is.isEmpty()) {
+              if (is.getItem() == TB_ItemHandlers.itemPackage) {
+                String name = NBTHelper.getItemInfo(is, ItemInfo.DESTINATION);
+                ItemStack holder = NBTHelper.getItemStack(is, true, false);
+                if (satName.equals(name) && !holder.isEmpty()) {
+                  this.addToSendListOnSat(satName, holder);
                   table.removeStackFromSlot(x);
                 }
+              } else {
+                this.addToSendListOnSat(mainSatName, is);
+                table.removeStackFromSlot(x);
               }
             }
           }
         }
       }
+      if (isTableEmpty(table)) {
+        this.satelliteList = null;
+        this.pushItemsOutCustom();
+        return true;
+      }
     }
-
-    if (!this.isTableEmpty(table)) {
-      this.resetWork();
-      return false;
-    }
-
-    this.pushItemsOutMain();
-    this.pushItemsOutCustom(satelliteList);
-    return true;
+    return this.cleanCrafting();
   }
 
   @Override
   public boolean isBusy() {
-    return this.hasItemsToSend() || this.hasItemsToSendOnSat() || (this.isBlocking() && this.blockingChecker());
+    boolean allBusy = true;
+
+    if (this.waitingToSend != null && !this.waitingToSend.isEmpty()) {
+      for (String satName : this.waitingToSend.keySet()) {
+        if (!this.blockCheckByName(satName)) {
+          allBusy = false;
+        }
+      }
+    } else allBusy = false;
+
+    return this.hasItemsToSend() || this.hasItemsToSend() || allBusy;
   }
 
-  /* Check if any sat in satelliteList or mainSat is available or not.
+  /** Using satName to check if sat is available or not.
    */
   @SuppressWarnings("ConstantConditions") // Remove NPE warning
-  private boolean blockingChecker() {
-    boolean isBusy = false;
+  private boolean blockCheckByName(String satName) {
     if (this.isBlocking()) {
-      final Set<String> satList = this.satelliteList;
-      if (satList != null && !satList.isEmpty()) {
-        satList.add(mainSatName);
-        for (String satName : satList) {
-          final PartSatelliteBus sat = this.findSatellite(satName);
-          if (sat == null) return true;
-          InventoryAdaptor ad = sat.getInvAdaptor();
-          if (ad == null) {
-            isBusy = true;
-          } else {
-            final TileEntity te = sat.getNeighborTE();
-            final World w = te.getWorld();
-            IPhantomTile phantomTE;
-            if (Loader.isModLoaded("actuallyadditions") && te instanceof IPhantomTile) {
-              phantomTE = ((IPhantomTile) te);
-              if (phantomTE.hasBoundPosition()) {
-                TileEntity phantom = w.getTileEntity(phantomTE.getBoundPosition());
-                if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(phantomTE.getBoundPosition()).getBlock().getRegistryName().getNamespace())) {
-                  isBusy = this.isCustomInvBlocking(phantom, sat.getTargets());
-                }
-              }
-            } else if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(sat.getTile().getPos().offset(sat.getTargets())).getBlock().getRegistryName().getNamespace())) {
-              isBusy = this.isCustomInvBlocking(te, sat.getTargets());
-            } else isBusy = this.invIsBlocked(ad);
+      final PartSatelliteBus sat = this.findSatellite(satName);
+      if (sat == null) return true;
+      InventoryAdaptor ad = sat.getInvAdaptor();
+      if (ad == null) return true;
+      final TileEntity te = sat.getNeighborTE();
+      final World w = te.getWorld();
+      IPhantomTile phantomTE;
+      if (Loader.isModLoaded("actuallyadditions") && te instanceof IPhantomTile) {
+        phantomTE = ((IPhantomTile) te);
+        if (phantomTE.hasBoundPosition()) {
+          TileEntity phantom = w.getTileEntity(phantomTE.getBoundPosition());
+          if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(phantomTE.getBoundPosition()).getBlock().getRegistryName().getNamespace())) {
+            return this.isCustomInvBlocking(phantom, sat.getTargets());
           }
-          if (isBusy) break;
         }
+      } else if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(sat.getTile().getPos().offset(sat.getTargets())).getBlock().getRegistryName().getNamespace())) {
+        return this.isCustomInvBlocking(te, sat.getTargets());
+      } else {
+        return this.invIsBlocked(ad);
+      }
+    }
+
+    return false;
+  }
+
+  /** Check any sat in satelliteList if is available or not.
+   */
+  @SuppressWarnings("ConstantConditions") // Remove NPE warning
+  private boolean blockCheckAll() {
+    boolean isBusy = false;
+    if (this.isBlocking() && this.satelliteList != null) {
+      for (String satName : this.satelliteList) {
+        final PartSatelliteBus sat = this.findSatellite(satName);
+        if (sat == null) return true;
+        InventoryAdaptor ad = sat.getInvAdaptor();
+        if (ad == null) return true;
+        final TileEntity te = sat.getNeighborTE();
+        final World w = te.getWorld();
+        IPhantomTile phantomTE;
+        if (Loader.isModLoaded("actuallyadditions") && te instanceof IPhantomTile) {
+          phantomTE = ((IPhantomTile) te);
+          if (phantomTE.hasBoundPosition()) {
+            TileEntity phantom = w.getTileEntity(phantomTE.getBoundPosition());
+            if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(phantomTE.getBoundPosition()).getBlock().getRegistryName().getNamespace())) {
+              isBusy = this.isCustomInvBlocking(phantom, sat.getTargets());
+            }
+          }
+        } else if (NonBlockingItems.INSTANCE.getMap().containsKey(w.getBlockState(sat.getTile().getPos().offset(sat.getTargets())).getBlock().getRegistryName().getNamespace())) {
+          isBusy = this.isCustomInvBlocking(te, sat.getTargets());
+        } else {
+          isBusy = this.invIsBlocked(ad);
+        }
+        if (isBusy) break;
       }
     }
 
@@ -811,19 +720,20 @@ public class DualityCraftingManager
 
   public void addDrops(final List<ItemStack> drops) {
     if (this.waitingToSend != null) {
-      for (final ItemStack is : this.waitingToSend) {
-        if (!is.isEmpty()) {
-          drops.add(is);
-        }
-      }
-    }
-
-    if (this.waitingToSendOnSat != null) {
-      for (List<ItemStack> itemList : this.waitingToSendOnSat.values()) {
+      for (List<ItemStack> itemList : this.waitingToSend.values()) {
         for (final ItemStack is : itemList) {
           if (!is.isEmpty()) {
             drops.add(is);
           }
+        }
+      }
+    }
+
+    if (this.createPkgList != null) {
+      for (final ItemStack is : this.createPkgList) {
+        if (!is.isEmpty()) {
+          // Return items instead of not useful placeholder
+          drops.add(NBTHelper.getItemStack(is, true, false));
         }
       }
     }
@@ -882,8 +792,12 @@ public class DualityCraftingManager
     }
   }
 
-  public String getSatellite() {
+  public String getSatelliteName() {
     return this.mainSatName;
+  }
+
+  public PartSatelliteBus getSatellitePart() {
+    return this.findSatellite(this.mainSatName);
   }
 
   public void setSatellite(final String newValue) {
@@ -907,48 +821,43 @@ public class DualityCraftingManager
     this.createPkgList = null;
   }
 
-  private void visitArray(List<ItemStack> packageList, IAEItemStack[] inputArray, boolean isPlaceholder) {
-    for (int i = 0 ; i < inputArray.length ; i++ ) {
-      if (inputArray[i] != null) {
-        ItemStack is = inputArray[i].getDefinition();
+  private void visitArray(List<ItemStack> output, IAEItemStack[] input, boolean isPlaceholder) {
+    for (int i = 0 ; i < input.length ; i++ ) {
+      if (input[i] != null) {
+        ItemStack is = input[i].createItemStack();
         if (is.getItem() == TB_ItemHandlers.itemPackage) {
-          if(is.hasTagCompound()) {
-            assert is.getTagCompound() != null; // Remove NPE warning
-            if (is.getTagCompound().getBoolean("__actContainer") == isPlaceholder) {
-              if (!isPlaceholder) {
-                is.getTagCompound().setBoolean("__actContainer", true);
-                inputArray[i] = ITEMS.createStack(is);
-              }
+          if(is.hasTagCompound() && is.getTagCompound().getBoolean("__actContainer") == isPlaceholder) {
+            if (!isPlaceholder) {
+              is = is.copy();
+              is.getTagCompound().setBoolean("__actContainer", true);
+              input[i] = ITEMS.createStack(is);
             }
           }
-          packageList.add(is);
+          is.setCount(1);
+          output.add(is);
         }
       }
     }
   }
 
+  private boolean cleanCrafting() {
+    this.satelliteList = null;
+    this.waitingToSend = null;
+    return false;
+  }
+
   public PartSatelliteBus findSatellite(String name) {
-    if (name.equals("")) {
-      return null;
-    }
-    for (final IGridNode node : this.gridProxy.getNode().getGrid().getMachines(PartSatelliteBus.class)) {
-      IGridHost h = node.getMachine();
-      if(h instanceof PartSatelliteBus){
-        PartSatelliteBus part = (PartSatelliteBus) h;
-        if(part.getSatellitePipeName().equals(name)){
-          return part;
+    if (!name.equals("")) {
+      for (final IGridNode node : this.gridProxy.getNode().getGrid().getMachines(PartSatelliteBus.class)) {
+        IGridHost h = node.getMachine();
+        if (h instanceof PartSatelliteBus) {
+          PartSatelliteBus part = (PartSatelliteBus) h;
+          if (part.getSatellitePipeName().equals(name)) {
+            return part;
+          }
         }
       }
     }
     return null;
-  }
-
-  private void resetWork() {
-    this.waitingToSend = null;
-    this.waitingToSendOnSat = null;
-  }
-
-  private boolean isSatListValid() {
-    return this.satelliteList != null && !this.satelliteList.isEmpty();
   }
 }

@@ -112,10 +112,10 @@ final class IntegrationNode {
       }
     }
 
-    if (stage == IntegrationStage.POST_INIT && TestBridge.isLoggingEnabled()) {
+    if (stage == IntegrationStage.POST_INIT) {
       if (this.getState() == IntegrationStage.FAILED) {
         TestBridge.log.info(this.displayName + " - Integration Disabled");
-        if (!(this.exception instanceof ModNotInstalledException) && TB_Config.instance().isFeatureEnabled(TB_Config.TBFeature.INTEGRATION_LOGGING)) {
+        if (!(this.exception instanceof ModNotInstalledException)) {
           TestBridge.log.log(Level.DEBUG, "Exception: ", this.exception);
         }
       } else {

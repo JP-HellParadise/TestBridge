@@ -32,7 +32,7 @@ public class ContainerSatelliteSelect extends AEBaseContainer {
     this.verifyPermissions(SecurityPermissions.BUILD, false);
 
     if (Platform.isServer()) {
-      this.satName = this.cmHost.getSatellite();
+      this.satName = this.cmHost.getSatelliteName();
     }
   }
 

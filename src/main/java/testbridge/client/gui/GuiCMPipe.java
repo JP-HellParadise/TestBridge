@@ -16,6 +16,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import logisticspipes.gui.popup.GuiSelectSatellitePopup;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.LPItems;
 import logisticspipes.modules.LogisticsModule;
@@ -37,9 +38,9 @@ import network.rs485.logisticspipes.util.TextUtil;
 
 import testbridge.core.TB_ItemHandlers;
 import testbridge.client.popup.GuiSelectResultPopup;
-import testbridge.client.popup.GuiSelectSatellitePopup;
 import testbridge.helpers.CrafterSlot;
 import testbridge.helpers.DummyContainer;
+import testbridge.interfaces.ITranslationKey;
 import testbridge.modules.TB_ModuleCM;
 import testbridge.modules.TB_ModuleCM.BlockingMode;
 import testbridge.network.guis.pipe.CMGuiProvider;
@@ -48,14 +49,13 @@ import testbridge.network.packets.cmpipe.CMGui;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.upgrades.ModuleUpgradeManager;
 
-public class GuiCMPipe extends LogisticsBaseGuiScreen {
+public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey {
 
-  @Getter
-  private static final String PREFIX = "gui.crafting_manager.";
+  private final String PREFIX = "gui.crafting_manager.";
   private final boolean hasBufferUpgrade;
   private final boolean hasContainer;
   private final PipeCraftingManager pipeCM;
-  private final Slot[] upgradeslot;
+  private final Slot[] upgradeSlot;
   private final int[] excludedSlotIDs;
   private final PropertyLayer propertyLayer;
   private final PropertyLayer.ValuePropertyOverlay<BlockingMode, EnumProperty<BlockingMode>> blockingModeOverlay;
@@ -83,12 +83,12 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     ySize = 167;
 
     // Create upgrade slot
-    upgradeslot = new Slot[2 * pipeCM.getChassisSize()];
+    upgradeSlot = new Slot[2 * pipeCM.getChassisSize()];
     for (int i = 0; i < pipeCM.getChassisSize(); i++) {
       final int fI = i;
       ModuleUpgradeManager upgradeManager = this.pipeCM.getModuleUpgradeManager(i);
-      upgradeslot[i * 2]  = dummy.addUpgradeSlot(0, upgradeManager, 0, xSize, 0, itemStack -> CMGuiProvider.checkStack(itemStack, this.pipeCM, fI));
-      upgradeslot[i * 2 + 1] = dummy.addUpgradeSlot(1, upgradeManager, 1, xSize + 18, 0, itemStack -> CMGuiProvider.checkStack(itemStack, this.pipeCM, fI));
+      upgradeSlot[i * 2]  = dummy.addUpgradeSlot(0, upgradeManager, 0, xSize, 0, itemStack -> CMGuiProvider.checkStack(itemStack, this.pipeCM, fI));
+      upgradeSlot[i * 2 + 1] = dummy.addUpgradeSlot(1, upgradeManager, 1, xSize + 18, 0, itemStack -> CMGuiProvider.checkStack(itemStack, this.pipeCM, fI));
     }
 
     excludedSlotIDs = new int[3];
@@ -131,15 +131,15 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     buttonList.clear();
     extentionControllerLeft.clear();
 
-    CMExtention extention = new CMExtention("gui.satellite.GuiName", new ItemStack(LPItems.pipeSatellite), 0);
-    extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(1, guiLeft - 40 / 2 - 18, guiTop + 25, 37, 10, TextUtil.translate(PREFIX + "Select")))));
-    extentionControllerLeft.addExtention(extention);
-    extention = new CMExtention("gui.result.GuiName" , new ItemStack(TB_ItemHandlers.pipeResult), 1);
-    extention.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(2, guiLeft - 40 / 2 - 18, guiTop + 25, 37, 10, TextUtil.translate(PREFIX + "Select")))));
-    extentionControllerLeft.addExtention(extention);
+    CMExtension extension = new CMExtension("gui.satellite.GuiName", new ItemStack(LPItems.pipeSatellite), 0);
+    extension.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(1, guiLeft - 40 / 2 - 18, guiTop + 25, 37, 10, TextUtil.translate(PREFIX + "Select")))));
+    extentionControllerLeft.addExtention(extension);
+    extension = new CMExtension("gui.result.GuiName" , new ItemStack(TB_ItemHandlers.pipeResult), 1);
+    extension.registerButton(extentionControllerLeft.registerControlledButton(addButton(new SmallGuiButton(2, guiLeft - 40 / 2 - 18, guiTop + 25, 37, 10, TextUtil.translate(PREFIX + "Select")))));
+    extentionControllerLeft.addExtention(extension);
 
     if (hasBufferUpgrade) {
-      BufferExtention buffered = new BufferExtention(new ItemStack(TB_ItemHandlers.upgradeBuffer));
+      BufferExtension buffered = new BufferExtension(new ItemStack(TB_ItemHandlers.upgradeBuffer));
       buffered.registerButton(extentionControllerLeft.registerControlledButton(addButton(blockingButton = new GuiButton(4, guiLeft - 143, guiTop + 23, 140, 14, getModeText()))));
       for (int i = 0; i < 3; i++) {
         buffered.registerSlot(excludedSlotIDs[i]);
@@ -180,7 +180,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
   @Override
   protected void drawGuiContainerForegroundLayer(int par1, int par2) {
     super.drawGuiContainerForegroundLayer(par1, par2);
-    drawCenteredString(TextUtil.translate(GuiCMPipe.PREFIX + "CMName"), xSize / 2, 5, 0x404040);
+    drawCenteredString(TextUtil.translate(PREFIX + "CMName"), xSize / 2, 5, 0x404040);
     mc.fontRenderer.drawString(TextUtil.translate("key.categories.inventory"), 7, ySize - 93, 0x404040);
   }
 
@@ -195,8 +195,8 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     for (int i = 0; i < pipeCM.getChassisSize(); i++) {
       if (extendedSlot != i){
         assert mc.currentScreen != null;
-        upgradeslot[i * 2].xPos = upgradeslot[i * 2 + 1].xPos = mc.currentScreen.width;
-        upgradeslot[i * 2].yPos = upgradeslot[i * 2 + 1].yPos = mc.currentScreen.height;
+        upgradeSlot[i * 2].xPos = upgradeSlot[i * 2 + 1].xPos = mc.currentScreen.width;
+        upgradeSlot[i * 2].yPos = upgradeSlot[i * 2 + 1].yPos = mc.currentScreen.height;
       } else {
         GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop - 27, guiLeft + 92, guiTop, zLevel, true);
         GuiGraphics.drawSlotBackground(mc, guiLeft + 50, guiTop - 22);
@@ -217,9 +217,9 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
       // Show current slot
       extendedButton.displayString = "Slot: " + (slotId < 9 ? "0" + (slotId + 1) : (slotId + 1));
       //Show up next slot
-      upgradeslot[slotId * 2].xPos = xPos;
-      upgradeslot[slotId * 2 + 1].xPos = xPos + 18;
-      upgradeslot[slotId * 2].yPos = upgradeslot[slotId * 2 + 1].yPos = yPos;
+      upgradeSlot[slotId * 2].xPos = xPos;
+      upgradeSlot[slotId * 2 + 1].xPos = xPos + 18;
+      upgradeSlot[slotId * 2].yPos = upgradeSlot[slotId * 2 + 1].yPos = yPos;
       // Save it for later
       extendedSlot = slotId;
     }
@@ -228,7 +228,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
   private void openSubGuiForSatResultSelection(int id) {
     if (pipeCM.getModules().getSlot().isInWorld()) {
       if (id == 1) {
-        this.setSubGui(new GuiSelectSatellitePopup(pipeCM.getModules().getBlockPos(), uuid ->
+        this.setSubGui(new GuiSelectSatellitePopup(pipeCM.getModules().getBlockPos(),false, uuid ->
             MainProxy.sendPacketToServer(PacketHandler.getPacket(CMPipeSetSatResultPacket.class).setPipeUUID(uuid).setInteger(id).setModulePos(pipeCM.getModules()))));
       } else {
         this.setSubGui(new GuiSelectResultPopup(pipeCM.getModules().getBlockPos(), uuid ->
@@ -252,12 +252,12 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     return TextUtil.translate(PREFIX + "blocking." + blockingModeOverlay.get().toString().toLowerCase());
   }
 
-  private final class CMExtention extends GuiExtention {
+  private final class CMExtension extends GuiExtention {
     private final ItemStack showItem;
     private final String translationKey;
     private final int guiButton;
 
-    public CMExtention(String translationKey, ItemStack showItem, int guiButton) {
+    public CMExtension(String translationKey, ItemStack showItem, int guiButton) {
       this.translationKey = translationKey;
       this.showItem = showItem;
       this.guiButton = guiButton;
@@ -291,7 +291,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
         String pipeID = guiButton == 0 ? pipeCM.getModules().getClientSideSatResultNames().satelliteName : pipeCM.getModules().getClientSideSatResultNames().resultName;
         int maxWidth = 70;
         if (pipeID.isEmpty()) {
-          drawCenteredString(TextUtil.translate("gui.crafting.Off"), left + maxWidth / 2 + 7, top + 23, 0x404040);
+          drawCenteredString(TextUtil.translate(top$cm_prefix + "none"), left + maxWidth / 2 + 7, top + 23, 0x404040);
         } else {
           String name = TextUtil.getTrimmedString(pipeID, maxWidth, mc.fontRenderer, "...");
           drawCenteredString(name, left + maxWidth / 2 + 7, top + 23, 0x404040);
@@ -300,10 +300,10 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
     }
   }
 
-  private final class BufferExtention extends GuiExtention {
+  private final class BufferExtension extends GuiExtention {
     private final ItemStack showItem;
 
-    public BufferExtention(ItemStack showItem) {
+    public BufferExtension(ItemStack showItem) {
       this.showItem = showItem;
     }
 

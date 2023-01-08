@@ -9,6 +9,7 @@ import appeng.api.networking.crafting.ICraftingRequester;
 import appeng.core.sync.GuiBridge;
 
 import testbridge.helpers.DualityCraftingManager;
+import testbridge.part.PartSatelliteBus;
 
 public interface ICraftingManagerHost extends ICraftingProvider, IUpgradeableHost, ICraftingRequester {
 
@@ -18,7 +19,9 @@ public interface ICraftingManagerHost extends ICraftingProvider, IUpgradeableHos
 
   void saveChanges();
 
-  String getSatellite();
+  String getSatelliteName();
+
+  PartSatelliteBus getSatellitePart();
 
   void setSatellite(String satName);
 

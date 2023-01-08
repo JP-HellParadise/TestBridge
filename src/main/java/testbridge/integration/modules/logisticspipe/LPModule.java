@@ -17,7 +17,6 @@ import logisticspipes.recipes.RecipeManager;
 
 import testbridge.client.TB_Textures;
 import testbridge.core.TB_ItemHandlers;
-import testbridge.core.TestBridge;
 import testbridge.integration.IIntegrationModule;
 
 public class LPModule implements IIntegrationModule {
@@ -37,12 +36,11 @@ public class LPModule implements IIntegrationModule {
   private static void loadRecipes() {
     ResourceLocation resultPipe = TB_ItemHandlers.pipeResult.getRegistryName();
     ResourceLocation craftingMgrPipe = TB_ItemHandlers.pipeCraftingManager.getRegistryName();
-    ResourceLocation bufferUpgrage = TB_ItemHandlers.upgradeBuffer.getRegistryName();
+    ResourceLocation bufferUpgrade = TB_ItemHandlers.upgradeBuffer.getRegistryName();
 
     LogisticsProgramCompilerTileEntity.programByCategory.get(LogisticsProgramCompilerTileEntity.ProgrammCategories.MODDED).add(resultPipe);
     LogisticsProgramCompilerTileEntity.programByCategory.get(LogisticsProgramCompilerTileEntity.ProgrammCategories.MODDED).add(craftingMgrPipe);
-    LogisticsProgramCompilerTileEntity.programByCategory.get(LogisticsProgramCompilerTileEntity.ProgrammCategories.MODDED).add(bufferUpgrage);
-    ResourceLocation group = new ResourceLocation(TestBridge.MODID, "recipes");
+    LogisticsProgramCompilerTileEntity.programByCategory.get(LogisticsProgramCompilerTileEntity.ProgrammCategories.MODDED).add(bufferUpgrade);
 
     //  Result Pipe
     RecipeManager.craftingManager.addRecipe(new ItemStack(TB_ItemHandlers.pipeResult),
@@ -90,11 +88,6 @@ public class LPModule implements IIntegrationModule {
   private static Ingredient getIngredientForProgrammer(Item targetPipe) {
     ItemStack programmerStack = new ItemStack(LPItems.logisticsProgrammer);
     programmerStack.setTagCompound(new NBTTagCompound());
-
-    // Suppress NPE warning
-    assert programmerStack.getTagCompound() != null;
-    assert targetPipe.getRegistryName() != null;
-
     programmerStack.getTagCompound().setString("LogisticsRecipeTarget", targetPipe.getRegistryName().toString());
     return NBTIngredient.fromStacks(programmerStack);
   }

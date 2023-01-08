@@ -23,8 +23,8 @@ import testbridge.pipes.PipeCraftingManager;
 
 public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
 
-  private List<Slot> transferTop = new ArrayList();
-  private List<Slot> transferBottom = new ArrayList();
+  private final List<Slot> transferTop = new ArrayList<>();
+  private final List<Slot> transferBottom = new ArrayList<>();
 
   public DummyContainer(IInventory playerInventory, IInventory dummyInventory) {
     super(playerInventory, dummyInventory);
@@ -59,7 +59,7 @@ public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
   }
 
   /**
-   * Add a upgrade slot that will accept upgrade items.
+   * Add an upgrade slot that will accept upgrade items.
    *
    * @param slotId
    *            The slot number in the dummy IInventory this slot should map
@@ -381,12 +381,12 @@ public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
 
   private void handleSwitch(Slot slot2, @Nonnull ItemStack out, @Nonnull ItemStack in, EntityPlayer player) {
     if (slot2 instanceof CrafterSlot) {
-      TB_ModuleCM cmpipe = (TB_ModuleCM) ((CrafterSlot) slot2).get_pipe().getLogisticsModule();
+      TB_ModuleCM module = (TB_ModuleCM) ((CrafterSlot) slot2).get_pipe().getLogisticsModule();
       int moduleIndex = ((CrafterSlot) slot2).get_moduleIndex();
       if (out.getItem() == TB_ItemHandlers.moduleCrafter) {
-        if (cmpipe.hasModule(moduleIndex)) {
-          ItemModuleInformationManager.saveInformation(out, cmpipe.getModule(moduleIndex));
-          cmpipe.removeModule(moduleIndex);
+        if (module.hasModule(moduleIndex)) {
+          ItemModuleInformationManager.saveInformation(out, module.getModule(moduleIndex));
+          module.removeModule(moduleIndex);
         }
       }
     }

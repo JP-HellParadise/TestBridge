@@ -48,6 +48,7 @@ import testbridge.integration.modules.appliedenergistics2.AE2Module;
 import testbridge.helpers.DualityCraftingManager;
 import testbridge.helpers.interfaces.IBlocks_TB;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
+import testbridge.part.PartSatelliteBus;
 
 public class TileCraftingManager extends AENetworkInvTile implements IGridTickable, IInventoryDestination, ICraftingManagerHost, IPriorityHost {
   private final DualityCraftingManager duality = new DualityCraftingManager(this.getProxy(), this);
@@ -193,8 +194,13 @@ public class TileCraftingManager extends AENetworkInvTile implements IGridTickab
   }
 
   @Override
-  public String getSatellite() {
-    return this.duality.getSatellite();
+  public String getSatelliteName() {
+    return this.duality.getSatelliteName();
+  }
+
+  @Override
+  public PartSatelliteBus getSatellitePart() {
+    return this.duality.getSatellitePart();
   }
 
   @Override
@@ -226,8 +232,8 @@ public class TileCraftingManager extends AENetworkInvTile implements IGridTickab
         ((AppEngInternalInventory) inv).writeToNBT(output, "patterns");
       }
     }
-    if (!getSatellite().isEmpty())
-      output.setString("__satSelect", getSatellite());
+    if (!getSatelliteName().isEmpty())
+      output.setString("__satSelect", getSatelliteName());
     return output;
   }
 
@@ -245,7 +251,7 @@ public class TileCraftingManager extends AENetworkInvTile implements IGridTickab
 
       for (int i = 0; i < inv.getSlots(); i++) {
         if (target.getStackInSlot(i).getItem() instanceof ItemEncodedPattern) {
-          ItemStack blank = materials.blankPattern().maybeStack(target.getStackInSlot(i).getCount()).get();
+          ItemStack blank = materials.blankPattern().maybeStack(target.getStackInSlot(i).getCount()).orElse(ItemStack.EMPTY);
           if (!player.addItemStackToInventory(blank)) {
             player.dropItem(blank, true);
           }
