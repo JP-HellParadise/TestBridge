@@ -1,4 +1,4 @@
-package testbridge.helpers.datafixer;
+package testbridge.datafixer;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ModFixs;

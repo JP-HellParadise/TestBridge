@@ -2,8 +2,6 @@ package testbridge.client.gui;
 
 import java.io.IOException;
 
-import lombok.Getter;
-
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -38,9 +36,9 @@ import network.rs485.logisticspipes.util.TextUtil;
 
 import testbridge.core.TB_ItemHandlers;
 import testbridge.client.popup.GuiSelectResultPopup;
-import testbridge.helpers.CrafterSlot;
-import testbridge.helpers.DummyContainer;
-import testbridge.interfaces.ITranslationKey;
+import testbridge.helpers.inventory.CrafterSlot;
+import testbridge.helpers.inventory.DummyContainer;
+import testbridge.helpers.interfaces.ITranslationKey;
 import testbridge.modules.TB_ModuleCM;
 import testbridge.modules.TB_ModuleCM.BlockingMode;
 import testbridge.network.guis.pipe.CMGuiProvider;

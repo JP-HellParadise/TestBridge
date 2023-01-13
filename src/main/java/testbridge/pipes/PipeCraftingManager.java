@@ -22,12 +22,10 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
 import logisticspipes.LPItems;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.config.Configs;
 import logisticspipes.interfaces.*;
 import logisticspipes.interfaces.routing.*;
 import logisticspipes.items.ItemModule;
-import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.LogisticsModule;
@@ -53,7 +51,6 @@ import logisticspipes.ticks.HudUpdateTick;
 import logisticspipes.utils.EnumFacingUtil;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
-import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -65,13 +62,14 @@ import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.SlottedModule;
 
 import testbridge.client.gui.GuiCMPipe;
+import testbridge.core.TestBridge;
 import testbridge.helpers.CMTransportLayer;
-import testbridge.interfaces.ITranslationKey;
+import testbridge.helpers.interfaces.ITranslationKey;
 import testbridge.modules.TB_ModuleCM;
 import testbridge.modules.TB_ModuleCrafter;
-import testbridge.network.packets.pipe.CMOrientationPacket;
+import testbridge.network.packets.pipe.OrientationPacket;
 import testbridge.network.packets.pipe.CMPipeModuleContent;
-import testbridge.network.packets.pipe.RequestCMOrientationPacket;
+import testbridge.network.packets.pipe.RequestOrientationPacket;
 import testbridge.pipes.upgrades.BufferCMUpgrade;
 import testbridge.pipes.upgrades.ModuleUpgradeManager;
 import testbridge.client.TB_Textures;
@@ -80,12 +78,12 @@ import testbridge.client.TB_Textures;
 public class PipeCraftingManager extends CoreRoutedPipe
     implements ICraftItems, ISimpleInventoryEventHandler, ISendRoutedItem, IChassisPipe, IChangeListener, ISendQueueContentRecieiver, ITranslationKey {
 
+  private boolean initial = false;
   private final TB_ModuleCM moduleCM;
   private final ItemIdentifierInventory _moduleInventory;
   private final NonNullList<ModuleUpgradeManager> slotUpgradeManagers = NonNullList.create();
-  private boolean init = false;
-  public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
 
+  public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
   @Nullable
   private SingleAdjacent pointedAdjacent = null;
 
@@ -104,6 +102,495 @@ public class PipeCraftingManager extends CoreRoutedPipe
     }
     moduleCM = new TB_ModuleCM(getChassisSize(), this);
     moduleCM.registerHandler(this, this);
+  }
+
+  @Override
+  public TextureType getCenterTexture() {
+    return TB_Textures.TESTBRIDGE_CMPIPE_TEXTURE;
+  }
+
+  @Override
+  public TextureType getRoutedTexture(EnumFacing connection) {
+    if (getRouter().isSubPoweredExit(connection)) {
+      return TB_Textures.LOGISTICSPIPE_SUBPOWER_TEXTURE;
+    }
+    return TB_Textures.LOGISTICSPIPE_CHASSI_ROUTED_TEXTURE;
+  }
+
+  @Override
+  public TextureType getNonRoutedTexture(EnumFacing connection) {
+    if (pointedAdjacent != null && connection.equals(pointedAdjacent.getDir())) {
+      return TB_Textures.LOGISTICSPIPE_CHASSI_DIRECTION_TEXTURE;
+    }
+    if (isPowerProvider(connection)) {
+      return TB_Textures.LOGISTICSPIPE_POWERED_TEXTURE;
+    }
+    return TB_Textures.LOGISTICSPIPE_CHASSI_NOTROUTED_TEXTURE;
+  }
+
+  @Override
+  public void finishInit() {
+    super.finishInit();
+    moduleCM.finishInit();
+  }
+
+  @Override
+  public void writeToNBT(@Nonnull NBTTagCompound nbttagcompound) {
+    super.writeToNBT(nbttagcompound);
+    updateModuleInventory();
+    _moduleInventory.writeToNBT(nbttagcompound, "craftingmanager");
+    moduleCM.writeToNBT(nbttagcompound);
+    nbttagcompound.setInteger("Orientation", pointedAdjacent == null ? -1 : pointedAdjacent.getDir().ordinal());
+    for (int i = 0; i < getChassisSize(); i++) {
+      slotUpgradeManagers.get(i).writeToNBT(nbttagcompound, Integer.toString(i));
+    }
+  }
+
+  @Override
+  public void readFromNBT(@Nonnull NBTTagCompound nbttagcompound) {
+    super.readFromNBT(nbttagcompound);
+    _moduleInventory.readFromNBT(nbttagcompound, "craftingmanager");
+    moduleCM.readFromNBT(nbttagcompound);
+    int tmp = nbttagcompound.getInteger("Orientation");
+    if (tmp != -1) {
+      setPointedOrientation(EnumFacingUtil.getOrientation(tmp % 6));
+    }
+    for (int i = 0; i < getChassisSize(); i++) {
+      // TODO: remove after 1.12.2 update, backwards compatibility
+      final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(i);
+      if (idStack != null && !moduleCM.hasModule(i)) {
+        final Item stackItem = idStack.getItem().item;
+        if (stackItem instanceof ItemModule) {
+          final ItemModule moduleItem = (ItemModule) stackItem;
+          LogisticsModule module = moduleItem.getModule(null, this, this);
+          if (module != null) {
+            moduleCM.installModule(i, module);
+          }
+        }
+      }
+
+      if (i >= slotUpgradeManagers.size()) {
+        addModuleUpgradeManager();
+      }
+      slotUpgradeManagers.get(i).readFromNBT(nbttagcompound, Integer.toString(i));
+    }
+    // register slotted modules
+    moduleCM.slottedModules()
+        .filter(slottedModule -> !slottedModule.isEmpty())
+        .forEach(slottedModule -> {
+          LogisticsModule logisticsModule = Objects.requireNonNull(slottedModule.getModule());
+          // FIXME: rely on getModuleForItem instead
+          logisticsModule.registerHandler(this, this);
+          slottedModule.registerPosition();
+        });
+  }
+
+  @Override
+  public void onNeighborBlockChange() {
+    super.onNeighborBlockChange();
+
+    assert getWorld() != null;
+    if (!this.getWorld().isRemote && moduleCM.getBlockingMode().getValue().equals(TB_ModuleCM.BlockingMode.REDSTONE_PULSE) && getWorld().isBlockPowered(getPos())) {
+      moduleCM.startCrafting();
+    }
+  }
+
+  @Nullable
+  public LogisticsModule getSubModule(int slot) {
+    return moduleCM.getModule(slot);
+  }
+
+  @Override
+  @Nonnull
+  public IInventory getModuleInventory() {
+    updateModuleInventory();
+    return _moduleInventory;
+  }
+
+  private void updateModuleInventory() {
+    moduleCM.slottedModules().forEach(slottedModule -> {
+      if (slottedModule.isEmpty()) {
+        _moduleInventory.clearInventorySlotContents(slottedModule.getSlot());
+        return;
+      }
+      final LogisticsModule module = Objects.requireNonNull(slottedModule.getModule());
+      final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(slottedModule.getSlot());
+      ItemStack moduleStack;
+      if (idStack != null) {
+        moduleStack = idStack.getItem().makeNormalStack(1);
+      } else {
+        ResourceLocation resourceLocation = LPItems.modules.get(module.getLPName());
+        Item item = Item.REGISTRY.getObject(resourceLocation);
+        if (item == null) return;
+        moduleStack = new ItemStack(item);
+      }
+      ItemModuleInformationManager.saveInformation(moduleStack, module);
+      _moduleInventory.setInventorySlotContents(slottedModule.getSlot(), moduleStack);
+    });
+  }
+
+  public ModuleUpgradeManager getModuleUpgradeManager(int slot) {
+    return slotUpgradeManagers.get(slot);
+  }
+
+  private void addModuleUpgradeManager() {
+    slotUpgradeManagers.add(new ModuleUpgradeManager(this, upgradeManager));
+  }
+
+  @Override
+  public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
+    if (MainProxy.isServer(getWorld())) {
+      if (info instanceof CMTargetInformation) {
+        CMTargetInformation target = (CMTargetInformation) info;
+        LogisticsModule module = getSubModule(target.moduleSlot);
+        if (module instanceof IRequireReliableTransport) {
+          ((IRequireReliableTransport) module).itemArrived(item, info);
+        }
+      } else {
+        if (TestBridge.isDebug() && info != null) {
+          System.out.println(item);
+          new RuntimeException("[ItemArrived] Information weren't ment for a crafting manager pipe").printStackTrace();
+        }
+      }
+    }
+  }
+
+  @Override
+  public void itemLost(ItemIdentifierStack item, IAdditionalTargetInformation info) {
+    if (MainProxy.isServer(getWorld())) {
+      if (info instanceof PipeCraftingManager.CMTargetInformation) {
+        PipeCraftingManager.CMTargetInformation target = (PipeCraftingManager.CMTargetInformation) info;
+        LogisticsModule module = getSubModule(target.moduleSlot);
+        if (module instanceof IRequireReliableTransport) {
+          ((IRequireReliableTransport) module).itemLost(item, info);
+        }
+      } else {
+        if (TestBridge.isDebug()) {
+          System.out.println(item);
+          new RuntimeException("[ItemLost] Information weren't ment for a crafting manager pipe").printStackTrace();
+        }
+      }
+    }
+  }
+
+  @Override
+  public void InventoryChanged(IInventory inventory) {
+    boolean reInitGui = false;
+    for (int i = 0; i < inventory.getSizeInventory(); i++) {
+      ItemStack stack = inventory.getStackInSlot(i);
+      if (stack.isEmpty()) {
+        if (moduleCM.hasModule(i)) {
+          moduleCM.removeModule(i);
+          reInitGui = true;
+        }
+        continue;
+      }
+
+      final Item stackItem = stack.getItem();
+      if (stackItem instanceof ItemModule) {
+        LogisticsModule current = moduleCM.getModule(i);
+        LogisticsModule next = getModuleForItem(stack, moduleCM.getModule(i), this, this);
+        Objects.requireNonNull(next, "getModuleForItem returned null for " + stack);
+        next.registerPosition(ModulePositionType.SLOT, i);
+        if (current != next) {
+          moduleCM.installModule(i, next);
+          if (!MainProxy.isClient(getWorld())) {
+            ItemModuleInformationManager.readInformation(stack, next);
+          }
+          next.finishInit();
+        }
+        inventory.setInventorySlotContents(i, stack);
+      }
+    }
+    if (reInitGui) {
+      if (MainProxy.isClient(getWorld())) {
+        if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiCMPipe) {
+          FMLClientHandler.instance().getClient().currentScreen.initGui();
+        }
+      }
+    }
+    if (MainProxy.isServer(getWorld())) {
+      if (!localModeWatchers.isEmpty()) {
+        MainProxy.sendToPlayerList(PacketHandler.getPacket(CMPipeModuleContent.class)
+                .setIdentList(ItemIdentifierStack.getListFromInventory(_moduleInventory))
+                .setPosX(getX()).setPosY(getY()).setPosZ(getZ()),
+            localModeWatchers);
+      }
+    }
+  }
+
+  @Override
+  public void ignoreDisableUpdateEntity() {
+    if (!initial) {
+      initial = true;
+      if (MainProxy.isClient(getWorld())) {
+        MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestOrientationPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
+      }
+      InventoryChanged(_moduleInventory);
+    }
+  }
+
+  @Override
+  public final @Nullable LogisticsModule getLogisticsModule() {
+    return moduleCM;
+  }
+
+  @Nonnull
+  @Override
+  public TransportLayer getTransportLayer() {
+    if (_transportLayer == null) {
+      _transportLayer = new CMTransportLayer(this);
+    }
+    return _transportLayer;
+  }
+
+  @Override
+  public void onAllowedRemoval() {
+    _moduleInventory.removeListener(this);
+    if (MainProxy.isServer(getWorld())) {
+      updateModuleInventory();
+      _moduleInventory.dropContents(getWorld(), getX(), getY(), getZ());
+
+      for (int i = 0; i < getChassisSize(); i++) {
+        getModuleUpgradeManager(i).dropUpgrades();
+      }
+    }
+  }
+
+  @Override
+  public boolean handleClick(EntityPlayer entityplayer, SecuritySettings settings) {
+    if (entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty()) {
+      return false;
+    }
+
+    if (entityplayer.isSneaking() && SimpleServiceLocator.configToolHandler.canWrench(entityplayer, entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND), container)) {
+      if (MainProxy.isServer(getWorld())) {
+        if (settings == null || settings.openGui) {
+          ((PipeCraftingManager) container.pipe).nextOrientation();
+        } else {
+          entityplayer.sendMessage(new TextComponentTranslation("lp.chat.permissiondenied"));
+        }
+      }
+      SimpleServiceLocator.configToolHandler.wrenchUsed(entityplayer, entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND), container);
+      return true;
+    }
+
+    if (!entityplayer.isSneaking() && entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() instanceof ItemModule) {
+      if (MainProxy.isServer(getWorld())) {
+        if (settings == null || settings.openGui) {
+          return tryInsertingModule(entityplayer);
+        } else {
+          entityplayer.sendMessage(new TextComponentTranslation("lp.chat.permissiondenied"));
+        }
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  private boolean tryInsertingModule(EntityPlayer entityplayer) {
+    if (!isCraftingModule(entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND))) return false;
+    updateModuleInventory();
+    for (int i = 0; i < _moduleInventory.getSizeInventory(); i++) {
+      if (_moduleInventory.getIDStackInSlot(i) == null) {
+        _moduleInventory.setInventorySlotContents(i, entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).splitStack(1));
+        InventoryChanged(_moduleInventory);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean isCraftingModule(ItemStack itemStack) {
+    return itemStack.getItem() == Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
+  }
+
+  @Nullable
+  private LogisticsModule getModuleForItem(
+      @Nonnull ItemStack itemStack,
+      @Nullable LogisticsModule currentModule,
+      @Nullable IWorldProvider world,
+      @Nullable IPipeServiceProvider service
+  ) {
+    if (itemStack.isEmpty()) {
+      return null;
+    }
+
+    if (!isCraftingModule(itemStack)) {
+      return null;
+    }
+
+    if (currentModule != null) {
+      if (TB_ModuleCrafter.class.equals(currentModule.getClass())) {
+        return currentModule;
+      }
+    }
+
+    LogisticsModule newModule = new TB_ModuleCrafter();
+    newModule.registerHandler(world, service);
+    return newModule;
+  }
+
+  public void handleModuleItemIdentifierList(Collection<ItemIdentifierStack> _allItems) {
+    _moduleInventory.handleItemIdentifierList(_allItems);
+  }
+
+  @Override
+  public int sendQueueChanged(boolean force) {
+    if (MainProxy.isServer(getWorld())) {
+      if (Configs.MULTI_THREAD_NUMBER > 0 && !force) {
+        HudUpdateTick.add(getRouter());
+      } else {
+        if (localModeWatchers.size() > 0) {
+          LinkedList<ItemIdentifierStack> items = ItemIdentifierStack.getListSendQueue(_sendQueue);
+          MainProxy.sendToPlayerList(PacketHandler.getPacket(SendQueueContent.class).setIdentList(items).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
+          return items.size();
+        }
+      }
+    }
+    return 0;
+  }
+
+  public TB_ModuleCM getModules() {
+    return moduleCM;
+  }
+
+  @Override
+  public void setTile(TileEntity tile) {
+    super.setTile(tile);
+    moduleCM.slottedModules().forEach(SlottedModule::registerPosition);
+  }
+
+  @Override
+  public int getSourceID() {
+    return getRouterId();
+  }
+
+  @Override
+  public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemidCollection) {
+    // if we don't have a pointed inventory while buffer upgrade is on
+    // we can't be interested in anything
+    if (hasBufferUpgrade() && getPointedAdjacentOrNoAdjacent().inventories().isEmpty()) {
+      return;
+    }
+
+    for (int i = 0; i < getChassisSize(); i++) {
+      LogisticsModule module = getSubModule(i);
+      if (module != null) {
+        module.collectSpecificInterests(itemidCollection);
+      }
+    }
+  }
+
+  /** ICraftItems */
+  public final LinkedList<LogisticsOrder> _extras = new LinkedList<>();
+
+  @Override
+  public void registerExtras(IPromise promise) {
+    if (!(promise instanceof LogisticsPromise)) {
+      throw new UnsupportedOperationException("Extra has to be an item for a crafting manager pipe");
+    }
+    ItemIdentifierStack stack = new ItemIdentifierStack(((LogisticsPromise) promise).item, ((LogisticsPromise) promise).numberOfItems);
+    _extras.add(new LogisticsItemOrder(new DictResource(stack, null), null, IOrderInfoProvider.ResourceType.EXTRA, null));
+  }
+
+  @Override
+  public ItemSendMode getItemSendMode() {
+    return ItemSendMode.Fast;
+  }
+
+  @Override
+  public boolean canCraft(IResource toCraft) {
+    for (int i = 0; i < getChassisSize(); i++) {
+      LogisticsModule x = getSubModule(i);
+
+      if (x instanceof ICraftItems) {
+        if (((ICraftItems) x).canCraft(toCraft)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public ICraftingTemplate addCrafting(IResource toCraft) {
+    for (int i = 0; i < getChassisSize(); i++) {
+      LogisticsModule x = getSubModule(i);
+
+      if (x instanceof ICraftItems) {
+        if (((ICraftItems) x).canCraft(toCraft)) {
+          return ((ICraftItems) x).addCrafting(toCraft);
+        }
+      }
+    }
+    return null;
+
+    // trixy code goes here to ensure the right crafter answers the right request
+  }
+
+  @Override
+  public List<ItemIdentifierStack> getCraftedItems() {
+    List<ItemIdentifierStack> craftables = null;
+    for (int i = 0; i < getChassisSize(); i++) {
+      LogisticsModule x = getSubModule(i);
+
+      if (x instanceof ICraftItems) {
+        if (craftables == null) {
+          craftables = new LinkedList<>();
+        }
+        craftables.addAll(((ICraftItems) x).getCraftedItems());
+      }
+    }
+    return craftables;
+  }
+
+  @Nonnull
+  @Override
+  public ISlotUpgradeManager getUpgradeManager(ModulePositionType slot, int positionInt) {
+    if (slot != ModulePositionType.SLOT || positionInt >= slotUpgradeManagers.size()) {
+      if (TestBridge.isDebug()) {
+        new UnsupportedOperationException("Position info aren't for a crafting manager pipe. (" + slot + "/" + positionInt + ")").printStackTrace();
+      }
+      return super.getUpgradeManager(slot, positionInt);
+    }
+    return slotUpgradeManagers.get(positionInt);
+  }
+
+  public boolean hasBufferUpgrade() {
+    for (int i = 0 ; i < 9 ; i++) {
+      if (upgradeManager.getUpgrade(i) instanceof BufferCMUpgrade) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public IRouter getSatelliteRouterByUUID(UUID id) {
+    if (id == null) return null;
+    int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(id);
+    return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+  }
+
+  public IRouter getMainSatelliteRouter() {
+    final UUID satelliteUUID = getModules().getSatelliteUUID().getValue();
+    final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID);
+    return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+  }
+
+  public IRouter getMainResultRouter() {
+    final UUID resultUUID = getModules().getResultUUID().getValue();
+    final int resultRouterId = SimpleServiceLocator.routerManager.getIDforUUID(resultUUID);
+    return SimpleServiceLocator.routerManager.getRouter(resultRouterId);
+  }
+
+  public int getBlockingByInt() {
+    return this.moduleCM.getBlockingMode().getValue().ordinal();
+  }
+
+  public String getKeyBlockMode() {
+    return gui$cm_prefix + "blocking." + this.moduleCM.getBlockingMode().getValue().toString().toLowerCase();
   }
 
   /**
@@ -185,7 +672,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
     } else {
       newNeighbor = nextPointedOrientation(pointedAdjacent.getDir());
     }
-    final CMOrientationPacket packet = PacketHandler.getPacket(CMOrientationPacket.class);
+    final OrientationPacket packet = PacketHandler.getPacket(OrientationPacket.class);
     if (newNeighbor == null) {
       this.pointedAdjacent = null;
       packet.setDir(null);
@@ -207,301 +694,21 @@ public class PipeCraftingManager extends CoreRoutedPipe
     }
   }
 
-  private void updateModuleInventory() {
-    moduleCM.slottedModules().forEach(slottedModule -> {
-      if (slottedModule.isEmpty()) {
-        _moduleInventory.clearInventorySlotContents(slottedModule.getSlot());
-        return;
-      }
-      final LogisticsModule module = Objects.requireNonNull(slottedModule.getModule());
-      final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(slottedModule.getSlot());
-      ItemStack moduleStack;
-      if (idStack != null) {
-        moduleStack = idStack.getItem().makeNormalStack(1);
-      } else {
-        ResourceLocation resourceLocation = LPItems.modules.get(module.getLPName());
-        Item item = Item.REGISTRY.getObject(resourceLocation);
-        if (item == null) return;
-        moduleStack = new ItemStack(item);
-      }
-      ItemModuleInformationManager.saveInformation(moduleStack, module);
-      _moduleInventory.setInventorySlotContents(slottedModule.getSlot(), moduleStack);
-    });
-  }
+  public static class CMTargetInformation implements IAdditionalTargetInformation {
+    @Getter
+    private final int moduleSlot;
 
-  @Override
-  @Nonnull
-  public IInventory getModuleInventory() {
-    updateModuleInventory();
-    return _moduleInventory;
-  }
-
-  public ModuleUpgradeManager getModuleUpgradeManager(int slot) {
-    return slotUpgradeManagers.get(slot);
-  }
-
-  @Override
-  public TextureType getCenterTexture() {
-    return TB_Textures.TESTBRIDGE_CMPIPE_TEXTURE;
-  }
-
-  @Override
-  public TextureType getRoutedTexture(EnumFacing connection) {
-    if (getRouter().isSubPoweredExit(connection)) {
-      return TB_Textures.LOGISTICSPIPE_SUBPOWER_TEXTURE;
-    }
-    return TB_Textures.LOGISTICSPIPE_CHASSI_ROUTED_TEXTURE;
-  }
-
-  @Override
-  public TextureType getNonRoutedTexture(EnumFacing connection) {
-    if (pointedAdjacent != null && connection.equals(pointedAdjacent.getDir())) {
-      return TB_Textures.LOGISTICSPIPE_CHASSI_DIRECTION_TEXTURE;
-    }
-    if (isPowerProvider(connection)) {
-      return TB_Textures.LOGISTICSPIPE_POWERED_TEXTURE;
-    }
-    return TB_Textures.LOGISTICSPIPE_CHASSI_NOTROUTED_TEXTURE;
-  }
-
-  @Override
-  public void readFromNBT(@Nonnull NBTTagCompound nbttagcompound) {
-    super.readFromNBT(nbttagcompound);
-    _moduleInventory.readFromNBT(nbttagcompound, "craftingmanager");
-    moduleCM.readFromNBT(nbttagcompound);
-    int tmp = nbttagcompound.getInteger("Orientation");
-    if (tmp != -1) {
-      setPointedOrientation(EnumFacingUtil.getOrientation(tmp % 6));
-    }
-    for (int i = 0; i < getChassisSize(); i++) {
-      // TODO: remove after 1.12.2 update, backwards compatibility
-      final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(i);
-      if (idStack != null && !moduleCM.hasModule(i)) {
-        final Item stackItem = idStack.getItem().item;
-        if (stackItem instanceof ItemModule) {
-          final ItemModule moduleItem = (ItemModule) stackItem;
-          LogisticsModule module = moduleItem.getModule(null, this, this);
-          if (module != null) {
-            moduleCM.installModule(i, module);
-          }
-        }
-      }
-
-      if (i >= slotUpgradeManagers.size()) {
-        addModuleUpgradeManager();
-      }
-      slotUpgradeManagers.get(i).readFromNBT(nbttagcompound, Integer.toString(i));
-    }
-    // register slotted modules
-    moduleCM.slottedModules()
-           .filter(slottedModule -> !slottedModule.isEmpty())
-           .forEach(slottedModule -> {
-             LogisticsModule logisticsModule = Objects.requireNonNull(slottedModule.getModule());
-             // FIXME: rely on getModuleForItem instead
-             logisticsModule.registerHandler(this, this);
-             slottedModule.registerPosition();
-           });
-  }
-
-  private void addModuleUpgradeManager() {
-    slotUpgradeManagers.add(new ModuleUpgradeManager(this, upgradeManager));
-  }
-
-  @Override
-  public void writeToNBT(@Nonnull NBTTagCompound nbttagcompound) {
-    super.writeToNBT(nbttagcompound);
-    updateModuleInventory();
-    _moduleInventory.writeToNBT(nbttagcompound, "craftingmanager");
-    moduleCM.writeToNBT(nbttagcompound);
-    nbttagcompound.setInteger("Orientation", pointedAdjacent == null ? -1 : pointedAdjacent.getDir().ordinal());
-    for (int i = 0; i < getChassisSize(); i++) {
-      slotUpgradeManagers.get(i).writeToNBT(nbttagcompound, Integer.toString(i));
+    public CMTargetInformation(int slot) {
+      moduleSlot = slot;
     }
   }
 
   @Override
-  public void onAllowedRemoval() {
-    _moduleInventory.removeListener(this);
-    if (MainProxy.isServer(getWorld())) {
-      for (int i = 0; i < getChassisSize(); i++) {
-        LogisticsModule x = getSubModule(i);
-        if (x instanceof ILegacyActiveModule) {
-          ILegacyActiveModule y = (ILegacyActiveModule) x;
-          y.onBlockRemoval();
-        }
-      }
-      updateModuleInventory();
-      _moduleInventory.dropContents(getWorld(), getX(), getY(), getZ());
-
-      for (int i = 0; i < getChassisSize(); i++) {
-        getModuleUpgradeManager(i).dropUpgrades();
-      }
-    }
+  public int getTodo() {
+    // TODO Auto-generated method stub
+    // probably not needed, the order manager handles the count, would need to store origin to specifically know this.
+    return 0;
   }
-
-  @Override
-  public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-    if (MainProxy.isServer(getWorld())) {
-      if (info instanceof PipeCraftingManager.CMTargetInformation) {
-        PipeCraftingManager.CMTargetInformation target = (PipeCraftingManager.CMTargetInformation) info;
-        LogisticsModule module = getSubModule(target.moduleSlot);
-        if (module instanceof IRequireReliableTransport) {
-          ((IRequireReliableTransport) module).itemArrived(item, info);
-        }
-      } else {
-        if (LogisticsPipes.isDEBUG() && info != null) {
-          System.out.println(item);
-          new RuntimeException("[ItemArrived] Information weren't ment for a crafting manager pipe").printStackTrace();
-        }
-      }
-    }
-  }
-
-  @Override
-  public void itemLost(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-    if (MainProxy.isServer(getWorld())) {
-      if (info instanceof PipeCraftingManager.CMTargetInformation) {
-        PipeCraftingManager.CMTargetInformation target = (PipeCraftingManager.CMTargetInformation) info;
-        LogisticsModule module = getSubModule(target.moduleSlot);
-        if (module instanceof IRequireReliableTransport) {
-          ((IRequireReliableTransport) module).itemLost(item, info);
-        }
-      } else {
-        if (LogisticsPipes.isDEBUG()) {
-          System.out.println(item);
-          new RuntimeException("[ItemLost] Information weren't ment for a crafting manager pipe").printStackTrace();
-        }
-      }
-    }
-  }
-
-  @Override
-  public IRoutedItem sendStack(@Nonnull ItemStack stack, int destRouterId, @Nonnull SinkReply sinkReply, @Nonnull ItemSendMode itemSendMode, EnumFacing direction) {
-    return super.sendStack(stack, destRouterId, sinkReply, itemSendMode, direction);
-  }
-
-  @Override
-  public void InventoryChanged(IInventory inventory) {
-    boolean reInitGui = false;
-    for (int i = 0; i < inventory.getSizeInventory(); i++) {
-      ItemStack stack = inventory.getStackInSlot(i);
-      if (stack.isEmpty()) {
-        if (moduleCM.hasModule(i)) {
-          moduleCM.removeModule(i);
-          reInitGui = true;
-        }
-        continue;
-      }
-
-      final Item stackItem = stack.getItem();
-      if (stackItem instanceof ItemModule) {
-        LogisticsModule current = moduleCM.getModule(i);
-        LogisticsModule next = getModuleForItem(stack, moduleCM.getModule(i), this, this);
-        Objects.requireNonNull(next, "getModuleForItem returned null for " + stack);
-        next.registerPosition(ModulePositionType.SLOT, i);
-        if (current != next) {
-          moduleCM.installModule(i, next);
-          if (!MainProxy.isClient(getWorld())) {
-            ItemModuleInformationManager.readInformation(stack, next);
-          }
-          next.finishInit();
-        }
-        inventory.setInventorySlotContents(i, stack);
-      }
-    }
-    if (reInitGui) {
-      if (MainProxy.isClient(getWorld())) {
-        if (FMLClientHandler.instance().getClient().currentScreen instanceof GuiCMPipe) {
-          FMLClientHandler.instance().getClient().currentScreen.initGui();
-        }
-      }
-    }
-    if (MainProxy.isServer(getWorld())) {
-      if (!localModeWatchers.isEmpty()) {
-        MainProxy.sendToPlayerList(PacketHandler.getPacket(CMPipeModuleContent.class)
-                .setIdentList(ItemIdentifierStack.getListFromInventory(_moduleInventory))
-                .setPosX(getX()).setPosY(getY()).setPosZ(getZ()),
-            localModeWatchers);
-      }
-    }
-  }
-
-  @Override
-  public void ignoreDisableUpdateEntity() {
-    if (!init) {
-      init = true;
-      if (MainProxy.isClient(getWorld())) {
-        MainProxy.sendPacketToServer(PacketHandler.getPacket(RequestCMOrientationPacket.class).setPosX(getX()).setPosY(getY()).setPosZ(getZ()));
-      }
-      InventoryChanged(_moduleInventory);
-    }
-  }
-
-  @Override
-  public final @Nullable LogisticsModule getLogisticsModule() {
-    return moduleCM;
-  }
-
-  @Nonnull
-  @Override
-  public TransportLayer getTransportLayer() {
-    if (_transportLayer == null) {
-      _transportLayer = new CMTransportLayer(this);
-    }
-    return _transportLayer;
-  }
-
-  private boolean tryInsertingModule(EntityPlayer entityplayer) {
-    if (!isCraftingModule(entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND))) return false;
-    updateModuleInventory();
-    for (int i = 0; i < _moduleInventory.getSizeInventory(); i++) {
-      if (_moduleInventory.getIDStackInSlot(i) == null) {
-        _moduleInventory.setInventorySlotContents(i, entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).splitStack(1));
-        InventoryChanged(_moduleInventory);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public static boolean isCraftingModule(ItemStack itemStack){
-    return itemStack.getItem() == Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
-  }
-
-  @Override
-  public boolean handleClick(EntityPlayer entityplayer, SecuritySettings settings) {
-    if (entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).isEmpty()) {
-      return false;
-    }
-
-    if (entityplayer.isSneaking() && SimpleServiceLocator.configToolHandler.canWrench(entityplayer, entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND), container)) {
-      if (MainProxy.isServer(getWorld())) {
-        if (settings == null || settings.openGui) {
-          ((PipeCraftingManager) container.pipe).nextOrientation();
-        } else {
-          entityplayer.sendMessage(new TextComponentTranslation("lp.chat.permissiondenied"));
-        }
-      }
-      SimpleServiceLocator.configToolHandler.wrenchUsed(entityplayer, entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND), container);
-      return true;
-    }
-
-    if (!entityplayer.isSneaking() && entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND).getItem() instanceof ItemModule) {
-      if (MainProxy.isServer(getWorld())) {
-        if (settings == null || settings.openGui) {
-          return tryInsertingModule(entityplayer);
-        } else {
-          entityplayer.sendMessage(new TextComponentTranslation("lp.chat.permissiondenied"));
-        }
-      }
-      return true;
-    }
-
-    return false;
-  }
-
-  @Override
-  public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {}
 
   @Override
   public LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination, IAdditionalTargetInformation info) {
@@ -509,46 +716,15 @@ public class PipeCraftingManager extends CoreRoutedPipe
   }
 
   @Override
-  public void getAllItems(Map<ItemIdentifier, Integer> list, List<IFilter> filter) {}
+  public boolean hasGenericInterests() {
+    return false;
+  }
 
   @Override
-  public ItemSendMode getItemSendMode() {
-    return ItemSendMode.Normal;
-  }
+  public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {}
 
-  @Nonnull
-  public LogisticsModule getModuleForItem(
-      @Nullable LogisticsModule currentModule,
-      @Nullable IWorldProvider world,
-      @Nullable IPipeServiceProvider service
-  ) {
-    if (currentModule != null) {
-      if (TB_ModuleCrafter.class.equals(currentModule.getClass())) {
-        return currentModule;
-      }
-    }
-    LogisticsModule newModule = new TB_ModuleCrafter();
-    newModule.registerHandler(world, service);
-    return newModule;
-  }
-
-  @Nullable
-  public LogisticsModule getModuleForItem(
-      @Nonnull ItemStack itemStack,
-      @Nullable LogisticsModule currentModule,
-      @Nullable IWorldProvider world,
-      @Nullable IPipeServiceProvider service
-  ) {
-    if (itemStack.isEmpty()) {
-      return null;
-    }
-
-    if (!isCraftingModule(itemStack)) {
-      return null;
-    }
-
-    return getModuleForItem(currentModule, world, service);
-  }
+  @Override
+  public void getAllItems(Map<ItemIdentifier, Integer> list, List<IFilter> filter) {}
 
   @Override
   public void playerStartWatching(EntityPlayer player, int mode) {}
@@ -560,205 +736,6 @@ public class PipeCraftingManager extends CoreRoutedPipe
   public void listenedChanged() {}
 
   @Override
-  public void finishInit() {
-    super.finishInit();
-    moduleCM.finishInit();
-  }
-
-  public void handleModuleItemIdentifierList(Collection<ItemIdentifierStack> _allItems) {
-    _moduleInventory.handleItemIdentifierList(_allItems);
-  }
-
-  @Override
-  public int sendQueueChanged(boolean force) {
-    if (MainProxy.isServer(getWorld())) {
-      if (Configs.MULTI_THREAD_NUMBER > 0 && !force) {
-        HudUpdateTick.add(getRouter());
-      } else {
-        if (localModeWatchers.size() > 0) {
-          LinkedList<ItemIdentifierStack> items = ItemIdentifierStack.getListSendQueue(_sendQueue);
-          MainProxy.sendToPlayerList(PacketHandler.getPacket(SendQueueContent.class).setIdentList(items).setPosX(getX()).setPosY(getY()).setPosZ(getZ()), localModeWatchers);
-          return items.size();
-        }
-      }
-    }
-    return 0;
-  }
-
-  @Override
   public void handleSendQueueItemIdentifierList(Collection<ItemIdentifierStack> _allItems) {}
-
-  public TB_ModuleCM getModules() {
-    return moduleCM;
-  }
-
-  @Override
-  public void setTile(TileEntity tile) {
-    super.setTile(tile);
-    moduleCM.slottedModules().forEach(SlottedModule::registerPosition);
-  }
-
-  @Override
-  public int getSourceID() {
-    return getRouterId();
-  }
-
-  @Override
-  public void collectSpecificInterests(@Nonnull Collection<ItemIdentifier> itemidCollection) {
-    // if we don't have a pointed inventory while buffer upgrade is on
-    // we can't be interested in anything
-    if (hasBufferUpgrade() && getPointedAdjacentOrNoAdjacent().inventories().isEmpty()) {
-      return;
-    }
-
-    for (int i = 0; i < getChassisSize(); i++) {
-      LogisticsModule module = getSubModule(i);
-      if (module != null) {
-        module.collectSpecificInterests(itemidCollection);
-      }
-    }
-  }
-
-  @Override
-  public boolean hasGenericInterests() {
-    return false;
-  }
-
-  /** ICraftItems */
-  public final LinkedList<LogisticsOrder> _extras = new LinkedList<>();
-
-  @Override
-  public void registerExtras(IPromise promise) {
-    if (!(promise instanceof LogisticsPromise)) {
-      throw new UnsupportedOperationException("Extra has to be an item for a chassis pipe");
-    }
-    ItemIdentifierStack stack = new ItemIdentifierStack(((LogisticsPromise) promise).item, ((LogisticsPromise) promise).numberOfItems);
-    _extras.add(new LogisticsItemOrder(new DictResource(stack, null), null, IOrderInfoProvider.ResourceType.EXTRA, null));
-  }
-
-  @Override
-  public ICraftingTemplate addCrafting(IResource toCraft) {
-    for (int i = 0; i < getChassisSize(); i++) {
-      LogisticsModule x = getSubModule(i);
-
-      if (x instanceof ICraftItems) {
-        if (((ICraftItems) x).canCraft(toCraft)) {
-          return ((ICraftItems) x).addCrafting(toCraft);
-        }
-      }
-    }
-    return null;
-
-    // trixy code goes here to ensure the right crafter answers the right request
-  }
-
-  @Override
-  public List<ItemIdentifierStack> getCraftedItems() {
-    List<ItemIdentifierStack> craftables = null;
-    for (int i = 0; i < getChassisSize(); i++) {
-      LogisticsModule x = getSubModule(i);
-
-      if (x instanceof ICraftItems) {
-        if (craftables == null) {
-          craftables = new LinkedList<>();
-        }
-        craftables.addAll(((ICraftItems) x).getCraftedItems());
-      }
-    }
-    return craftables;
-  }
-
-  @Override
-  public boolean canCraft(IResource toCraft) {
-    for (int i = 0; i < getChassisSize(); i++) {
-      LogisticsModule x = getSubModule(i);
-
-      if (x instanceof ICraftItems) {
-        if (((ICraftItems) x).canCraft(toCraft)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  @Nonnull
-  @Override
-  public ISlotUpgradeManager getUpgradeManager(ModulePositionType slot, int positionInt) {
-    if (slot != ModulePositionType.SLOT || positionInt >= slotUpgradeManagers.size()) {
-      if (LogisticsPipes.isDEBUG()) {
-        new UnsupportedOperationException("Position info aren't for a crafting manager pipe. (" + slot + "/" + positionInt + ")").printStackTrace();
-      }
-      return super.getUpgradeManager(slot, positionInt);
-    }
-    return slotUpgradeManagers.get(positionInt);
-  }
-
-  @Override
-  public int getTodo() {
-    // TODO Auto-generated method stub
-    // probably not needed, the chasi order manager handles the count, would need to store origin to specifically know this.
-    return 0;
-  }
-
-  @Nullable
-  public LogisticsModule getSubModule(int slot) {
-    return moduleCM.getModule(slot);
-  }
-
-  public static class CMTargetInformation implements IAdditionalTargetInformation {
-
-    @Getter
-    private final int moduleSlot;
-
-    public CMTargetInformation(int slot) {
-      moduleSlot = slot;
-    }
-  }
-
-  @Override
-  public void setCCType(Object type) {
-    super.setCCType(type);
-  }
-
-  @Override
-  public Object getCCType() {
-    return super.getCCType();
-  }
-
-  public IRouter getSatelliteRouterByUUID(UUID id) {
-    if (id == null) return null;
-    int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(id);
-    return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
-  }
-
-  public IRouter getCMSatelliteRouter() {
-    final UUID satelliteUUID = getModules().getSatelliteUUID().getValue();
-    final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID);
-    return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
-  }
-
-  public IRouter getCMResultRouter() {
-    final UUID resultUUID = getModules().getResultUUID().getValue();
-    final int resultRouterId = SimpleServiceLocator.routerManager.getIDforUUID(resultUUID);
-    return SimpleServiceLocator.routerManager.getRouter(resultRouterId);
-  }
-
-  public boolean hasBufferUpgrade() {
-    for (int i = 0 ; i < 9 ; i++) {
-      if (upgradeManager.getUpgrade(i) instanceof BufferCMUpgrade) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public int getBlockingByInt() {
-    return moduleCM != null ? moduleCM.getBlockingMode().getValue().ordinal() : 0;
-  }
-
-  public String getKeyBlockMode() {
-    return moduleCM != null ? gui$cm_prefix + "blocking." + moduleCM.getBlockingMode().getValue().toString().toLowerCase() : "";
-  }
 
 }

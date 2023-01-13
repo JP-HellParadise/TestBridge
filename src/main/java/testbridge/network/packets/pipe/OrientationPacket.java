@@ -10,19 +10,22 @@ import net.minecraft.util.EnumFacing;
 
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
 
+import testbridge.helpers.interfaces.ISatellitePipe;
 import testbridge.pipes.PipeCraftingManager;
+import testbridge.pipes.ResultPipe;
 
 @StaticResolve
-public class CMOrientationPacket extends CoordinatesPacket {
+public class OrientationPacket extends CoordinatesPacket {
   @Getter
   @Setter
   @Nullable
   private EnumFacing dir;
 
-  public CMOrientationPacket(int id) {
+  public OrientationPacket(int id) {
     super(id);
   }
 
@@ -31,11 +34,15 @@ public class CMOrientationPacket extends CoordinatesPacket {
     LogisticsTileGenericPipe pipe = this.getPipe(player.world, LTGPCompletionCheck.PIPE);
     if (pipe.pipe instanceof PipeCraftingManager) {
       ((PipeCraftingManager) pipe.pipe).setPointedOrientation(dir);
+    } else if (pipe.pipe instanceof ResultPipe) {
+      ((ResultPipe) pipe.pipe).setPointedOrientation(dir);
+    } else if (pipe.pipe instanceof PipeItemsSatelliteLogistics) {
+      ((ISatellitePipe) pipe.pipe).setPointedOrientation(dir);
     }
   }
 
   @Override
   public ModernPacket template() {
-    return new CMOrientationPacket(getId());
+    return new OrientationPacket(getId());
   }
 }

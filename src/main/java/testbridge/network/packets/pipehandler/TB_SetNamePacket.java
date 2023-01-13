@@ -1,4 +1,4 @@
-package testbridge.network.packets.resultpackethandler;
+package testbridge.network.packets.pipehandler;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +18,7 @@ import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
 
+import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
@@ -42,36 +43,32 @@ public class TB_SetNamePacket extends StringCoordinatesPacket {
     if (newName.trim().isEmpty()) {
       result = SatelliteNamingResult.BLANK_NAME;
     } else {
+      SatellitePipe progress = null;
       try {
         LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.PIPE);
         if (pipe.pipe instanceof ResultPipe) {
-          ResultPipe resultPipe = (ResultPipe) pipe.pipe;
-          if (resultPipe.getSatellitesOfType().stream().anyMatch(it -> it.getSatellitePipeName().equals(newName))) {
-            result = SatelliteNamingResult.DUPLICATE_NAME;
-          } else {
-            result = SatelliteNamingResult.SUCCESS;
-            resultPipe.setSatellitePipeName(newName);
-            resultPipe.updateWatchers();
-            resultPipe.ensureAllSatelliteStatus();
-            pipe.getTile().markDirty();
-          }
+          progress = (SatellitePipe) pipe.pipe;
         }
       } catch (TargetNotFoundException e) {
         IPart iPart = getTileAs(player.getEntityWorld(), IPartHost.class).getPart(AEPartLocation.fromOrdinal(getSide()));
         if (iPart instanceof PartSatelliteBus) {
-          PartSatelliteBus part = (PartSatelliteBus) iPart;
-          if ((part).getSatellitesOfType().stream().anyMatch(it -> it.getSatellitePipeName().equals(newName))) {
-            result = SatelliteNamingResult.DUPLICATE_NAME;
-          } else {
-            result = SatelliteNamingResult.SUCCESS;
-            part.setSatellitePipeName(newName);
-            part.updateWatchers();
-            part.ensureAllSatelliteStatus();
-            part.getTile().markDirty();
-          }
+          progress = (SatellitePipe) iPart;
+        }
+      }
+
+      if (progress != null) {
+        if (progress.getSatellitesOfType().stream().anyMatch(it -> it.getSatellitePipeName().equals(newName))) {
+          result = SatelliteNamingResult.DUPLICATE_NAME;
+        } else {
+          result = SatelliteNamingResult.SUCCESS;
+          progress.setSatellitePipeName(newName);
+          progress.updateWatchers();
+          progress.ensureAllSatelliteStatus();
+          progress.getContainer().markDirty();
         }
       }
     }
+
     if (result != null) {
       MainProxy.sendPacketToPlayer(PacketHandler.getPacket(TB_SetNameResult.class).setResult(result).setNewName(getString()), player);
     }

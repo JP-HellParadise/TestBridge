@@ -13,8 +13,8 @@ import mcjty.theoneprobe.config.Config;
 import appeng.tile.AEBaseTile;
 
 import testbridge.block.tile.TileCraftingManager;
-import testbridge.helpers.TBText;
-import testbridge.interfaces.ITranslationKey;
+import testbridge.helpers.TextHelper;
+import testbridge.helpers.interfaces.ITranslationKey;
 
 public class CraftingManagerProvider implements ITileProbInfoProvider, ITranslationKey {
 
@@ -41,14 +41,14 @@ public class CraftingManagerProvider implements ITileProbInfoProvider, ITranslat
           infoRow.item(patternInv.getStackInSlot(i));
         }
       } else
-        probeInfo.text(new TBText(top$cm_prefix + "no_patterns").getTranslated());
+        probeInfo.text(new TextHelper(top$cm_prefix + "no_patterns").getTranslated());
     }
   }
 
   private void addConnectInfo(TileCraftingManager tile, IProbeInfo probeInfo) {
     String satName = tile.getSatelliteName();
-    probeInfo.text(new TBText(top$cm_prefix + "select_sat")
-        .addArgument(new TBText(satName.isEmpty() ? top$cm_prefix + "none" : tile.getSatellitePart() != null ?
+    probeInfo.text(new TextHelper(top$cm_prefix + "select_sat")
+        .addArgument(new TextHelper(satName.isEmpty() ? top$cm_prefix + "none" : tile.getSatellitePart() != null ?
             top$cm_prefix + "valid" : top$cm_prefix + "router_error").addArgument(satName).getTranslated())
         .getTranslated());
   }

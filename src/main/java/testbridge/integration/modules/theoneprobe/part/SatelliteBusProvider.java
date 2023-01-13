@@ -10,8 +10,8 @@ import mcjty.theoneprobe.api.ProbeMode;
 
 import appeng.api.parts.IPart;
 
-import testbridge.helpers.TBText;
-import testbridge.interfaces.ITranslationKey;
+import testbridge.helpers.TextHelper;
+import testbridge.helpers.interfaces.ITranslationKey;
 import testbridge.part.PartSatelliteBus;
 
 public class SatelliteBusProvider implements IPartProbInfoProvider, ITranslationKey {
@@ -21,9 +21,9 @@ public class SatelliteBusProvider implements IPartProbInfoProvider, ITranslation
     if (part instanceof PartSatelliteBus) {
       String satName = ((PartSatelliteBus) part).getSatellitePipeName();
       if (satName.isEmpty())
-        probeInfo.text(new TBText(top$sat_prefix + "no_name").getTranslated());
+        probeInfo.text(new TextHelper(top$sat_prefix + "no_name").getTranslated());
       else {
-        probeInfo.text(new TBText(top$sat_prefix + "name").addArgument(satName).getTranslated());
+        probeInfo.text(new TextHelper(top$sat_prefix + "name").addArgument(satName).getTranslated());
       }
     }
   }

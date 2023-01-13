@@ -1,4 +1,4 @@
-package testbridge.network.packets.resultpackethandler;
+package testbridge.network.packets.pipehandler;
 
 import net.minecraft.entity.player.EntityPlayer;
 

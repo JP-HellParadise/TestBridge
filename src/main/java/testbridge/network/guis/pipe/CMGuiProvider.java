@@ -21,11 +21,11 @@ import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
 import testbridge.client.gui.GuiCMPipe;
+import testbridge.helpers.inventory.DummyContainer;
 import testbridge.modules.TB_ModuleCM;
 import testbridge.modules.TB_ModuleCM.BlockingMode;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.upgrades.ModuleUpgradeManager;
-import testbridge.helpers.DummyContainer;
 
 @StaticResolve
 public class CMGuiProvider extends ModuleCoordinatesGuiProvider {

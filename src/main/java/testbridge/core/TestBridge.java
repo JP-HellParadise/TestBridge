@@ -22,7 +22,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 
-import testbridge.helpers.datafixer.TBDataFixer;
+import testbridge.datafixer.TBDataFixer;
 import testbridge.integration.IntegrationRegistry;
 import testbridge.integration.IntegrationType;
 import testbridge.network.GuiHandler;
@@ -37,7 +37,7 @@ public class TestBridge {
   public static final String MODID = "testbridge";
   public static final String NAME = "Test Bridge";
   public static final String VERSION = "@VERSION@";
-  public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[4.2,);required-after:logisticspipes@[0.10.4.,);";
+  public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[4.2,);required-after:logisticspipes;";
 
   @Getter
   private static final boolean debug = Boolean.getBoolean("tb.debugging");

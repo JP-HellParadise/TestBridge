@@ -1,4 +1,4 @@
-package testbridge.interfaces;
+package testbridge.helpers.interfaces;
 
 import logisticspipes.LPConstants;
 

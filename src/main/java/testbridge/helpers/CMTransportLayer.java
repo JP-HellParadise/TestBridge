@@ -12,40 +12,40 @@ import testbridge.pipes.PipeCraftingManager;
 
 public class CMTransportLayer extends TransportLayer {
 
-  private final PipeCraftingManager _cmPipe;
+  private final PipeCraftingManager pipe;
 
-  public CMTransportLayer(PipeCraftingManager craftingmanagerPipe) {
-    _cmPipe = craftingmanagerPipe;
+  public CMTransportLayer(PipeCraftingManager pipe) {
+    this.pipe = pipe;
   }
 
   @Override
   public EnumFacing itemArrived(IRoutedItem item, EnumFacing blocked) {
     if (item.getItemIdentifierStack() != null) {
-      _cmPipe.recievedItem(item.getItemIdentifierStack().getStackSize());
+      pipe.recievedItem(item.getItemIdentifierStack().getStackSize());
     }
-    return _cmPipe.getPointedOrientation();
+    return pipe.getPointedOrientation();
   }
 
   @Override
   public boolean stillWantItem(IRoutedItem item) {
-    LogisticsModule module = _cmPipe.getLogisticsModule();
+    LogisticsModule module = pipe.getLogisticsModule();
     if (module == null) {
-      _cmPipe.notifyOfItemArival(item.getInfo());
+      pipe.notifyOfItemArival(item.getInfo());
       return false;
     }
-    if (!_cmPipe.isEnabled()) {
-      _cmPipe.notifyOfItemArival(item.getInfo());
+    if (!pipe.isEnabled()) {
+      pipe.notifyOfItemArival(item.getInfo());
       return false;
     }
     final ItemIdentifierStack itemIDStack = item.getItemIdentifierStack();
     SinkReply reply = module.sinksItem(itemIDStack.makeNormalStack(), itemIDStack.getItem(), -1, 0, true, false, false);
     if (reply == null || reply.maxNumberOfItems < 0) {
-      _cmPipe.notifyOfItemArival(item.getInfo());
+      pipe.notifyOfItemArival(item.getInfo());
       return false;
     }
 
     if (reply.maxNumberOfItems > 0 && itemIDStack.getStackSize() > reply.maxNumberOfItems) {
-      EnumFacing o = _cmPipe.getPointedOrientation();
+      EnumFacing o = pipe.getPointedOrientation();
       if (o == null) {
         o = EnumFacing.UP;
       }

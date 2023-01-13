@@ -12,8 +12,8 @@ import mcjty.theoneprobe.config.Config;
 
 import appeng.api.parts.IPart;
 
-import testbridge.helpers.TBText;
-import testbridge.interfaces.ITranslationKey;
+import testbridge.helpers.TextHelper;
+import testbridge.helpers.interfaces.ITranslationKey;
 import testbridge.part.PartCraftingManager;
 
 public class CraftingManagerProvider implements IPartProbInfoProvider, ITranslationKey {
@@ -41,14 +41,14 @@ public class CraftingManagerProvider implements IPartProbInfoProvider, ITranslat
           infoRow.item(patternInv.getStackInSlot(i));
         }
       } else
-        probeInfo.text(new TBText(top$cm_prefix + "no_patterns").getTranslated());
+        probeInfo.text(new TextHelper(top$cm_prefix + "no_patterns").getTranslated());
     }
   }
 
   private void addConnectInfo(PartCraftingManager part, IProbeInfo probeInfo) {
     String satName = part.getSatelliteName();
-    probeInfo.text(new TBText(top$cm_prefix + "select_sat")
-        .addArgument(new TBText(satName.isEmpty() ? top$cm_prefix + "none" : (part.getSatellitePart() != null ?
+    probeInfo.text(new TextHelper(top$cm_prefix + "select_sat")
+        .addArgument(new TextHelper(satName.isEmpty() ? top$cm_prefix + "none" : (part.getSatellitePart() != null ?
             top$cm_prefix + "valid" : top$cm_prefix + "router_error")).addArgument(satName).getTranslated())
         .getTranslated());
   }

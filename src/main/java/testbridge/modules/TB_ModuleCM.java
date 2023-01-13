@@ -1,12 +1,12 @@
 package testbridge.modules;
 
 import java.util.*;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.tuple.Pair;
 
 import lombok.Getter;
 
@@ -37,12 +37,11 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.module.Gui;
-import network.rs485.logisticspipes.module.PipeServiceProviderUtilKt;
 import network.rs485.logisticspipes.property.*;
 
-import testbridge.helpers.TBText;
+import testbridge.helpers.TextHelper;
 import testbridge.helpers.interfaces.ISatellitePipe;
-import testbridge.interfaces.ITranslationKey;
+import testbridge.helpers.interfaces.ITranslationKey;
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeUpdatePacket;
 import testbridge.pipes.PipeCraftingManager;
@@ -60,123 +59,73 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
   private final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
   @Getter
   private final ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
-  private final List<Property<?>> properties;
-  private final List<List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>>> bufferList = new ArrayList<>();
-  private int sendCooldown = 0;
   private UpdateSatResultFromNames updateSatResultFromNames = null;
-  private final PipeCraftingManager parentPipe;
+  protected SinkReply _sinkReply;
+  private final List<Property<?>> properties;
   private final SlottedModuleListProperty modules;
+  private final PipeCraftingManager parentPipe;
+  private final int neededEnergy = 20;
+  private int sendCooldown = 0;
+  private Queue<HashMap<IRequestItems, List<ItemIdentifierStack>>> craftingList;
+  private HashMap<IRequestItems, List<ItemIdentifierStack>> waitingToSend;
 
   public TB_ModuleCM(int moduleCount, PipeCraftingManager parentPipe) {
-    modules = new SlottedModuleListProperty(moduleCount, "modules");
+    this.modules = new SlottedModuleListProperty(moduleCount, "modules");
     this.parentPipe = parentPipe;
-    registerPosition(ModulePositionType.IN_PIPE, 0);
-    properties = ImmutableList.<Property<?>>builder()
-        .add(excludedInventory)
-        .addAll(Collections.singletonList(modules))
-        .add(satelliteUUID)
-        .add(resultUUID)
-        .add(blockingMode)
+    this.registerPosition(ModulePositionType.IN_PIPE, 0);
+    this.properties = ImmutableList.<Property<?>>builder()
+        .addAll(Collections.singletonList(this.modules))
+        .add(this.excludedInventory)
+        .add(this.satelliteUUID)
+        .add(this.resultUUID)
+        .add(this.blockingMode)
         .build();
-  }
-
-  public static String getName() {
-    return "crafting_manager";
   }
 
   @Nonnull
   @Override
   public String getLPName() {
-    return getName();
+    return "crafting_manager";
   }
 
   @Nonnull
   @Override
   public List<Property<?>> getProperties() {
-    return properties;
+    return this.properties;
   }
 
   public void installModule(int slot, LogisticsModule module) {
-    modules.set(slot, module);
+    this.modules.set(slot, module);
   }
 
   public void removeModule(int slot) {
-    modules.clear(slot);
+    this.modules.clear(slot);
   }
 
   @Nullable
   public LogisticsModule getModule(int slot) {
-    return modules.get(slot).getModule();
+    return this.modules.get(slot).getModule();
   }
 
   public boolean hasModule(int slot) {
-    return !modules.get(slot).isEmpty();
+    return !this.modules.get(slot).isEmpty();
   }
 
   public Stream<LogisticsModule> getModules() {
-    return modules.stream()
+    return this.modules.stream()
         .filter(slottedModule -> !slottedModule.isEmpty())
         .map(SlottedModule::getModule);
   }
 
   public Stream<SlottedModule> slottedModules() {
-    return modules.stream();
+    return this.modules.stream();
   }
 
   @Override
-  public SinkReply sinksItem(@Nonnull ItemStack stack, ItemIdentifier item, int bestPriority, int bestCustomPriority,
-                             boolean allowDefault, boolean includeInTransit, boolean forcePassive) {
-    SinkReply bestResult = null;
-    for (SlottedModule slottedModule : modules) {
-      final LogisticsModule module = slottedModule.getModule();
-      if (module != null) {
-        if (!forcePassive || module.recievePassive()) {
-          SinkReply result = module
-              .sinksItem(stack, item, bestPriority, bestCustomPriority, allowDefault, includeInTransit,
-                  forcePassive);
-          if (result != null && result.maxNumberOfItems >= 0) {
-            bestResult = result;
-            bestPriority = result.fixedPriority.ordinal();
-            bestCustomPriority = result.customPriority;
-          }
-        }
-      }
-    }
-
-    if (bestResult == null) {
-      return null;
-    }
-    //Always deny items when we can't put the item anywhere
-    final ISlotUpgradeManager upgradeManager = parentPipe.getUpgradeManager(ModulePositionType.SLOT,
-        ((PipeCraftingManager.CMTargetInformation) bestResult.addInfo).getModuleSlot());
-    IInventoryUtil invUtil = PipeServiceProviderUtilKt.availableSneakyInventories(parentPipe, upgradeManager)
-        .stream().findFirst().orElse(null);
-    if (invUtil == null) {
-      return null;
-    }
-    int roomForItem;
-    if (includeInTransit) {
-      int onRoute = parentPipe.countOnRoute(item);
-      final ItemStack copy = stack.copy();
-      copy.setCount(onRoute + item.getMaxStackSize());
-      roomForItem = invUtil.roomForItem(copy);
-      roomForItem -= onRoute;
-    } else {
-      roomForItem = invUtil.roomForItem(stack);
-    }
-    if (roomForItem < 1) {
-      return null;
-    }
-
-    if (bestResult.maxNumberOfItems == 0) {
-      return new SinkReply(bestResult, roomForItem);
-    }
-    return new SinkReply(bestResult, Math.min(bestResult.maxNumberOfItems, roomForItem));
-  }
-
-  @Override
-  public void registerHandler(IWorldProvider world, IPipeServiceProvider service) {
-    super.registerHandler(world, service);
+  public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
+    super.registerPosition(slot, positionInt);
+    this._sinkReply = new SinkReply(SinkReply.FixedPriority.ItemSink, 0, true, false, 1, 0,
+        new PipeCraftingManager.CMTargetInformation(this.getPositionInt()));
   }
 
   private UUID getUUIDForSatelliteName(String name) {
@@ -199,90 +148,31 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
 
   @Override
   public void tick() {
-    final IPipeServiceProvider service = _service;
+    final IPipeServiceProvider service = this._service;
     if (service == null) return;
-    enabledUpdateEntity();
-    if (updateSatResultFromNames != null && service.isNthTick(100)) {
-      if (!updateSatResultFromNames.satelliteName.isEmpty()) {
-        UUID uuid = getUUIDForSatelliteName(updateSatResultFromNames.satelliteName);
+    this.enabledUpdateEntity();
+    if (this.updateSatResultFromNames != null && service.isNthTick(100)) {
+      if (!this.updateSatResultFromNames.satelliteName.isEmpty()) {
+        UUID uuid = this.getUUIDForSatelliteName(this.updateSatResultFromNames.satelliteName);
         if (uuid != null) {
-          updateSatResultFromNames.satelliteName = "";
-          satelliteUUID.setValue(uuid);
+          this.updateSatResultFromNames.satelliteName = "";
+          this.satelliteUUID.setValue(uuid);
         }
       }
-      if (!updateSatResultFromNames.resultName.isEmpty()) {
-        UUID uuid = getUUIDForResultName(updateSatResultFromNames.resultName);
+      if (!this.updateSatResultFromNames.resultName.isEmpty()) {
+        UUID uuid = this.getUUIDForResultName(this.updateSatResultFromNames.resultName);
         if (uuid != null) {
-          updateSatResultFromNames.resultName = "";
-          resultUUID.setValue(uuid);
+          this.updateSatResultFromNames.resultName = "";
+          this.resultUUID.setValue(uuid);
         }
       }
-      if (updateSatResultFromNames.satelliteName.isEmpty()
-          && updateSatResultFromNames.resultName.isEmpty()) {
-        updateSatResultFromNames = null;
+      if (this.updateSatResultFromNames.satelliteName.isEmpty()
+          && this.updateSatResultFromNames.resultName.isEmpty()) {
+        this.updateSatResultFromNames = null;
       }
-    }
-    for (SlottedModule slottedModule : modules) {
-      final LogisticsModule module = slottedModule.getModule();
-      if (module == null) {
-        continue;
-      }
-      module.tick();
-    }
-  }
-
-  @SuppressWarnings("ConstantConditions") // LPNeighborTileEntityKt::getInventoryUtil won't give null since there is inv checker
-  private void enabledUpdateEntity() {
-    if (!parentPipe.isNthTick(5)) {
-      return;
     }
 
-    if(parentPipe.hasBufferUpgrade()) {
-      if(sendCooldown > 0) {
-        parentPipe.spawnParticle(Particles.RedParticle, 1);
-        sendCooldown--;
-        return;
-      }
-      if(!bufferList.isEmpty()) {
-        boolean allow = checkBlocking();
-        if(!allow) {
-          parentPipe.spawnParticle(Particles.RedParticle, 1);
-          return;
-        }
-        final List<NeighborTileEntity<TileEntity>> neighborAdjacent = parentPipe.getAvailableAdjacent().inventories();
-        if(parentPipe.canUseEnergy(neededEnergy()) && !neighborAdjacent.isEmpty()){
-          IInventoryUtil util = neighborAdjacent.stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
-          for (List<Pair<IRequestItems, ItemIdentifierStack>> map : bufferList) {
-            if(map.stream().map(Pair::getValue).allMatch(i -> util.itemCount(i.getItem()) >= i.getStackSize())){
-              int maxDist = 0;
-              for (Pair<IRequestItems, ItemIdentifierStack> en : map) {
-                ItemIdentifierStack toSend = en.getValue();
-                ItemStack removed = util.getMultipleItems(toSend.getItem(), toSend.getStackSize());
-                if (!removed.isEmpty()) {
-                  UUID moved;
-                  if (parentPipe.getSatelliteRouterByUUID(en.getKey().getRouter().getId()) != null )
-                    moved = en.getKey().getRouter().getId();
-                  else
-                    moved = parentPipe.getCMResultRouter().getId();
-                  parentPipe.sendStack(removed, SimpleServiceLocator.routerManager.getIDforUUID(moved), CoreRoutedPipe.ItemSendMode.Fast, null, parentPipe.getPointedOrientation());
-                  maxDist = Math.max(maxDist, (int) en.getKey().getRouter().getPipe().getPos().distanceSq(parentPipe.getPos()));
-                }
-              }
-              parentPipe.useEnergy(neededEnergy(), true);
-              bufferList.remove(map);
-              if (blockingMode.getValue() == BlockingMode.EMPTY_MAIN_SATELLITE) {
-                sendCooldown = Math.min(maxDist, 16);
-              }
-              break;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  private int neededEnergy() {
-    return 20;
+    this.modules.stream().map(SlottedModule::getModule).filter(Objects::nonNull).forEach(LogisticsModule::tick);
   }
 
   @Override
@@ -357,33 +247,34 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
 
   public ModernPacket getCMPipePacket() {
     return PacketHandler.getPacket(CMPipeUpdatePacket.class)
-        .setSatelliteName(getSatelliteNameByUUID(satelliteUUID.getValue(), false))
-        .setResultName(getSatelliteNameByUUID(resultUUID.getValue(), true))
-        .setBlockingMode(blockingMode.getValue().ordinal())
+        .setSatelliteName(this.getNameByUUID(satelliteUUID.getValue(), false))
+        .setResultName(this.getNameByUUID(resultUUID.getValue(), true))
+        .setBlockingMode(this.blockingMode.getValue().ordinal())
         .setModulePos(this);
   }
 
-  public String getSatelliteNameByUUID(UUID uuid, boolean isResult) {
+  public String getNameByUUID(UUID uuid, boolean isResult) {
     if (UUIDPropertyKt.isZero(uuid)) {
-      return new TBText(top$cm_prefix + "none").getTranslated();
+      return new TextHelper(top$cm_prefix + "none").getTranslated();
     }
     int routerId = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
     try {
       List<ExitRoute> exitRoutes = parentPipe.getRouter().getRouteTable().get(routerId);
       if (exitRoutes != null && !exitRoutes.isEmpty()) {
         CoreRoutedPipe pipe = SimpleServiceLocator.routerManager.getRouter(routerId).getPipe();
-        if (!isResult && pipe instanceof PipeItemsSatelliteLogistics) {
-          String name = ((PipeItemsSatelliteLogistics) pipe).getSatellitePipeName();
-          return new TBText(top$cm_prefix + "valid")
-              .addArgument(name.isEmpty() ? new TBText(top$cm_prefix + "none").getTranslated() : name).getTranslated();
-        } else if (isResult && pipe instanceof ResultPipe) {
-          String name = ((ResultPipe) pipe).getSatellitePipeName();
-          return new TBText(top$cm_prefix + "valid")
-              .addArgument(name.isEmpty() ? new TBText(top$cm_prefix + "none").getTranslated() : name).getTranslated();
+        if (pipe instanceof PipeItemsSatelliteLogistics || pipe instanceof ResultPipe) {
+          String name = "";
+          if (!isResult && pipe instanceof PipeItemsSatelliteLogistics) {
+            name = ((PipeItemsSatelliteLogistics) pipe).getSatellitePipeName();
+          } else if (isResult && pipe instanceof ResultPipe) {
+            name = ((ResultPipe) pipe).getSatellitePipeName();
+          }
+          return new TextHelper(top$cm_prefix + "valid")
+              .addArgument(name.isEmpty() ? new TextHelper(top$cm_prefix + "none").getTranslated() : name).getTranslated();
         }
       }
     } catch (IndexOutOfBoundsException ignore) {}
-    return new TBText(top$cm_prefix + "router_error").getTranslated();
+    return new TextHelper(top$cm_prefix + "router_error").getTranslated();
   }
 
   public void handleCMUpdatePacket(CMPipeUpdatePacket packet) {
@@ -432,41 +323,190 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     String resultName = "";
   }
 
-  protected boolean checkBlocking() {
-    switch (blockingMode.getValue()) {
-      case EMPTY_MAIN_SATELLITE:
-      {
-        for (List<Pair<IRequestItems, ItemIdentifierStack>> map : bufferList) {
-          for (Pair<IRequestItems, ItemIdentifierStack> en : map) {
-            PipeItemsSatelliteLogistics sat;
-            if (parentPipe.getSatelliteRouterByUUID(en.getKey().getRouter().getId()) != null )
-              sat = (PipeItemsSatelliteLogistics) en.getKey().getRouter().getPipe();
-            else
-              sat = (PipeItemsSatelliteLogistics) parentPipe.getCMSatelliteRouter().getPipe();
-            if (sat == null) return false;
-            List<NeighborTileEntity<TileEntity>> adjacentInventories = ((ISatellitePipe) sat).getAvailableAdjacent().inventories();
-            for (NeighborTileEntity<TileEntity> adjacentCrafter : adjacentInventories) {
-              IInventoryUtil inv = LPNeighborTileEntityKt.getInventoryUtil(adjacentCrafter);
-              if (inv != null) {
-                for (int i = 0; i < inv.getSizeInventory(); i++) {
-                  ItemStack stackInSlot = inv.getStackInSlot(i);
-                  if (!stackInSlot.isEmpty()) {
-                    if (excludedInventory.getItemsAndCount().containsKey(ItemIdentifier.get(stackInSlot))) continue;
-                    return false;
-                  }
-                }
-              }
-            }
-          }
+  // Crafting start from here
+
+  private void enabledUpdateEntity() {
+    if (!this.parentPipe.isNthTick(5)) {
+      return;
+    }
+
+    if (this.hasItemsToSend()) {
+      this.parentPipe.spawnParticle(Particles.GoldParticle, 1);
+      this.pushItemsOut();
+      return;
+    }
+
+    if (this.parentPipe.hasBufferUpgrade()) {
+      if (this.sendCooldown > 0) {
+        this.parentPipe.spawnParticle(Particles.RedParticle, 1);
+        if (this.sendCooldown > 0) {
+          this.sendCooldown--;
+        }
+        return;
+      }
+      if (this.hasItemsToCraft()) {
+        if (this.isBlocking()) {
+          this.parentPipe.spawnParticle(Particles.RedParticle, 1);
+        } else {
+          this.startCrafting();
+        }
+      }
+    }
+  }
+
+  public void startCrafting() {
+    IInventoryUtil util = getBufferInventory();
+    if (parentPipe.canUseEnergy(neededEnergy) && util != null) {
+      Optional<HashMap<IRequestItems, List<ItemIdentifierStack>>> bufferOpt = craftingList.stream().findFirst();
+      if (bufferOpt.isPresent()
+          && bufferOpt.get().entrySet().stream().allMatch(this::acceptItems)) {
+        HashMap<IRequestItems, List<ItemIdentifierStack>> bufferList = bufferOpt.get();
+        bufferList.forEach((key, value) -> value.forEach(it -> addToWaitingList(key, it)));
+        craftingList.remove(bufferList);
+        return;
+      }
+    }
+    this.parentPipe.spawnParticle(Particles.RedParticle, 1);
+  }
+
+  private boolean acceptItems(Map.Entry<IRequestItems, List<ItemIdentifierStack>> entry) {
+    return acceptItems(entry.getKey(), entry.getValue());
+  }
+
+  private boolean acceptItems(IRequestItems router, List<ItemIdentifierStack> stacks) {
+    if (parentPipe.getSatelliteRouterByUUID(router.getRouter().getId()) == null) return false;
+    PipeItemsSatelliteLogistics sat = (PipeItemsSatelliteLogistics) router.getRouter().getPipe();
+    if (sat == null) return false;
+
+    IInventoryUtil inv = ((ISatellitePipe) sat).getAvailableAdjacent().inventories()
+        .stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
+    if (inv != null) {
+      for (ItemIdentifierStack stack : stacks) {
+        if (!inv.simulateAdd(stack.makeNormalStack()).isEmpty()) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  public void addToCraftList(@Nonnull HashMap<IRequestItems, List<ItemIdentifierStack>> bufferList) {
+    if (this.craftingList == null) {
+      this.craftingList = new LinkedList<>();
+    }
+
+    this.craftingList.add(bufferList);
+  }
+
+  private boolean hasItemsToCraft() {
+    return this.craftingList != null && !this.craftingList.isEmpty();
+  }
+
+  public void addToWaitingList(IRequestItems request, ItemIdentifierStack stack) {
+    if (this.waitingToSend == null) {
+      this.waitingToSend = new HashMap<>();
+    }
+
+    this.waitingToSend.computeIfAbsent(request, k -> new ArrayList<>());
+
+    this.waitingToSend.get(request).add(stack);
+  }
+
+  private boolean hasItemsToSend() {
+    if (this.waitingToSend != null) {
+      for (IRequestItems router : this.waitingToSend.keySet()) {
+        if (!this.waitingToSend.get(router).isEmpty()) {
           return true;
         }
       }
+    }
+    return false;
+  }
+
+  private boolean hasAllItemInBuffer(List<ItemIdentifierStack> list) {
+    IInventoryUtil util = getBufferInventory();
+    if (util != null) {
+      return list.stream().allMatch(it -> util.itemCount(it.getItem()) >= it.getStackSize());
+    }
+    return false;
+  }
+
+  private void pushItemsOut() {
+    IInventoryUtil inv = getBufferInventory();
+    if (inv == null || !parentPipe.canUseEnergy(neededEnergy)
+      || !this.waitingToSend.values().stream().allMatch(this::hasAllItemInBuffer)) {
+      this.parentPipe.spawnParticle(Particles.RedParticle, 1);
+      return;
+    }
+
+    int maxDist = 0;
+    boolean hasDoneSomething = false;
+
+    for (Map.Entry<IRequestItems, List<ItemIdentifierStack>> entry : this.waitingToSend.entrySet()) {
+      if (!this.acceptItems(entry)) {
+        this.parentPipe.spawnParticle(Particles.RedParticle, 1);
+        break;
+      }
+      Iterator<ItemIdentifierStack> i = entry.getValue().iterator();
+      while (i.hasNext()) {
+        ItemIdentifierStack aiden = i.next(); // Aiden Melt Down
+        ItemStack removed = inv.getMultipleItems(aiden.getItem(), aiden.getStackSize());
+        int destID = SimpleServiceLocator.routerManager.getIDforUUID(entry.getKey().getRouter().getId());
+        try {
+          if (destID != -1) {
+            List<ExitRoute> exitRoutes = parentPipe.getRouter().getRouteTable().get(destID);
+            if (exitRoutes != null && !exitRoutes.isEmpty() && !removed.isEmpty()) {
+              parentPipe.sendStack(removed, destID, parentPipe.getItemSendMode(), null, parentPipe.getPointedOrientation());
+              maxDist = Math.max(maxDist, (int) entry.getKey().getRouter().getPipe().getPos().distanceSq(parentPipe.getPos()));
+              i.remove();
+              hasDoneSomething = true;
+            }
+          }
+        } catch (IndexOutOfBoundsException ignore) {
+          this.parentPipe.spawnParticle(Particles.RedParticle, 1);
+          break;
+        }
+      }
+    }
+
+    if (hasDoneSomething) {
+      parentPipe.useEnergy(neededEnergy, true);
+    }
+
+
+    this.waitingToSend.values().removeIf(List::isEmpty);
+
+    if (this.waitingToSend.isEmpty()) {
+      waitingToSend = null;
+      sendCooldown = Math.min(maxDist, sendCooldown == 0 ? 16 : sendCooldown);
+    }
+  }
+
+  @SuppressWarnings("ConstantConditions") // LPNeighborTileEntityKt::getInventoryUtil won't give null since there is inv checker
+  protected IInventoryUtil getBufferInventory() {
+    final List<NeighborTileEntity<TileEntity>> parentNeighbors = parentPipe.getAvailableAdjacent().inventories();
+    if (!parentNeighbors.isEmpty()) {
+      return parentNeighbors.stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().get();
+    }
+    return null;
+  }
+
+  protected boolean isBlocking() {
+    switch (blockingMode.getValue()) {
+      case EMPTY_MAIN_SATELLITE:
+        assert craftingList.peek() != null;
+        return isBlockingBySet(craftingList.peek().keySet());
 
       case REDSTONE_HIGH:
-        return getWorld().isBlockPowered(parentPipe.getPos());
+        assert getWorld() != null;
+        return !getWorld().isBlockPowered(parentPipe.getPos());
 
       case REDSTONE_LOW:
-        return !getWorld().isBlockPowered(parentPipe.getPos());
+        assert getWorld() != null;
+        return getWorld().isBlockPowered(parentPipe.getPos());
+
+      case REDSTONE_PULSE:
+        return true;
 
 //      case WAIT_FOR_RESULT: { // TODO check if this work
 //        ResultPipe defSat = (ResultPipe) getCMResultRouter().getPipe();
@@ -485,21 +525,46 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
 //        }
 //        return true;
 //      }
+
       default:
-        return true;
+        return false;
     }
   }
 
-  public void addBuffered(List<org.apache.commons.lang3.tuple.Pair<IRequestItems, ItemIdentifierStack>> record) {
-    bufferList.add(record);
+  protected boolean isBlockingBySet(Set<IRequestItems> set) {
+    // Check if the set of satellite routers is not null
+    if (set != null) {
+      // If it is not null, create a stream of the routers in the set
+      return set.stream()
+          // Filter out the routers that are not present in the parent pipe's satellite routers by checking the UUID
+          .filter(router -> parentPipe.getSatelliteRouterByUUID(router.getRouter().getId()) != null)
+          // Filter out any router with a null satellite pipe
+          .filter(router -> (router.getRouter().getPipe()) != null)
+          // Combine the stream of adjacent inventories from each router into a single stream
+          .flatMap(router -> router.getRouter().getPipe().getAvailableAdjacent().inventories().stream())
+          // Map the inventories to inventory utilities
+          .map(LPNeighborTileEntityKt::getInventoryUtil)
+          // Filter out any null inventory utilities
+          .filter(Objects::nonNull)
+          // Flatmap the stream of inventory utilities to a stream of stacks in the inventory
+          .flatMap(inv -> IntStream.range(0, inv.getSizeInventory()).mapToObj(inv::getStackInSlot))
+          // Filter out any empty stacks
+          .filter(stack -> !stack.isEmpty())
+          // Map the stacks to ItemIdentifiers
+          .map(ItemIdentifier::get)
+          // Check if there are any items that are not present in the provided excludedInventory
+          .anyMatch(item -> !excludedInventory.getItemsAndCount().containsKey(item));
+    }
+    return true;
   }
 
   public enum BlockingMode {
     OFF,
-    //    WAIT_FOR_RESULT,
     EMPTY_MAIN_SATELLITE,
+    //    WAIT_FOR_RESULT,
     REDSTONE_LOW,
     REDSTONE_HIGH,
+    REDSTONE_PULSE
     ;
     public static final BlockingMode[] VALUES = values();
   }

@@ -13,7 +13,7 @@ import logisticspipes.kotlin.text.Regex;
 
 import testbridge.utils.TextUtil;
 
-public class TBText {
+public class TextHelper {
 
   private final Regex translationKeyRegex = new Regex("([a-z]+\\.)+[a-z]+");
   @Getter
@@ -30,7 +30,7 @@ public class TBText {
   @Setter
   private String key;
 
-  public TBText(String key) {
+  public TextHelper(String key) {
     this.key = key;
   }
 
@@ -44,7 +44,7 @@ public class TBText {
         );
   }
 
-  public TBText addArgument(String arg) {
+  public TextHelper addArgument(String arg) {
     if (arg != null && !arg.isEmpty()) arguments.add(arg);
     return this;
   }

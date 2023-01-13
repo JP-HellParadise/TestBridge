@@ -1,4 +1,4 @@
-package testbridge.network.packets.resultpackethandler;
+package testbridge.network.packets.pipehandler;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -38,18 +38,16 @@ public class TB_SyncNamePacket extends StringCoordinatesPacket {
   public void processPacket(EntityPlayer player) {
     try {
       LogisticsTileGenericPipe pipe = getPipe(player.world, LTGPCompletionCheck.PIPE);
-      if (pipe == null || pipe.pipe == null) {
-        return;
-      }
+      // No need to check if pipe null since it will throw Exception on LP side
       if (pipe.pipe instanceof ResultPipe) {
         ((ResultPipe) pipe.pipe).setSatellitePipeName(getString());
       }
     } catch (TargetNotFoundException e) {
       TileEntity TE = getTileAs(player.getEntityWorld(), IPartHost.class).getTile();
       if (TE instanceof TileCableBus) {
-        IPart iPart = ((TileCableBus) TE).getPart(AEPartLocation.fromOrdinal(getSide()));
-        if (iPart instanceof PartSatelliteBus) {
-          ((PartSatelliteBus) iPart).setSatellitePipeName(getString());
+        IPart part = ((TileCableBus) TE).getPart(AEPartLocation.fromOrdinal(getSide()));
+        if (part instanceof PartSatelliteBus) {
+          ((PartSatelliteBus) part).setSatellitePipeName(getString());
         }
       }
     }
