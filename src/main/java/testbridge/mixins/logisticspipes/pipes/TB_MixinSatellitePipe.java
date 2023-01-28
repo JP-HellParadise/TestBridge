@@ -11,10 +11,14 @@ import javax.annotation.Nullable;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -26,6 +30,7 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.utils.EnumFacingUtil;
 import logisticspipes.utils.tuples.Pair;
 
 import network.rs485.logisticspipes.connection.*;
@@ -46,6 +51,21 @@ public abstract class TB_MixinSatellitePipe extends CoreRoutedPipe implements IS
   /**
    * Mixin start from here
     */
+
+  // Implement NBT handler
+  @Inject(method = "writeToNBT", at = @At(value = "INVOKE", target = "logisticspipes/pipes/basic/CoreRoutedPipe.writeToNBT (Lnet/minecraft/nbt/NBTTagCompound;)V"))
+  public void TB_writeToNBT(NBTTagCompound nbttagcompound, CallbackInfo ci) {
+    nbttagcompound.setInteger("Orientation", pointedAdjacent == null ? -1 : pointedAdjacent.getDir().ordinal());
+  }
+
+  @Inject(method = "readFromNBT", at = @At(value = "INVOKE", target = "logisticspipes/pipes/basic/CoreRoutedPipe.readFromNBT (Lnet/minecraft/nbt/NBTTagCompound;)V", shift = At.Shift.BY, by = 1))
+  public void TB_readFromNBT(NBTTagCompound nbttagcompound, CallbackInfo ci) {
+    int tmp = nbttagcompound.getInteger("Orientation");
+    if (tmp != -1) {
+      setPointedOrientation(EnumFacingUtil.getOrientation(tmp % 6));
+    }
+  }
+
   // Implement Adjacent
   @Unique
   private boolean initial = false;

@@ -381,11 +381,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     IInventoryUtil inv = ((ISatellitePipe) sat).getAvailableAdjacent().inventories()
         .stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
     if (inv != null) {
-      for (ItemIdentifierStack stack : stacks) {
-        if (!inv.simulateAdd(stack.makeNormalStack()).isEmpty()) {
-          return false;
-        }
-      }
+      return inv.roomForItem(stacks.stream().map(ItemIdentifierStack::makeNormalStack).iterator());
     }
     return true;
   }

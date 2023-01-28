@@ -156,7 +156,6 @@ public class PipeCraftingManager extends CoreRoutedPipe
       setPointedOrientation(EnumFacingUtil.getOrientation(tmp % 6));
     }
     for (int i = 0; i < getChassisSize(); i++) {
-      // TODO: remove after 1.12.2 update, backwards compatibility
       final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(i);
       if (idStack != null && !moduleCM.hasModule(i)) {
         final Item stackItem = idStack.getItem().item;
@@ -239,38 +238,10 @@ public class PipeCraftingManager extends CoreRoutedPipe
 
   @Override
   public void itemArrived(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-    if (MainProxy.isServer(getWorld())) {
-      if (info instanceof CMTargetInformation) {
-        CMTargetInformation target = (CMTargetInformation) info;
-        LogisticsModule module = getSubModule(target.moduleSlot);
-        if (module instanceof IRequireReliableTransport) {
-          ((IRequireReliableTransport) module).itemArrived(item, info);
-        }
-      } else {
-        if (TestBridge.isDebug() && info != null) {
-          System.out.println(item);
-          new RuntimeException("[ItemArrived] Information weren't ment for a crafting manager pipe").printStackTrace();
-        }
-      }
-    }
   }
 
   @Override
   public void itemLost(ItemIdentifierStack item, IAdditionalTargetInformation info) {
-    if (MainProxy.isServer(getWorld())) {
-      if (info instanceof PipeCraftingManager.CMTargetInformation) {
-        PipeCraftingManager.CMTargetInformation target = (PipeCraftingManager.CMTargetInformation) info;
-        LogisticsModule module = getSubModule(target.moduleSlot);
-        if (module instanceof IRequireReliableTransport) {
-          ((IRequireReliableTransport) module).itemLost(item, info);
-        }
-      } else {
-        if (TestBridge.isDebug()) {
-          System.out.println(item);
-          new RuntimeException("[ItemLost] Information weren't ment for a crafting manager pipe").printStackTrace();
-        }
-      }
-    }
   }
 
   @Override
