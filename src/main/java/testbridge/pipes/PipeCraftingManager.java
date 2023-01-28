@@ -82,10 +82,11 @@ public class PipeCraftingManager extends CoreRoutedPipe
   private final TB_ModuleCM moduleCM;
   private final ItemIdentifierInventory _moduleInventory;
   private final NonNullList<ModuleUpgradeManager> slotUpgradeManagers = NonNullList.create();
-
+  private boolean isRedstone = false;
   public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
   @Nullable
   private SingleAdjacent pointedAdjacent = null;
+
 
   @CCCommand(description = "Returns the size of this container pipe")
   public int getChassisSize() {
@@ -141,6 +142,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
     _moduleInventory.writeToNBT(nbttagcompound, "craftingmanager");
     moduleCM.writeToNBT(nbttagcompound);
     nbttagcompound.setInteger("Orientation", pointedAdjacent == null ? -1 : pointedAdjacent.getDir().ordinal());
+    nbttagcompound.setBoolean("isRedstone", isRedstone);
     for (int i = 0; i < getChassisSize(); i++) {
       slotUpgradeManagers.get(i).writeToNBT(nbttagcompound, Integer.toString(i));
     }
@@ -155,6 +157,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
     if (tmp != -1) {
       setPointedOrientation(EnumFacingUtil.getOrientation(tmp % 6));
     }
+    isRedstone = nbttagcompound.getBoolean("isRedstone");
     for (int i = 0; i < getChassisSize(); i++) {
       final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(i);
       if (idStack != null && !moduleCM.hasModule(i)) {
@@ -188,8 +191,21 @@ public class PipeCraftingManager extends CoreRoutedPipe
   public void onNeighborBlockChange() {
     super.onNeighborBlockChange();
 
-    assert getWorld() != null;
-    if (!this.getWorld().isRemote && moduleCM.getBlockingMode().getValue().equals(TB_ModuleCM.BlockingMode.REDSTONE_PULSE) && getWorld().isBlockPowered(getPos())) {
+    boolean isPulse = false;
+
+    // Check if redstone pulse
+    if (!isRedstone) {
+      if (getWorld().isBlockPowered(getPos())) {
+        isPulse = isRedstone = getWorld().isBlockPowered(getPos());
+      }
+    }
+
+    isRedstone = getWorld().isBlockPowered(getPos());
+
+    if (!this.getWorld().isRemote
+        && moduleCM.getBlockingMode().getValue().equals(TB_ModuleCM.BlockingMode.REDSTONE_PULSE)
+        && moduleCM.hasItemsToCraft()
+        && isPulse) {
       moduleCM.startCrafting();
     }
   }

@@ -394,7 +394,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     this.craftingList.add(bufferList);
   }
 
-  private boolean hasItemsToCraft() {
+  public boolean hasItemsToCraft() {
     return this.craftingList != null && !this.craftingList.isEmpty();
   }
 
