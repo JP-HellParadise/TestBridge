@@ -28,8 +28,5 @@ Welcome!
 4. Right-click in IDEA `build.gradle` of your project, and select `Link Gradle Project`, after completion, hit `Refresh All` in the gradle tab on the right.
 5. Instead of running `genIntellijRuns` and using generated IntelliJ tasks, just run `gradlew runClient` and `gradlew runServer`.
 
-## Current stage:
-Beta 0.3.2
-
 ## Demo
 ![Concept](/Stuff/concept.gif)
