@@ -4,8 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -49,6 +47,7 @@ import network.rs485.logisticspipes.property.UUIDProperty;
 
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.PipeCraftingManager.CMTargetInformation;
+import testbridge.helpers.IISHelper;
 
 public class TB_ModuleCrafter extends ModuleCrafter {
   private WeakReference<TileEntity> lastAccessedCrafter = new WeakReference<>(null);
@@ -64,7 +63,8 @@ public class TB_ModuleCrafter extends ModuleCrafter {
 
   @Override
   public void registerPosition(@Nonnull ModulePositionType slot, int positionInt) {
-    super.registerPosition(slot, positionInt);
+    this.slot = slot;
+    this.positionInt = positionInt;
     _sinkReply = new SinkReply(SinkReply.FixedPriority.ItemSink, 0, true, false, 1, 0,
         new CMTargetInformation(getPositionInt()));
   }
@@ -72,24 +72,20 @@ public class TB_ModuleCrafter extends ModuleCrafter {
   @Override
   public LogisticsItemOrder fullFill(LogisticsPromise promise, IRequestItems destination,
                                      IAdditionalTargetInformation info) {
-    if (_service == null) return null;
+    if (pipeCM == null) return null;
     ItemIdentifierStack result = getCraftedItem();
     if (result == null) return null;
     //
     int multiply = (int) Math.ceil(promise.numberOfItems / (float) result.getStackSize());
     if(pipeCM.hasBufferUpgrade()){
-      List<Pair<IRequestItems, ItemIdentifierStack>> rec = new ArrayList<>();
-      IRouter defSat = pipeCM.getCMSatelliteRouter();
-      if (defSat == null) return null;
-      IRequestItems[] target = new IRequestItems[9];
-      for (int i = 0; i < 9; i++) {
-        target[i] = defSat.getPipe();
-      }
-
       boolean hasSatellite = isSatelliteConnected();
       if (!hasSatellite) {
         return null;
       }
+
+      IRouter defSat = pipeCM.getMainSatelliteRouter();
+      if (defSat == null) return null;
+      IRequestItems[] target = new IRequestItems[9];
 
       if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
         IRouter r = getSatelliteRouter(-1);
@@ -108,13 +104,29 @@ public class TB_ModuleCrafter extends ModuleCrafter {
         }
       }
 
-      for (int i = 0; i < target.length; i++) {
-        ItemIdentifierStack materials = dummyInventory.getIDStackInSlot(i);
-        if (materials != null) rec.add(Pair.of(target[i], materials));
+      for (int i = 0; i < 9; i++) {
+        if (target[i] == null) {
+          target[i] = defSat.getPipe();
+        }
       }
 
-      for(int i = 0;i<multiply;i++)
-        pipeCM.getModules().addBuffered(rec);
+      HashMap<IRequestItems, List<ItemIdentifierStack>> buffer = new HashMap<>();
+
+      for (int i = 0; i < target.length; i++) {
+        ItemIdentifierStack materials = dummyInventory.getIDStackInSlot(i);
+        if (materials != null) {
+          buffer.computeIfAbsent(target[i], k -> new ArrayList<>());
+          buffer.get(target[i]).add(materials);
+        }
+      }
+
+      // Applying the combine method to the materials
+      for (IRequestItems router : buffer.keySet()) {
+        buffer.computeIfPresent(router, (k, v) -> IISHelper.combine(buffer.get(k)));
+      }
+
+      for(int i = 0 ; i < multiply ; i++)
+        pipeCM.getModules().addToCraftList(buffer);
     }
     return super.fullFill(promise, destination, info);
   }
@@ -160,7 +172,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
       for (int i = 0; i < 9; i++)
         target[i] = this;
     } else {
-      IRequestItems defsat = pipeCM.getCMSatelliteRouter().getPipe();
+      IRequestItems defsat = pipeCM.getMainSatelliteRouter().getPipe();
       for (int i = 0; i < 9; i++) {
         target[i] = defsat;
       }
@@ -319,7 +331,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
 
     try {
       // As our crafting manager is properly setup, we will get result pipe service for item collecting
-      resultService = pipeCM.getCMResultRouter().getPipe();
+      resultService = pipeCM.getMainResultRouter().getPipe();
 
       final List<NeighborTileEntity<TileEntity>> adjacentInventories = resultService.getAvailableAdjacent().inventories();
 

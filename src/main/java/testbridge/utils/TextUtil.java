@@ -23,8 +23,8 @@ public final class TextUtil {
   }
 
   @SuppressWarnings("deprecation")
-  public static String translate(String key, EnumSet<TextFormatting> baseFormatting, String prepend, String append, String[] args) {
-    return transform(prepend + I18n.translateToLocalFormatted(key, (Object[]) args) + append, baseFormatting);
+  public static String translate(String key, EnumSet<TextFormatting> baseFormatting, String prepend, String append, Object[] args) {
+    return transform(prepend + I18n.translateToLocalFormatted(key, args) + append, baseFormatting);
   }
 
   public static String transform(String text, EnumSet<TextFormatting> baseFormatting) {

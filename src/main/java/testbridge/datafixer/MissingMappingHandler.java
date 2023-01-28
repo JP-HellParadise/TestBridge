@@ -1,4 +1,4 @@
-package testbridge.helpers.datafixer;
+package testbridge.datafixer;
 
 import java.util.Arrays;
 import java.util.List;

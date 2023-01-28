@@ -72,7 +72,8 @@ gui.crafting_manager.blocking.off=Off
 gui.crafting_manager.blocking.empty_main_satellite=$AQUAWait for Empty Inventory
 gui.crafting_manager.blocking.redstone_high=$REDRedstone Active High
 gui.crafting_manager.blocking.redstone_low=$GRAYRedstone Active Low
-gui.crafting_manager.blocking.wait_for_result=Wait for Completion
+gui.crafting_manager.blocking.redstone_pulse=On Redstone Pulse
+gui.crafting_manager.blocking.wait_for_result=Wait For Result
 
 gui.popup.selectresult.title=Select Result Pipe
 

@@ -26,10 +26,10 @@ import appeng.util.Platform;
 
 import testbridge.core.TB_ItemHandlers;
 import testbridge.core.TestBridge;
+import testbridge.helpers.NBTItemHelper.ItemInfo;
 import testbridge.network.GuiIDs;
-import testbridge.utils.NBTItemHelper.ItemInfo;
 
-import static testbridge.utils.NBTItemHelper.NBTHelper;
+import static testbridge.helpers.NBTItemHelper.NBTHelper;
 
 public class FakeItem extends Item {
   @Getter
@@ -64,7 +64,7 @@ public class FakeItem extends Item {
         this.clearPackage(is, player);
         return new ActionResult<>(EnumActionResult.SUCCESS, is);
       } else if (!isHolder) {
-        player.openGui(TestBridge.INSTANCE, GuiIDs.ENUM.TEMPLATE_PKG.ordinal(), w, hand.ordinal(), 0, 0);
+        player.openGui(TestBridge.INSTANCE, GuiIDs.TEMPLATE_PKG.ordinal(), w, hand.ordinal(), 0, 0);
         return new ActionResult<>(EnumActionResult.SUCCESS, is);
       }
     }

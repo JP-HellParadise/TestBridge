@@ -39,10 +39,10 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.util.TextUtil;
 
+import testbridge.core.TB_ItemHandlers;
 import testbridge.core.TestBridge;
-import testbridge.items.FakeItem;
 import testbridge.network.GuiIDs;
-import testbridge.network.packets.resultpackethandler.TB_SyncNamePacket;
+import testbridge.network.packets.pipehandler.TB_SyncNamePacket;
 
 public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe {
 
@@ -142,11 +142,10 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
   }
 
   @Override
-  @SuppressWarnings("null")
   public boolean onPartActivate(final EntityPlayer player, final EnumHand hand, final Vec3d posIn ) {
     if (Platform.isServer()) {
-      if (player.getHeldItem(hand).getItem() instanceof FakeItem) {
-        ItemStack is = player.getHeldItem(hand);
+      ItemStack is = player.getHeldItem(hand);
+      if (is.getItem() == TB_ItemHandlers.itemPackage) {
         if (!is.hasTagCompound()) {
           is.setTagCompound(new NBTTagCompound());
         }
@@ -157,7 +156,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
         // Send the result id when opening gui
         final ModernPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class).setSide(this.getSide().ordinal()).setString(this.satPartName).setTilePos(this.getTile());
         MainProxy.sendPacketToPlayer(packet, player);
-        player.openGui(TestBridge.INSTANCE, GuiIDs.GUI_SatelliteBus_ID + this.getSide().ordinal(), this.getTile().getWorld(), pos.getX(), pos.getY(), pos.getZ());
+        player.openGui(TestBridge.INSTANCE, GuiIDs.SATELLITE_BUS.begin() + this.getSide().ordinal(), this.getTile().getWorld(), pos.getX(), pos.getY(), pos.getZ());
       }
     }
     return true;

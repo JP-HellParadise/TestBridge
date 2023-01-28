@@ -27,8 +27,8 @@ import logisticspipes.modules.*;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 
 import testbridge.core.TB_ItemHandlers;
-import testbridge.helpers.TBText;
-import testbridge.interfaces.ITranslationKey;
+import testbridge.helpers.TextHelper;
+import testbridge.helpers.interfaces.ITranslationKey;
 import testbridge.modules.TB_ModuleCM;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
@@ -76,9 +76,9 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslati
   private void addResultPipeInfo(@Nonnull ResultPipe pipe, IProbeInfo probeInfo) {
     String resultPipeName = pipe.getSatellitePipeName();
     if (!StringsKt.isBlank(resultPipeName)) {
-      probeInfo.text(new TBText(top$result_prefix + "name").addArgument(resultPipeName).getTranslated());
+      probeInfo.text(new TextHelper(top$result_prefix + "name").addArgument(resultPipeName).getTranslated());
     } else {
-      probeInfo.text(new TBText(top$result_prefix + "no_name").getTranslated());
+      probeInfo.text(new TextHelper(top$result_prefix + "no_name").getTranslated());
     }
   }
 
@@ -118,23 +118,23 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslati
         }
       }
     } else {
-      chassisColumn.text(new TBText(top$cm_prefix + "no_modules").getTranslated());
+      chassisColumn.text(new TextHelper(top$cm_prefix + "no_modules").getTranslated());
     }
   }
 
   @Unique
   private void addConnectInfo(TB_ModuleCM module, IProbeInfo probeInfo) {
     for (int i = 0 ; i < 2 ; i++) {
-      String result = module.getSatelliteNameByUUID(i == 0 ?
+      String result = module.getNameByUUID(i == 0 ?
           module.getSatelliteUUID().getValue() : module.getResultUUID().getValue(), i != 0);
-      probeInfo.text(new TBText(top$cm_prefix + (i == 0 ? "select_sat" : "select_result"))
+      probeInfo.text(new TextHelper(top$cm_prefix + (i == 0 ? "select_sat" : "select_result"))
           .addArgument(result).getTranslated());
     }
   }
 
   @Unique
   private void addBlockModeInfo(PipeCraftingManager pipe, IProbeInfo probeInfo) {
-    String mode = new TBText(pipe.getAvailableAdjacent().inventories().isEmpty() ? gui$cm_prefix + "NoContainer" : pipe.getKeyBlockMode()).getTranslated();
-    probeInfo.text(new TBText(top$cm_prefix + "blocking").addArgument(mode).getTranslated());
+    String mode = new TextHelper(pipe.getAvailableAdjacent().inventories().isEmpty() ? gui$cm_prefix + "NoContainer" : pipe.getKeyBlockMode()).getTranslated();
+    probeInfo.text(new TextHelper(top$cm_prefix + "blocking").addArgument(mode).getTranslated());
   }
 }

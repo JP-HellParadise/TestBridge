@@ -24,7 +24,7 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.util.TextUtil;
 
-import testbridge.network.packets.resultpackethandler.TB_SetNamePacket;
+import testbridge.network.packets.pipehandler.TB_SetNamePacket;
 import testbridge.part.PartSatelliteBus;
 
 public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScreen {

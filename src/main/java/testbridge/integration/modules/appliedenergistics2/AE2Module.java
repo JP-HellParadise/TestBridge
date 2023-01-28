@@ -47,7 +47,7 @@ import testbridge.container.ContainerCraftingManager;
 import testbridge.container.ContainerSatelliteSelect;
 import testbridge.core.TB_ItemHandlers;
 import testbridge.core.TestBridge;
-import testbridge.helpers.HideFakeItem;
+import testbridge.helpers.inventory.HideFakeItem;
 import testbridge.helpers.interfaces.IBlocks_TB;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.integration.IIntegrationModule;

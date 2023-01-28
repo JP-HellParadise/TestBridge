@@ -1,4 +1,4 @@
-package testbridge.utils;
+package testbridge.helpers.interfaces;
 
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;

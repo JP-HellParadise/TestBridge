@@ -66,10 +66,9 @@ import testbridge.core.TB_ItemHandlers;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.items.VirtualPatternAE;
 import testbridge.part.PartSatelliteBus;
-import testbridge.utils.NBTItemHelper;
-import testbridge.utils.NBTItemHelper.ItemInfo;
+import testbridge.helpers.NBTItemHelper.ItemInfo;
 
-import static testbridge.utils.NBTItemHelper.NBTHelper;
+import static testbridge.helpers.NBTItemHelper.NBTHelper;
 
 public class DualityCraftingManager
     implements IGridTickable, IStorageMonitorable, IInventoryDestination, IAEAppEngInventory, IConfigManagerHost, ICraftingProvider, IConfigurableObject, ISegmentedInventory {
@@ -453,13 +452,13 @@ public class DualityCraftingManager
     }
 
     if (this.hasItemsToSend()) {
-      this.pushItemsOutCustom();
+      this.pushItemsOut();
     }
 
     return this.hasWorkToDo() ? TickRateModulation.SLOWER : TickRateModulation.SLEEP;
   }
 
-  private void pushItemsOutCustom() {
+  private void pushItemsOut() {
     if (!this.hasItemsToSend()) {
       return;
     }
@@ -492,6 +491,8 @@ public class DualityCraftingManager
         }
       }
     }
+
+    this.waitingToSend.values().removeIf(List::isEmpty);
 
     if (this.waitingToSend.isEmpty()) {
       this.waitingToSend = null;
@@ -591,7 +592,7 @@ public class DualityCraftingManager
       }
       if (isTableEmpty(table)) {
         this.satelliteList = null;
-        this.pushItemsOutCustom();
+        this.pushItemsOut();
         return true;
       }
     }

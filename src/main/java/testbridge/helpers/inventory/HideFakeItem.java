@@ -1,4 +1,4 @@
-package testbridge.helpers;
+package testbridge.helpers.inventory;
 
 import java.util.Collections;
 import java.util.List;

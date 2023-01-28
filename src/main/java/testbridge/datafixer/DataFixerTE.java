@@ -1,4 +1,4 @@
-package testbridge.helpers.datafixer;
+package testbridge.datafixer;
 
 import javax.annotation.Nonnull;
 

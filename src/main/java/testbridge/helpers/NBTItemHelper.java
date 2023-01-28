@@ -1,4 +1,4 @@
-package testbridge.utils;
+package testbridge.helpers;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;

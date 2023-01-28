@@ -99,11 +99,13 @@ dependencies {
 		compile 'zone.rong:mixinbooter:5.0'
 	}
 
+	compile fileTree(dir: 'lib', include: ['*.jar'])
+
 	//Compile things that need deobf
 	deobfCompile project.mcmp_dep
 	deobfCompile project.td_dep
 	deobfCompile project.hei_dep
-	deobfCompile project.lp_dep
+//	deobfCompile project.lp_dep
 	deobfCompile project.ae2_dep
 
 	//compileOnly

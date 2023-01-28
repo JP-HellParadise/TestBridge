@@ -28,8 +28,8 @@ public class GuiHandler implements IGuiHandler {
   @Override
   public Object getServerGuiElement(int ID, EntityPlayer player, World world, final int x, final int y, final int z) {
     // Satellite Bus checker
-    if(ID >= GuiIDs.GUI_SatelliteBus_ID && ID < GuiIDs.GUI_SatelliteBus_ID + 6) {
-      AEPartLocation side = AEPartLocation.fromOrdinal(ID - GuiIDs.GUI_SatelliteBus_ID);
+    if(ID >= GuiIDs.SATELLITE_BUS.begin() && ID < GuiIDs.SATELLITE_BUS.end()) {
+      AEPartLocation side = AEPartLocation.fromOrdinal(ID - GuiIDs.SATELLITE_BUS.begin());
       TileEntity TE = world.getTileEntity(new BlockPos(x, y, z));
       if(TE instanceof IPartHost) {
         IPart part = ((IPartHost) TE).getPart(side);
@@ -49,7 +49,7 @@ public class GuiHandler implements IGuiHandler {
       if (tile instanceof LogisticsTileGenericPipe) {
         pipe = (LogisticsTileGenericPipe) tile;
       }
-      switch (GuiIDs.ENUM.values()[ID]) {
+      switch (GuiIDs.values()[ID]) {
         case RESULT_PIPE:
           if (pipe != null && pipe.pipe instanceof ResultPipe) {
             return new DummyContainer(player.inventory, null);
@@ -73,8 +73,8 @@ public class GuiHandler implements IGuiHandler {
   @Override
   public Object getClientGuiElement(int ID, EntityPlayer player, final World world, int x, int y, int z) {
     // Satellite Bus checker
-    if (ID >= GuiIDs.GUI_SatelliteBus_ID && ID < GuiIDs.GUI_SatelliteBus_ID + 6) {
-      AEPartLocation side = AEPartLocation.fromOrdinal(ID - GuiIDs.GUI_SatelliteBus_ID);
+    if (ID >= GuiIDs.SATELLITE_BUS.begin() && ID < GuiIDs.SATELLITE_BUS.end()) {
+      AEPartLocation side = AEPartLocation.fromOrdinal(ID - GuiIDs.SATELLITE_BUS.begin());
       TileEntity TE = world.getTileEntity(new BlockPos(x, y, z));
       if(TE instanceof IPartHost) {
         IPart part = ((IPartHost) TE).getPart(side);
@@ -85,13 +85,13 @@ public class GuiHandler implements IGuiHandler {
       return null;
     }
 
-    if (ID < 100 && ID > 0) {
+    if (ID < 100 && ID >= 0) {
       TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
       LogisticsTileGenericPipe pipe = null;
       if (tile instanceof LogisticsTileGenericPipe) {
         pipe = (LogisticsTileGenericPipe) tile;
       }
-      switch (GuiIDs.ENUM.values()[ID]) {
+      switch (GuiIDs.values()[ID]) {
         case RESULT_PIPE:
           if (pipe != null && pipe.pipe instanceof ResultPipe) {
             return new GuiResultPipe<>(((ResultPipe) pipe.pipe), "gui.result.");

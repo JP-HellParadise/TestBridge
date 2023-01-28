@@ -10,7 +10,7 @@ import net.minecraft.item.Item;
 
 import net.minecraftforge.client.model.ModelLoader;
 
-import testbridge.utils.MeshDefinitionFix;
+import testbridge.helpers.interfaces.MeshDefinitionFix;
 
 public class RegisterHelper {
   /**
