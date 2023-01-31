@@ -87,7 +87,6 @@ public class PipeCraftingManager extends CoreRoutedPipe
   @Nullable
   private SingleAdjacent pointedAdjacent = null;
 
-
   @CCCommand(description = "Returns the size of this container pipe")
   public int getChassisSize() {
     return 27;

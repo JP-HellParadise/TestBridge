@@ -10,12 +10,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
-import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
 import testbridge.pipes.PipeCraftingManager;
 
-@Mixin(ModuleCoordinatesGuiProvider.class)
+@Mixin(targets = "logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider", remap = false )
 public abstract class TB_MixinModuleCGP extends CoordinatesGuiProvider {
   @Shadow
   private int positionInt;
@@ -24,7 +23,7 @@ public abstract class TB_MixinModuleCGP extends CoordinatesGuiProvider {
     super(id);
   }
 
-  @Inject(method = "getLogisticsModule", at = @At(value = "RETURN", ordinal = 1, shift = At.Shift.BEFORE), cancellable = true)
+  @Inject(method = "getLogisticsModule", at = @At(value = "RETURN", ordinal = 1, shift = At.Shift.BEFORE), cancellable = true, remap = false)
   public <T> void test(World world, Class<T> clazz, CallbackInfoReturnable<LogisticsModule> cir) {
     LogisticsTileGenericPipe pipe = this.getTileAs(world, LogisticsTileGenericPipe.class);
     if(pipe.pipe instanceof PipeCraftingManager) {

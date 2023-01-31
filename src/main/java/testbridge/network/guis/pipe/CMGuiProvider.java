@@ -63,10 +63,11 @@ public class CMGuiProvider extends ModuleCoordinatesGuiProvider {
     if (!(pipe.pipe instanceof PipeCraftingManager)) {
       return null;
     }
-    MainProxy.sendPacketToPlayer(((PipeCraftingManager) pipe.pipe).getModules().getCMPipePacket(), player);
+    TB_ModuleCM moduleCM = ((PipeCraftingManager) pipe.pipe).getModules();
+    MainProxy.sendPacketToPlayer(moduleCM.getCMPipePacket(), player);
     final PipeCraftingManager _cmPipe = (PipeCraftingManager) pipe.pipe;
     IInventory _moduleInventory = _cmPipe.getModuleInventory();
-    DummyContainer dummy = new DummyContainer(player.inventory, _moduleInventory);
+    DummyContainer dummy = new DummyContainer(player, _moduleInventory, moduleCM);
     dummy.addNormalSlotsForPlayerInventory(8, 85);
     for (int i = 0; i < 3; i++)
       for (int j = 0; j < 9; j++)
@@ -80,10 +81,9 @@ public class CMGuiProvider extends ModuleCoordinatesGuiProvider {
     }
 
     for (int x = 0; x < 3; x++) {
-      dummy.addDummySlot(x, ((PipeCraftingManager) pipe.pipe).getModules().excludedInventory, x * 18 - 141, 55);
+      dummy.addDummySlot(x, moduleCM.excludedInventory, x * 18 - 141, 55);
     }
 
-    _cmPipe.localModeWatchers.add(player);
     return dummy;
   }
 

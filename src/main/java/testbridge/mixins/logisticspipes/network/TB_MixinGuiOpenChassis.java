@@ -10,19 +10,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
-import logisticspipes.network.packets.gui.GuiOpenChassis;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.pipes.PipeCraftingManager;
 
-@Mixin(GuiOpenChassis.class)
+@Mixin(targets = "logisticspipes/network/packets/gui/GuiOpenChassis", remap = false)
 public abstract class TB_MixinGuiOpenChassis extends CoordinatesPacket {
   public TB_MixinGuiOpenChassis(int id) {
     super(id);
   }
 
-  @Inject(method = "processPacket", at = @At(value = "HEAD", ordinal = 0), cancellable = true)
+  @Inject(method = "processPacket", at = @At(value = "HEAD", ordinal = 0), cancellable = true, remap = false)
   public void isCraftingManager(EntityPlayer player, CallbackInfo ci) {
     LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), CoordinatesPacket.LTGPCompletionCheck.PIPE);
     if (pipe.pipe instanceof PipeCraftingManager) {

@@ -24,7 +24,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.TextComponentTranslation;
 
 import logisticspipes.network.PacketHandler;
-import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -40,7 +39,7 @@ import testbridge.helpers.interfaces.ISatellitePipe;
 import testbridge.network.packets.pipe.OrientationPacket;
 import testbridge.network.packets.pipe.RequestOrientationPacket;
 
-@Mixin(PipeItemsSatelliteLogistics.class)
+@Mixin(targets = "logisticspipes/pipes/PipeItemsSatelliteLogistics", remap = false)
 public abstract class TB_MixinSatellitePipe extends CoreRoutedPipe implements ISatellitePipe {
 
   // Dummy constructor
@@ -53,12 +52,12 @@ public abstract class TB_MixinSatellitePipe extends CoreRoutedPipe implements IS
     */
 
   // Implement NBT handler
-  @Inject(method = "writeToNBT", at = @At(value = "INVOKE", target = "logisticspipes/pipes/basic/CoreRoutedPipe.writeToNBT (Lnet/minecraft/nbt/NBTTagCompound;)V"))
+  @Inject(method = "writeToNBT", at = @At(value = "INVOKE", target = "logisticspipes/pipes/basic/CoreRoutedPipe.writeToNBT (Lnet/minecraft/nbt/NBTTagCompound;)V"), remap = false)
   public void TB_writeToNBT(NBTTagCompound nbttagcompound, CallbackInfo ci) {
     nbttagcompound.setInteger("Orientation", pointedAdjacent == null ? -1 : pointedAdjacent.getDir().ordinal());
   }
 
-  @Inject(method = "readFromNBT", at = @At(value = "INVOKE", target = "logisticspipes/pipes/basic/CoreRoutedPipe.readFromNBT (Lnet/minecraft/nbt/NBTTagCompound;)V", shift = At.Shift.BY, by = 1))
+  @Inject(method = "readFromNBT", at = @At(value = "INVOKE", target = "logisticspipes/pipes/basic/CoreRoutedPipe.readFromNBT (Lnet/minecraft/nbt/NBTTagCompound;)V", shift = At.Shift.BY, by = 1), remap = false)
   public void TB_readFromNBT(NBTTagCompound nbttagcompound, CallbackInfo ci) {
     int tmp = nbttagcompound.getInteger("Orientation");
     if (tmp != -1) {

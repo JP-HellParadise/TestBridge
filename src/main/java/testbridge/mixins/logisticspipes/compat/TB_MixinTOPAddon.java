@@ -33,18 +33,18 @@ import testbridge.modules.TB_ModuleCM;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 
-@Mixin(targets = "network.rs485.logisticspipes.compat.TheOneProbeIntegration$PipeInfoProvider", remap = false)
+@Mixin(targets = "network/rs485/logisticspipes/compat/TheOneProbeIntegration$PipeInfoProvider", remap = false)
 public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslationKey {
 
-  @Shadow
+  @Shadow (remap = false)
   @Final
   protected abstract void defaultInfo(CoreUnroutedPipe pipe, IProbeInfo probeInfo, ProbeMode mode);
 
-  @Shadow
+  @Shadow (remap = false)
   @Final
   public abstract IProbeInfo addItemWithText(@NotNull IProbeInfo $this$addItemWithText, @NotNull ItemStack itemStack, @NotNull String text);
 
-  @Shadow
+  @Shadow (remap = false)
   @Final
   protected abstract void addCraftingModuleInfo(ModuleCrafter module, IProbeInfo probeInfo, ProbeMode mode, boolean isModule);
 
@@ -56,7 +56,8 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslati
       shift = At.Shift.BY,
       by = 2),
     locals = LocalCapture.CAPTURE_FAILSOFT,
-    cancellable = true)
+    cancellable = true,
+    remap = false)
   private void preAddProbeInfo(
       ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data, CallbackInfo ci, boolean isModule, CoreUnroutedPipe pipe) {
     if (pipe instanceof ResultPipe) {

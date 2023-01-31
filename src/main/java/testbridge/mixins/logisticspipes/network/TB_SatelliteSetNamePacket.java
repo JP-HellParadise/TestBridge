@@ -8,16 +8,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import logisticspipes.network.packets.satpipe.SatelliteSetNamePacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
-@Mixin(SatelliteSetNamePacket.class)
+@Mixin(targets = "logisticspipes/network/packets/satpipe/SatelliteSetNamePacket", remap = false)
 public abstract class TB_SatelliteSetNamePacket {
   @Inject(method = "processPacket", at = @At(
       value = "INVOKE_ASSIGN",
       shift = At.Shift.AFTER,
       target = "network/rs485/logisticspipes/SatellitePipe.ensureAllSatelliteStatus()V"),
-      locals = LocalCapture.CAPTURE_FAILSOFT)
+      locals = LocalCapture.CAPTURE_FAILSOFT,
+      remap = false
+    )
   private void markPipeDirty(EntityPlayer player, CallbackInfo ci, LogisticsTileGenericPipe pipe) {
     pipe.getTile().markDirty();
   }

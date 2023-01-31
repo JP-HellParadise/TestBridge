@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 
 import lombok.Getter;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -33,6 +34,7 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.utils.PlayerCollectionList;
 
 import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
@@ -42,12 +44,13 @@ import network.rs485.logisticspipes.property.*;
 import testbridge.helpers.TextHelper;
 import testbridge.helpers.interfaces.ISatellitePipe;
 import testbridge.helpers.interfaces.ITranslationKey;
+import testbridge.helpers.interfaces.TB_IIventoryUtil;
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeUpdatePacket;
 import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 
-public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey {
+public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey, IGuiOpenControler {
 
   public final InventoryProperty excludedInventory = new InventoryProperty(
       new ItemIdentifierInventory(3, "Excluded Filter Item", 1), "ExcludedInv");
@@ -66,6 +69,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
   private final PipeCraftingManager parentPipe;
   private final int neededEnergy = 20;
   private int sendCooldown = 0;
+  protected final PlayerCollectionList guiWatcher = new PlayerCollectionList();
   private Queue<HashMap<IRequestItems, List<ItemIdentifierStack>>> craftingList;
   private HashMap<IRequestItems, List<ItemIdentifierStack>> waitingToSend;
 
@@ -288,7 +292,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
   }
 
   private void updateSatResultsOnClient() {
-    MainProxy.sendToPlayerList(getCMPipePacket(), parentPipe.localModeWatchers);
+    MainProxy.sendToPlayerList(getCMPipePacket(), guiWatcher);
   }
 
   public void setSatelliteUUID(@Nullable UUID pipeID) {
@@ -309,6 +313,16 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     }
     updateSatResultsOnClient();
     updateSatResultFromNames = null;
+  }
+
+  @Override
+  public void guiOpenedByPlayer(EntityPlayer player) {
+    guiWatcher.add(player);
+  }
+
+  @Override
+  public void guiClosedByPlayer(EntityPlayer player) {
+    guiWatcher.remove(player);
   }
 
   private static class UpdateSatResultFromNames {
@@ -381,7 +395,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     IInventoryUtil inv = ((ISatellitePipe) sat).getAvailableAdjacent().inventories()
         .stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
     if (inv != null) {
-      return inv.roomForItem(stacks.stream().map(ItemIdentifierStack::makeNormalStack).iterator());
+      return ((TB_IIventoryUtil) inv).roomForItem(stacks.stream().map(ItemIdentifierStack::makeNormalStack).iterator());
     }
     return true;
   }
