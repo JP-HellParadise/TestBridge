@@ -23,10 +23,10 @@ import network.rs485.logisticspipes.util.TextUtil;
 import testbridge.container.ContainerSatelliteSelect;
 import testbridge.helpers.AECustomGui;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
+import testbridge.helpers.interfaces.ITranslationKey;
 import testbridge.network.packets.TB_CustomAE2Packet;
 
-public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess {
-  static String GUI_LANG_KEY = "gui.popup.selectsatellite.";
+public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess, ITranslationKey {
   private final Consumer<String> handleResult;
   private List<String> satList = new ArrayList<>();
   private final TextListDisplay textList;
@@ -63,9 +63,9 @@ public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess {
   @Override
   public void initGui() {
     super.initGui();
-    this.buttonList.add(this.select = new GuiButton(0, xCenter + 16, bottom - 27, 50, 10, TextUtil.translate(GUI_LANG_KEY + "select")));
-    this.buttonList.add(this.exit = new GuiButton(1, xCenter + 16, bottom - 15, 50, 10, TextUtil.translate(GUI_LANG_KEY + "exit")));
-    this.buttonList.add(this.unset = new GuiButton(2, xCenter - 66, bottom - 27, 50, 10, TextUtil.translate(GUI_LANG_KEY + "unset")));
+    this.buttonList.add(this.select = new GuiButton(0, xCenter + 16, bottom - 27, 50, 10, TextUtil.translate(gui$satselect_prefix + "select")));
+    this.buttonList.add(this.exit = new GuiButton(1, xCenter + 16, bottom - 15, 50, 10, TextUtil.translate(gui$satselect_prefix + "exit")));
+    this.buttonList.add(this.unset = new GuiButton(2, xCenter - 66, bottom - 27, 50, 10, TextUtil.translate(gui$satselect_prefix + "unset")));
     this.buttonList.add(this.up = new GuiButton(3, xCenter - 12, bottom - 27, 25, 10, "/\\"));
     this.buttonList.add(this.down = new GuiButton(4, xCenter - 12, bottom - 15, 25, 10, "\\/"));
 
@@ -85,7 +85,7 @@ public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess {
   @Override
   public void drawBG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
     GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-    mc.fontRenderer.drawStringWithShadow(TextUtil.translate(GUI_LANG_KEY + "title"), xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f), guiTop + 6, 0xFFFFFF);
+    mc.fontRenderer.drawStringWithShadow(TextUtil.translate(gui$satselect_prefix + "title"), xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(gui$satselect_prefix + "title")) / 2f), guiTop + 6, 0xFFFFFF);
 
     textList.renderGuiBackground(mouseX, mouseY);
   }

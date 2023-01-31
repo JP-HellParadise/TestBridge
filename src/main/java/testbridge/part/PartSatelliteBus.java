@@ -30,10 +30,8 @@ import appeng.util.Platform;
 import appeng.util.SettingsFrom;
 
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 import network.rs485.logisticspipes.SatellitePipe;
@@ -55,7 +53,6 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
   public static final IPartModel MODELS_HAS_CHANNEL = new PartModel( MODEL_BASE, new ResourceLocation( TestBridge.MODID, "part/satellite_bus_has_channel" ) );
 
   public static final Set<PartSatelliteBus> AllSatellites = Collections.newSetFromMap(new WeakHashMap<>());
-  public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
   private String satPartName = "";
 
   @Reflected
@@ -193,9 +190,6 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
 
   @Override
   public void updateWatchers() {
-    CoordinatesPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class).setSide(this.getSide().ordinal()).setString(this.satPartName).setTilePos(this.getTile());
-    MainProxy.sendToPlayerList(packet, this.localModeWatchers);
-    MainProxy.sendPacketToAllWatchingChunk(this.getTile(), packet);
   }
 
   @Override
@@ -252,6 +246,8 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
         player.sendStatusMessage(new TextComponentString(TextUtil.translate("chat.testbridge.satellite_bus.success")), true);
         break;
       default:
+        player.sendStatusMessage(new TextComponentString("Something weird happen!! Report this to Korewa_Li"), true);
+        break;
     }
   }
 }

@@ -10,4 +10,5 @@ public interface ITranslationKey {
   String top$cm_prefix = "top." + TestBridge.MODID + ".crafting_manager.";
 
   String gui$cm_prefix = "gui.crafting_manager.";
+  String gui$satselect_prefix = "gui.popup.selectsatellite.";
 }

@@ -71,7 +71,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
     propertyLayer = new PropertyLayer(module.getProperties());
 
     // Create dummy container
-    DummyContainer dummy = new DummyContainer(_player.inventory, _moduleInventory);
+    DummyContainer dummy = new DummyContainer(_player, _moduleInventory, module);
     dummy.addNormalSlotsForPlayerInventory(8, 16 + 18 * 3 + 15);
     for (int i = 0; i < 3; i++)
       for (int j = 0; j < 9; j++)

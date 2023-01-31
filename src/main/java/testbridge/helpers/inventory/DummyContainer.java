@@ -18,6 +18,7 @@ import logisticspipes.utils.gui.*;
 import logisticspipes.utils.ReflectionHelper;
 
 import testbridge.core.TB_ItemHandlers;
+import logisticspipes.interfaces.IGuiOpenControler;
 import testbridge.modules.TB_ModuleCM;
 import testbridge.pipes.PipeCraftingManager;
 
@@ -26,8 +27,8 @@ public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
   private final List<Slot> transferTop = new ArrayList<>();
   private final List<Slot> transferBottom = new ArrayList<>();
 
-  public DummyContainer(IInventory playerInventory, IInventory dummyInventory) {
-    super(playerInventory, dummyInventory);
+  public DummyContainer(EntityPlayer player, IInventory dummyInventory, IGuiOpenControler... controler) {
+    super(player, dummyInventory, controler);
   }
 
   /***
