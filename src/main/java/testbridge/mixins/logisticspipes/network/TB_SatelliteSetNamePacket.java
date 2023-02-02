@@ -8,9 +8,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import logisticspipes.network.packets.satpipe.SatelliteSetNamePacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
-@Mixin(targets = "logisticspipes/network/packets/satpipe/SatelliteSetNamePacket", remap = false)
+@Mixin(value = SatelliteSetNamePacket.class, remap = false)
 public abstract class TB_SatelliteSetNamePacket {
   @Inject(method = "processPacket", at = @At(
       value = "INVOKE_ASSIGN",

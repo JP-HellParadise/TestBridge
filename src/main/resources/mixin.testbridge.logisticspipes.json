@@ -4,7 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "compat.TB_MixinTOPAddon",
-    "invutil.TB_AEInterfaceIventoryHandlerTB",
+    "invutil.TB_AEInterfaceInventoryHandler",
     "invutil.TB_BuildCraftTransactorHandler",
     "invutil.TB_CharsetImplementationFactory",
     "invutil.TB_InventoryUtil",

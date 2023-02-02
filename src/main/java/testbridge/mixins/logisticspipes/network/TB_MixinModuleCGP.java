@@ -10,11 +10,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
+import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 
 import testbridge.pipes.PipeCraftingManager;
 
-@Mixin(targets = "logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider", remap = false )
+@Mixin(value = ModuleCoordinatesGuiProvider.class, remap = false )
 public abstract class TB_MixinModuleCGP extends CoordinatesGuiProvider {
   @Shadow
   private int positionInt;

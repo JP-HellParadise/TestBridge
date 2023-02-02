@@ -212,7 +212,7 @@ public class AE2Module implements IIntegrationModule {
   @SideOnly(Side.CLIENT)
   static void hideFakeItems(GuiScreenEvent.BackgroundDrawnEvent event){
     Minecraft mc = Minecraft.getMinecraft();
-    if(mc.currentScreen instanceof GuiMEMonitorable){
+    if (mc.currentScreen instanceof GuiMEMonitorable) {
       GuiMEMonitorable g = (GuiMEMonitorable) mc.currentScreen;
       if (AE2Module.HIDE_FAKE_ITEM == null) {
         AE2Module.HIDE_FAKE_ITEM = new HideFakeItem();
@@ -220,17 +220,17 @@ public class AE2Module implements IIntegrationModule {
       try {
         ItemRepo r = (ItemRepo) GuiMEMonitorable_Repo.get(g);
         IPartitionList<IAEItemStack> pl = (IPartitionList<IAEItemStack>) ItemRepo_myPartitionList.get(r);
-        if(pl instanceof MergedPriorityList){
+        if (pl instanceof MergedPriorityList) {
           MergedPriorityList<IAEItemStack> ml = (MergedPriorityList<IAEItemStack>) pl;
           Collection<IPartitionList<IAEItemStack>> negative = (Collection<IPartitionList<IAEItemStack>>) AE2Module.MergedPriorityList_negative.get(ml);
-          if(!negative.contains(AE2Module.HIDE_FAKE_ITEM)){
+          if (!negative.contains(AE2Module.HIDE_FAKE_ITEM)) {
             negative.add(AE2Module.HIDE_FAKE_ITEM);
             r.updateView();
           }
-        }else{
+        } else {
           MergedPriorityList<IAEItemStack> mList = new MergedPriorityList<>();
           ItemRepo_myPartitionList.set(r, mList);
-          if(pl != null) mList.addNewList(pl, true);
+          if (pl != null) mList.addNewList(pl, true);
           mList.addNewList(AE2Module.HIDE_FAKE_ITEM, false);
           r.updateView();
         }

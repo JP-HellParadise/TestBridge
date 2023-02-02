@@ -25,6 +25,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 
 import logisticspipes.network.PacketHandler;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
@@ -39,7 +40,7 @@ import testbridge.helpers.interfaces.ISatellitePipe;
 import testbridge.network.packets.pipe.OrientationPacket;
 import testbridge.network.packets.pipe.RequestOrientationPacket;
 
-@Mixin(targets = "logisticspipes/pipes/PipeItemsSatelliteLogistics", remap = false)
+@Mixin(value = PipeItemsSatelliteLogistics.class, remap = false)
 public abstract class TB_MixinSatellitePipe extends CoreRoutedPipe implements ISatellitePipe {
 
   // Dummy constructor
