@@ -12,10 +12,10 @@ import buildcraft.api.inventory.IItemTransactor;
 
 import logisticspipes.proxy.specialinventoryhandler.BuildCraftTransactorHandler;
 
-import testbridge.helpers.interfaces.TB_IIventoryUtil;
+import testbridge.helpers.interfaces.TB_IInventoryUtil;
 
 @Mixin(value = BuildCraftTransactorHandler.class, remap = false)
-public abstract class TB_BuildCraftTransactorHandler implements TB_IIventoryUtil {
+public abstract class TB_BuildCraftTransactorHandler implements TB_IInventoryUtil {
   @Shadow(remap = false)
   private IItemTransactor cap;
 

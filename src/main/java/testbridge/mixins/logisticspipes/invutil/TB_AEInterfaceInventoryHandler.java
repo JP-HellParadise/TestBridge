@@ -26,10 +26,10 @@ import logisticspipes.proxy.specialinventoryhandler.AEInterfaceInventoryHandler;
 import network.rs485.logisticspipes.inventory.ProviderMode;
 
 import testbridge.helpers.TBActionSource;
-import testbridge.helpers.interfaces.TB_IIventoryUtil;
+import testbridge.helpers.interfaces.TB_IInventoryUtil;
 
 @Mixin(value = AEInterfaceInventoryHandler.class, remap = false)
-public abstract class TB_AEInterfaceInventoryHandler implements TB_IIventoryUtil {
+public abstract class TB_AEInterfaceInventoryHandler implements TB_IInventoryUtil {
   @Shadow(remap = false)
   private IStorageMonitorableAccessor acc;
 

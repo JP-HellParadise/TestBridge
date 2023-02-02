@@ -14,10 +14,10 @@ import pl.asie.charset.api.storage.IBarrel;
 import logisticspipes.utils.item.ItemIdentifier;
 import network.rs485.logisticspipes.compat.BarrelInventoryHandler;
 
-import testbridge.helpers.interfaces.TB_IIventoryUtil;
+import testbridge.helpers.interfaces.TB_IInventoryUtil;
 
 @Mixin(value = BarrelInventoryHandler.class, remap = false)
-public abstract class TB_CharsetImplementationFactory implements TB_IIventoryUtil {
+public abstract class TB_CharsetImplementationFactory implements TB_IInventoryUtil {
   @Shadow(remap = false)
   @Final
   private IBarrel tile;

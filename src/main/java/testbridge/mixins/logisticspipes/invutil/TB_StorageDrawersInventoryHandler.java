@@ -16,10 +16,10 @@ import com.jaquadro.minecraft.storagedrawers.api.storage.IDrawerGroup;
 import logisticspipes.kotlin.collections.CollectionsKt;
 import network.rs485.logisticspipes.proxy.StorageDrawersInventoryHandler;
 
-import testbridge.helpers.interfaces.TB_IIventoryUtil;
+import testbridge.helpers.interfaces.TB_IInventoryUtil;
 
 @Mixin(value = StorageDrawersInventoryHandler.class, remap = false)
-public abstract class TB_StorageDrawersInventoryHandler implements TB_IIventoryUtil {
+public abstract class TB_StorageDrawersInventoryHandler implements TB_IInventoryUtil {
   @Shadow(remap = false)
   protected abstract List<Integer> accessibleDrawerSlots();
 

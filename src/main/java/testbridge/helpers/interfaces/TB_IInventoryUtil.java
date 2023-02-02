@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.item.ItemStack;
 
-public interface TB_IIventoryUtil {
+public interface TB_IInventoryUtil {
 
   /**
    * Inventory space count which terminates when space for max items are

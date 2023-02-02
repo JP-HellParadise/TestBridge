@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
-import logisticspipes.proxy.specialinventoryhandler.AEInterfaceInventoryHandler;
 import lombok.Getter;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -45,7 +44,7 @@ import network.rs485.logisticspipes.property.*;
 import testbridge.helpers.TextHelper;
 import testbridge.helpers.interfaces.ISatellitePipe;
 import testbridge.helpers.interfaces.ITranslationKey;
-import testbridge.helpers.interfaces.TB_IIventoryUtil;
+import testbridge.helpers.interfaces.TB_IInventoryUtil;
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeUpdatePacket;
 import testbridge.pipes.PipeCraftingManager;
@@ -396,7 +395,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     IInventoryUtil inv = ((ISatellitePipe) sat).getAvailableAdjacent().inventories()
         .stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
     if (inv != null) {
-      return ((TB_IIventoryUtil) inv).roomForItem(stacks.stream().map(ItemIdentifierStack::makeNormalStack).iterator());
+      return ((TB_IInventoryUtil) inv).roomForItem(stacks.stream().map(ItemIdentifierStack::makeNormalStack).iterator());
     }
     return true;
   }
