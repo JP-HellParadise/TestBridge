@@ -2,6 +2,9 @@ package testbridge.client.gui;
 
 import java.io.IOException;
 
+import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -61,6 +64,9 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
   private GuiButton extendedButton;
   private int extendedSlot = -1;
 
+  private final Slot fakeSlot;
+  private final InventoryBasic inv;
+
   public GuiCMPipe(EntityPlayer _player, PipeCraftingManager pipeCM, TB_ModuleCM module, boolean flag, boolean container) {
     super(null);
     hasBufferUpgrade = flag;
@@ -98,6 +104,33 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
     inventorySlots = dummy;
 
     blockingModeOverlay = propertyLayer.overlay(module.getBlockingMode());
+
+    inv = new InventoryBasic("", false, 1);
+    fakeSlot = new Slot(inv, 0, 0, 0);
+  }
+
+  @Override
+  protected void drawSlot(Slot slotIn) {
+    ItemStack stack = slotIn.getStack();
+    // Either player inv or Crafter Slot
+    if ((slotIn.slotNumber < 36 || slotIn instanceof CrafterSlot) && !stack.isEmpty() && stack.hasTagCompound() && isShiftKeyDown()) {
+      NBTTagCompound info = stack.getTagCompound().getCompoundTag("moduleInformation");
+      NBTTagList list = info.getTagList("items", 10);
+      NBTTagCompound output = null;
+      for (int i = 0; i < list.tagCount(); i++) {
+        NBTTagCompound tag = list.getCompoundTagAt(i);
+        if (tag.getInteger("index") == 9) {
+          output = tag;
+        }
+      }
+      if (output != null) {
+        inv.setInventorySlotContents(0, new ItemStack(output));
+        fakeSlot.xPos = slotIn.xPos;
+        fakeSlot.yPos = slotIn.yPos;
+        super.drawSlot(fakeSlot);
+        inv.setInventorySlotContents(0, ItemStack.EMPTY);
+      } else super.drawSlot(slotIn);
+    } else super.drawSlot(slotIn);
   }
 
   @Override

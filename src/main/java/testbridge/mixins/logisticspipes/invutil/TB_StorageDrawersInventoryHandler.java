@@ -14,10 +14,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import com.jaquadro.minecraft.storagedrawers.api.storage.IDrawerGroup;
 
 import logisticspipes.kotlin.collections.CollectionsKt;
+import network.rs485.logisticspipes.proxy.StorageDrawersInventoryHandler;
 
 import testbridge.helpers.interfaces.TB_IIventoryUtil;
 
-@Mixin(targets = "network/rs485/logisticspipes/proxy/StorageDrawersInventoryHandler", remap = false)
+@Mixin(value = StorageDrawersInventoryHandler.class, remap = false)
 public abstract class TB_StorageDrawersInventoryHandler implements TB_IIventoryUtil {
   @Shadow(remap = false)
   protected abstract List<Integer> accessibleDrawerSlots();

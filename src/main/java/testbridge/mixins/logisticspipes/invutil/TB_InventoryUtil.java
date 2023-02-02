@@ -10,9 +10,11 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import logisticspipes.utils.InventoryUtil;
+
 import testbridge.helpers.interfaces.TB_IIventoryUtil;
 
-@Mixin(targets = "logisticspipes/utils/InventoryUtil", remap = false)
+@Mixin(value = InventoryUtil.class, remap = false)
 public abstract class TB_InventoryUtil implements TB_IIventoryUtil {
   @Shadow(remap = false)
   @Final

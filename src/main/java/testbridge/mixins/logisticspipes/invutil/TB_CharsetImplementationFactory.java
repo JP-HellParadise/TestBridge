@@ -12,10 +12,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import pl.asie.charset.api.storage.IBarrel;
 
 import logisticspipes.utils.item.ItemIdentifier;
+import network.rs485.logisticspipes.compat.BarrelInventoryHandler;
 
 import testbridge.helpers.interfaces.TB_IIventoryUtil;
 
-@Mixin(targets = "network.rs485.logisticspipes.compat.BarrelInventoryHandler", remap = false)
+@Mixin(value = BarrelInventoryHandler.class, remap = false)
 public abstract class TB_CharsetImplementationFactory implements TB_IIventoryUtil {
   @Shadow(remap = false)
   @Final

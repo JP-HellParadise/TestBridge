@@ -17,17 +17,18 @@ import testbridge.block.BlockCraftingManager;
 import testbridge.block.tile.TileCraftingManager;
 import testbridge.helpers.interfaces.IBlocks_TB;
 
-@Mixin(ApiBlocks.class)
+@Mixin(value = ApiBlocks.class, remap = false)
 public abstract class TB_APIBlocks implements IBlocks_TB {
   @Unique
   private IBlockDefinition cmBlock;
 
   @Override
+  @Unique
   public IBlockDefinition cmBlock() {
     return cmBlock;
   }
 
-  @Inject(method = "<init>", at = @At(value = "RETURN"))
+  @Inject(method = "<init>", at = @At(value = "RETURN"), remap = false)
   public void setCmBlock(FeatureFactory registry, PartModels partModels, CallbackInfo ci){
     this.cmBlock  = registry.block("crafting_manager", BlockCraftingManager::new)
         .features(AEFeature.INTERFACE)

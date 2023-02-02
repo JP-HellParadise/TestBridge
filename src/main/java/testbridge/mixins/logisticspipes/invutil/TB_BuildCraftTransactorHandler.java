@@ -10,9 +10,11 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import buildcraft.api.inventory.IItemTransactor;
 
+import logisticspipes.proxy.specialinventoryhandler.BuildCraftTransactorHandler;
+
 import testbridge.helpers.interfaces.TB_IIventoryUtil;
 
-@Mixin(targets = "logisticspipes/proxy/specialinventoryhandler/BuildCraftTransactorHandler", remap = false)
+@Mixin(value = BuildCraftTransactorHandler.class, remap = false)
 public abstract class TB_BuildCraftTransactorHandler implements TB_IIventoryUtil {
   @Shadow(remap = false)
   private IItemTransactor cap;

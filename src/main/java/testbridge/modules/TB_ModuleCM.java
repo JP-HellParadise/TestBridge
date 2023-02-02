@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
+import logisticspipes.proxy.specialinventoryhandler.AEInterfaceInventoryHandler;
 import lombok.Getter;
 
 import net.minecraft.entity.player.EntityPlayer;
