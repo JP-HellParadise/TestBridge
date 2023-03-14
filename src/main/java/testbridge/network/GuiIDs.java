@@ -1,12 +1,10 @@
 package testbridge.network;
 
-import appeng.api.util.AEPartLocation;
-
 public enum GuiIDs {
   NONE, // By default, we won't interact with this
   RESULT_PIPE,
   TEMPLATE_PKG,
-  SATELLITE_BUS(100, AEPartLocation.values().length);
+  SATELLITE_BUS(100, 6);
 
   final int start;
   final int additional;
