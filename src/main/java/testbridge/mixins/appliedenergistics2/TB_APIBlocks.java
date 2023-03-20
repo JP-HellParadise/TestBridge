@@ -14,7 +14,7 @@ import appeng.core.features.AEFeature;
 import appeng.core.features.registries.PartModels;
 
 import testbridge.block.BlockCraftingManager;
-import testbridge.block.tile.TileCraftingManager;
+import testbridge.block.tile.TileEntityCraftingManager;
 import testbridge.helpers.interfaces.IBlocks_TB;
 
 @Mixin(value = ApiBlocks.class, remap = false)
@@ -32,7 +32,7 @@ public abstract class TB_APIBlocks implements IBlocks_TB {
   public void setCmBlock(FeatureFactory registry, PartModels partModels, CallbackInfo ci){
     this.cmBlock  = registry.block("crafting_manager", BlockCraftingManager::new)
         .features(AEFeature.INTERFACE)
-        .tileEntity(new TileEntityDefinition(TileCraftingManager.class))
+        .tileEntity(new TileEntityDefinition(TileEntityCraftingManager.class))
         .build();
   }
 }

@@ -40,7 +40,7 @@ public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess, ITran
   public GuiSatelliteSelect(final InventoryPlayer inventoryPlayer, final ICraftingManagerHost te) {
     super(new ContainerSatelliteSelect(inventoryPlayer, te), 0, 0);
     this.handleResult = satName -> MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomAE2Packet.class).setKey("CMSatellite.Setting").setValue(satName).setSetting(true).setBlockPos(te.getBlockPos()));
-    this.textList = new TextListDisplay(this, 6, 32, 6, 30, 11, new TextListDisplay.List() {
+    this.textList = new TextListDisplay(this, 6, 28, 6, 30, 14, new TextListDisplay.List() {
       @Override
       public int getSize() {
         return satList.size();

@@ -12,7 +12,7 @@ import mcjty.theoneprobe.config.Config;
 
 import appeng.tile.AEBaseTile;
 
-import testbridge.block.tile.TileCraftingManager;
+import testbridge.block.tile.TileEntityCraftingManager;
 import testbridge.helpers.TextHelper;
 import testbridge.helpers.interfaces.ITranslationKey;
 
@@ -20,10 +20,10 @@ public class CraftingManagerProvider implements ITileProbInfoProvider, ITranslat
 
   @Override
   public void addProbeInfo(AEBaseTile tile, ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
-    if (tile instanceof TileCraftingManager) {
-      addConnectInfo((TileCraftingManager) tile, probeInfo);
+    if (tile instanceof TileEntityCraftingManager) {
+      addConnectInfo((TileEntityCraftingManager) tile, probeInfo);
 
-      IItemHandler patternInv = ((TileCraftingManager) tile).getInventoryByName("patterns");
+      IItemHandler patternInv = ((TileEntityCraftingManager) tile).getInventoryByName("patterns");
       int patternCount = 0;
 
       for (int i = 0; i < patternInv.getSlots(); i++) {
@@ -45,7 +45,7 @@ public class CraftingManagerProvider implements ITileProbInfoProvider, ITranslat
     }
   }
 
-  private void addConnectInfo(TileCraftingManager tile, IProbeInfo probeInfo) {
+  private void addConnectInfo(TileEntityCraftingManager tile, IProbeInfo probeInfo) {
     String satName = tile.getSatelliteName();
     probeInfo.text(new TextHelper(top$cm_prefix + "select_sat")
         .addArgument(new TextHelper(satName.isEmpty() ? top$cm_prefix + "none" : tile.getSatellitePart() != null ?

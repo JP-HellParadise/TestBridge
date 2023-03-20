@@ -21,7 +21,7 @@ import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
-import testbridge.block.tile.TileCraftingManager;
+import testbridge.block.tile.TileEntityCraftingManager;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.ResultPipe;
@@ -58,8 +58,8 @@ public class TB_SyncNamePacket extends StringCoordinatesPacket {
         }
       } catch (TargetNotFoundException tnfe2) {
         TileEntity TE = getTileAs(player.getEntityWorld(), AEBaseTile.class).getTile();
-        if (TE instanceof TileCraftingManager) {
-          ((TileCraftingManager) TE).setSatellite(getString());
+        if (TE instanceof TileEntityCraftingManager) {
+          ((TileEntityCraftingManager) TE).setSatellite(getString());
         }
       }
     }
