@@ -76,6 +76,7 @@ gui.crafting_manager.blocking.redstone_pulse=On Redstone Pulse
 gui.crafting_manager.blocking.wait_for_result=Wait For Result
 
 gui.popup.selectresult.title=Select Result Pipe
+gui.popup.selectsatellite.selected=Current: %s
 
 # TOP
 

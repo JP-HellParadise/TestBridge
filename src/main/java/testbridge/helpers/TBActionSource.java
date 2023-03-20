@@ -1,18 +1,18 @@
 package testbridge.helpers;
 
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import net.minecraft.entity.player.EntityPlayer;
 
-import appeng.api.networking.IGridHost;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
 
 public class TBActionSource implements IActionSource {
-  final IGridHost host;
+  final IActionHost host;
 
-  public TBActionSource(IGridHost host) {
+  public TBActionSource(IActionHost host) {
     this.host = host;
   }
 
@@ -25,12 +25,29 @@ public class TBActionSource implements IActionSource {
   @Nonnull
   @Override
   public Optional<IActionHost> machine() {
-    return Optional.ofNullable((IActionHost) this.host);
+    return Optional.ofNullable(this.host);
   }
 
   @Nonnull
   @Override
   public <T> Optional<T> context(@Nonnull Class<T> aClass) {
     return Optional.empty();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TBActionSource that = (TBActionSource) o;
+    return host.equals(that.host);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(host);
   }
 }

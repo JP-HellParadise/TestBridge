@@ -40,8 +40,7 @@ public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess, ITran
   public GuiSatelliteSelect(final InventoryPlayer inventoryPlayer, final ICraftingManagerHost te) {
     super(new ContainerSatelliteSelect(inventoryPlayer, te), 0, 0);
     this.handleResult = satName -> MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomAE2Packet.class).setKey("CMSatellite.Setting").setValue(satName).setSetting(true).setBlockPos(te.getBlockPos()));
-    this.textList = new TextListDisplay(this, 6, 16, 6, 30, 12, new TextListDisplay.List() {
-
+    this.textList = new TextListDisplay(this, 6, 32, 6, 30, 11, new TextListDisplay.List() {
       @Override
       public int getSize() {
         return satList.size();
@@ -69,8 +68,7 @@ public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess, ITran
     this.buttonList.add(this.up = new GuiButton(3, xCenter - 12, bottom - 27, 25, 10, "/\\"));
     this.buttonList.add(this.down = new GuiButton(4, xCenter - 12, bottom - 15, 25, 10, "\\/"));
 
-    final ContainerSatelliteSelect con = ((ContainerSatelliteSelect) this.inventorySlots);
-    this.OriginalGui = con.getCMHost().getGuiBridge();
+    this.OriginalGui = ((ContainerSatelliteSelect) this.inventorySlots).getCMHost().getGuiBridge();
   }
 
   protected void mouseClicked(int xCoord, int yCoord, int btn) throws IOException {
@@ -86,6 +84,9 @@ public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess, ITran
   public void drawBG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
     GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
     mc.fontRenderer.drawStringWithShadow(TextUtil.translate(gui$satselect_prefix + "title"), xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(gui$satselect_prefix + "title")) / 2f), guiTop + 6, 0xFFFFFF);
+    String name = TextUtil.getTrimmedString(((ContainerSatelliteSelect) inventorySlots).getCMHost().getSatelliteName(), 100, fontRenderer, "...");
+    mc.fontRenderer.drawStringWithShadow(TextUtil.translate(gui$satselect_prefix + "selected", name),
+        xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(gui$satselect_prefix + "selected", name)) / 2f), guiTop + 18, 0xFFFFFF);
 
     textList.renderGuiBackground(mouseX, mouseY);
   }

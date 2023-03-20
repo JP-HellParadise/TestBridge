@@ -14,6 +14,7 @@ import appeng.api.parts.IPartHost;
 import appeng.parts.AEBasePart;
 
 import logisticspipes.network.PacketHandler;
+import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.GuiGraphics;
@@ -69,13 +70,13 @@ public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScre
     if (guibutton.id == 0) {
       TileEntity container = tile.getContainer();
       if (container != null) {
-        if (container instanceof IPartHost) {
+        if (container instanceof LogisticsTileGenericPipe) {
+          MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_SetNamePacket.class).setString(input.getText()).setTilePos(container));
+        } else if (container instanceof IPartHost) {
           AEBasePart satelliteBus = (AEBasePart) tile;
           if (satelliteBus instanceof PartSatelliteBus){
             MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_SetNamePacket.class).setSide(satelliteBus.getSide().ordinal()).setString(input.getText()).setTilePos(satelliteBus.getTile()));
           }
-        } else {
-          MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_SetNamePacket.class).setString(input.getText()).setTilePos(container));
         }
       }
     } else {

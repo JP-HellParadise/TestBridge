@@ -6,7 +6,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
@@ -14,24 +13,27 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 
+import net.minecraftforge.fml.common.Optional;
+
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.me.GridAccessException;
 
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
+import logisticspipes.network.PacketHandler;
+import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-
-import net.minecraftforge.fml.common.Optional;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
-import testbridge.client.gui.GuiSatelliteSelect;
 import testbridge.container.ContainerPackage;
 import testbridge.container.ContainerSatelliteSelect;
-import testbridge.helpers.AECustomGui;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.items.FakeItem;
+import testbridge.network.packets.gui.ProvideSatResultListPacket;
+import testbridge.network.packets.pipehandler.TB_SyncNamePacket;
+import testbridge.part.PartCraftingManager;
 import testbridge.part.PartSatelliteBus;
 
 @StaticResolve
@@ -95,7 +97,7 @@ public class TB_CustomAE2Packet<T> extends CoordinatesPacket {
     if (this.key.startsWith("CMSatellite.") && c instanceof ContainerSatelliteSelect) {
       final ContainerSatelliteSelect qk = (ContainerSatelliteSelect) c;
       if (this.key.equals("CMSatellite.Opening")) {
-        retrieveSatList(player);
+        openSatelliteSelect(player);
       } else if (this.key.equals("CMSatellite.Setting")) {
         qk.setSatName(this.value != null ? value : "");
       }
@@ -103,18 +105,24 @@ public class TB_CustomAE2Packet<T> extends CoordinatesPacket {
   }
 
   @Optional.Method(modid = "appliedenergistics2")
-  private void retrieveSatList(EntityPlayer player) {
+  private void openSatelliteSelect(EntityPlayer player) {
     List<String> list = new ArrayList<>();
     final Container c = player.openContainer;
     if (c instanceof ContainerSatelliteSelect) {
       ICraftingManagerHost cmHost = ((ContainerSatelliteSelect) c).getCMHost();
       if (cmHost != null) {
+        // GET current satellite bus select
+        CoordinatesPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class)
+            .setSide(cmHost instanceof PartCraftingManager ? ((PartCraftingManager) cmHost).getSide().ordinal() : 0)
+            .setString(cmHost.getSatelliteName()).setTilePos(cmHost.getTileEntity());
+        MainProxy.sendPacketToPlayer(packet, player);
+        // GET list of satellite bus
         try {
-          for (final IGridNode node : cmHost.getCMDuality().getGridProxy().getGrid().getMachines(PartSatelliteBus.class)) {
+          for (final IGridNode node : cmHost.getCMDuality().gridProxy.getGrid().getMachines(PartSatelliteBus.class)) {
             IGridHost h = node.getMachine();
             if (h instanceof PartSatelliteBus) {
               PartSatelliteBus part = (PartSatelliteBus) h;
-              if (!part.getSatellitePipeName().equals("")){
+              if (!part.getSatellitePipeName().equals("")) {
                 list.add(part.getSatellitePipeName());
               }
             }
@@ -124,12 +132,7 @@ public class TB_CustomAE2Packet<T> extends CoordinatesPacket {
         }
       }
     }
-    if (Minecraft.getMinecraft().currentScreen instanceof AECustomGui) {
-      AECustomGui thisGUI = ((AECustomGui) Minecraft.getMinecraft().currentScreen);
-      if (thisGUI instanceof GuiSatelliteSelect) {
-        ((GuiSatelliteSelect) thisGUI).handleSatList(list);
-      }
-    }
+    MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ProvideSatResultListPacket.class).setStringList(list), player);
   }
 
   @Override
