@@ -4,18 +4,13 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "compat.TB_MixinTOPAddon",
-    "invutil.TB_AEInterfaceInventoryHandler",
-    "invutil.TB_BuildCraftTransactorHandler",
-    "invutil.TB_CharsetImplementationFactory",
-    "invutil.TB_InventoryUtil",
-    "invutil.TB_StorageDrawersInventoryHandler",
-    "network.TB_MixinGuiOpenChassis",
     "network.TB_MixinModuleCGP",
     "network.TB_MixinModuleCoordinatesPacket",
     "network.TB_SatelliteSetNamePacket",
     "pipes.TB_MixinSatellitePipe",
     "pipes.upgrades.TB_ItemExtraction",
-    "pipes.upgrades.TB_ItemStackExtraction"
+    "pipes.upgrades.TB_ItemStackExtraction",
+    "network.TB_MixinGuiOpenChassis"
   ],
   "client": [],
   "server": []

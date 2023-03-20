@@ -81,9 +81,10 @@ public class CMGuiProvider extends ModuleCoordinatesGuiProvider {
     }
 
     for (int x = 0; x < 3; x++) {
-      dummy.addDummySlot(x, moduleCM.excludedInventory, x * 18 - 141, 55);
+      dummy.addDummySlot(x, ((PipeCraftingManager) pipe.pipe).getModules().excludedInventory, x * 18 - 141, 55);
     }
 
+    _cmPipe.localModeWatchers.add(player);
     return dummy;
   }
 
