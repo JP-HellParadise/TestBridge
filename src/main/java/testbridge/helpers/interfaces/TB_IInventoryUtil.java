@@ -1,6 +1,6 @@
 package testbridge.helpers.interfaces;
 
-import java.util.Iterator;
+import java.util.List;
 import javax.annotation.Nonnull;
 
 import net.minecraft.item.ItemStack;
@@ -13,7 +13,7 @@ public interface TB_IInventoryUtil {
    *
    * @return spaces found. If this is less than max, then there are no
    * spaces for that amount.
-   * @param iterator
+   * @param list
    */
-  boolean roomForItem(@Nonnull Iterator<ItemStack> iterator);
+  boolean roomForItem(@Nonnull List<ItemStack> list);
 }

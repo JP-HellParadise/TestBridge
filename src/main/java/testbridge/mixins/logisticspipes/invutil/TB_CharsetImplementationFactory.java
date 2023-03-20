@@ -1,6 +1,6 @@
 package testbridge.mixins.logisticspipes.invutil;
 
-import java.util.Iterator;
+import java.util.List;
 import javax.annotation.Nonnull;
 
 import net.minecraft.item.ItemStack;
@@ -29,13 +29,10 @@ public abstract class TB_CharsetImplementationFactory implements TB_IInventoryUt
   public abstract int itemCount(ItemIdentifier itemIdent);
 
   @Override
-  public boolean roomForItem(@Nonnull Iterator<ItemStack> iterator) {
-    while (iterator.hasNext()) {
-      ItemIdentifier identifier = ItemIdentifier.get(iterator.next());
-      if (isValidItem(identifier)) {
-        return tile.getMaxItemCount() >= itemCount(identifier);
-      }
-    }
-    return false;
+  public boolean roomForItem(@Nonnull List<ItemStack> list) {
+    if (list.size() > 1)
+      return false;
+    return list.stream().map(ItemIdentifier::get)
+        .noneMatch(it -> isValidItem(it) && tile.getMaxItemCount() < itemCount(it));
   }
 }

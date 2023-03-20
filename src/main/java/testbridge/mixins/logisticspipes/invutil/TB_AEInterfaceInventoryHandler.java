@@ -1,6 +1,6 @@
 package testbridge.mixins.logisticspipes.invutil;
 
-import java.util.Iterator;
+import java.util.List;
 import javax.annotation.Nonnull;
 
 import net.minecraft.item.ItemStack;
@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.networking.IGridHost;
+import appeng.api.networking.security.IActionHost;
 import appeng.api.storage.IStorageMonitorable;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
@@ -44,19 +45,20 @@ public abstract class TB_AEInterfaceInventoryHandler implements TB_IInventoryUti
       at = @At(value = "RETURN"),
       remap = false)
   private void newTBActionSource(TileEntity tile, EnumFacing dir, ProviderMode mode, CallbackInfo ci) {
-    this.tb$source = new TBActionSource(host);
+    this.tb$source = new TBActionSource((IActionHost) host);
   }
 
   @Override
-  public boolean roomForItem(@Nonnull Iterator<ItemStack> iterator) {
-    while (iterator.hasNext()){
-      ItemStack itemStack = iterator.next();
-      IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
-      IStorageMonitorable tmp = acc.getInventory(tb$source);
-      if (tmp == null || tmp.getInventory(channel) == null) {
-        return false;
-      }
-      IAEItemStack stack = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(itemStack);
+  public boolean roomForItem(@Nonnull List<ItemStack> list) {
+    IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+    IStorageMonitorable tmp = acc.getInventory(tb$source);
+    if (tmp == null || tmp.getInventory(channel) == null) {
+      return false;
+    }
+
+    for (ItemStack itemStack : list) {
+      if (itemStack.isEmpty()) continue;
+      IAEItemStack stack = channel.createStack(itemStack);
       if (stack == null) return false;
       while (stack.getStackSize() > 0) {
         if (tmp.getInventory(channel).injectItems(stack, Actionable.SIMULATE, tb$source) != null) {

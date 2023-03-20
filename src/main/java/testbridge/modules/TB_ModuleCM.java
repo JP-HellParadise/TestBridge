@@ -1,6 +1,7 @@
 package testbridge.modules;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -395,7 +396,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     IInventoryUtil inv = ((ISatellitePipe) sat).getAvailableAdjacent().inventories()
         .stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
     if (inv != null) {
-      return ((TB_IInventoryUtil) inv).roomForItem(stacks.stream().map(ItemIdentifierStack::makeNormalStack).iterator());
+      return ((TB_IInventoryUtil) inv).roomForItem(stacks.stream().map(ItemIdentifierStack::makeNormalStack).collect(Collectors.toList()));
     }
     return true;
   }

@@ -1,6 +1,5 @@
 package testbridge.mixins.logisticspipes.invutil;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -28,9 +27,8 @@ public abstract class TB_StorageDrawersInventoryHandler implements TB_IInventory
   private IDrawerGroup drawerGroup;
 
   @Override
-  public boolean roomForItem(@Nonnull Iterator<ItemStack> iterator) {
-    while (iterator.hasNext()) {
-      ItemStack stack = iterator.next();
+  public boolean roomForItem(@Nonnull List<ItemStack> list) {
+    for (ItemStack stack : list) {
       if (CollectionsKt.sumOfInt(
           accessibleDrawerSlots().stream()
               .map(slot -> drawerGroup.getDrawer(slot).isEnabled()
