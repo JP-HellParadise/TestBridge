@@ -45,7 +45,7 @@ public class RequestResultPipeListPacket extends BooleanCoordinatesPacket {
         .sorted(Comparator.comparingDouble(it -> cmPipe.getRouter().getRouteTable().get(it.getRouterId()).stream().map(it1 -> it1.distanceToDestination).min(Double::compare).get()))
         .map(it -> new Pair<>(it.getSatellitePipeName(), it.getRouter().getId()))
         .collect(Collectors.toList());
-    MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ProvideResultPipeListPacket.class).setList(list), player);
+    MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ProvideSatResultListPacket.class).setUuidList(list), player);
   }
 
   @Override

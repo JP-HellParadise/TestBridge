@@ -74,10 +74,9 @@ public class GuiHandler implements IGuiHandler {
   public Object getClientGuiElement(int ID, EntityPlayer player, final World world, int x, int y, int z) {
     // Satellite Bus checker
     if (ID >= GuiIDs.SATELLITE_BUS.begin() && ID < GuiIDs.SATELLITE_BUS.end()) {
-      AEPartLocation side = AEPartLocation.fromOrdinal(ID - GuiIDs.SATELLITE_BUS.begin());
       TileEntity TE = world.getTileEntity(new BlockPos(x, y, z));
       if(TE instanceof IPartHost) {
-        IPart part = ((IPartHost) TE).getPart(side);
+        IPart part = ((IPartHost) TE).getPart(AEPartLocation.fromOrdinal(ID - GuiIDs.SATELLITE_BUS.begin()));
         if(part instanceof PartSatelliteBus) {
           return new GuiResultPipe<>((PartSatelliteBus) part, "gui.satellite.");
         }

@@ -9,6 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import appeng.api.parts.IPart;
 import appeng.api.parts.IPartHost;
 import appeng.api.util.AEPartLocation;
+import appeng.tile.AEBaseTile;
 import appeng.tile.networking.TileCableBus;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -20,6 +21,8 @@ import logisticspipes.utils.StaticResolve;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
+import testbridge.block.tile.TileCraftingManager;
+import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.part.PartSatelliteBus;
 import testbridge.pipes.ResultPipe;
 
@@ -42,12 +45,21 @@ public class TB_SyncNamePacket extends StringCoordinatesPacket {
       if (pipe.pipe instanceof ResultPipe) {
         ((ResultPipe) pipe.pipe).setSatellitePipeName(getString());
       }
-    } catch (TargetNotFoundException e) {
-      TileEntity TE = getTileAs(player.getEntityWorld(), IPartHost.class).getTile();
-      if (TE instanceof TileCableBus) {
-        IPart part = ((TileCableBus) TE).getPart(AEPartLocation.fromOrdinal(getSide()));
-        if (part instanceof PartSatelliteBus) {
-          ((PartSatelliteBus) part).setSatellitePipeName(getString());
+    } catch (TargetNotFoundException tnfe1) {
+      try {
+        TileEntity TE = getTileAs(player.getEntityWorld(), IPartHost.class).getTile();
+        if (TE instanceof TileCableBus) {
+          IPart part = ((TileCableBus) TE).getPart(AEPartLocation.fromOrdinal(getSide()));
+          if (part instanceof PartSatelliteBus) {
+            ((PartSatelliteBus) part).setSatellitePipeName(getString());
+          } else if (part instanceof ICraftingManagerHost) {
+            ((ICraftingManagerHost) part).setSatellite(getString());
+          }
+        }
+      } catch (TargetNotFoundException tnfe2) {
+        TileEntity TE = getTileAs(player.getEntityWorld(), AEBaseTile.class).getTile();
+        if (TE instanceof TileCraftingManager) {
+          ((TileCraftingManager) TE).setSatellite(getString());
         }
       }
     }

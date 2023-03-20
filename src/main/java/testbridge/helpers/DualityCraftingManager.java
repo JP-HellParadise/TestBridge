@@ -75,13 +75,11 @@ public class DualityCraftingManager
   private static final IItemStorageChannel ITEMS = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
   public static final int NUMBER_OF_PATTERN_SLOTS = 27;
   private final MultiCraftingTracker craftingTracker;
-  @Getter
-  private final AENetworkProxy gridProxy;
-  private final ICraftingManagerHost iHost;
+  public final AENetworkProxy gridProxy;
+  private final ICraftingManagerHost cmHost;
   private final ConfigManager cm = new ConfigManager(this);
   private final AppEngInternalInventory patterns = new AppEngInternalInventory(this, NUMBER_OF_PATTERN_SLOTS);
-  private final MEMonitorPassThrough<IAEItemStack> items = new MEMonitorPassThrough<>(new NullInventory<IAEItemStack>(), ITEMS);
-  private final MachineSource actionSource;
+  private final TBActionSource actionSource;
   private int priority;
   private List<ICraftingPatternDetails> craftingList = null;
   private List<ItemStack> createPkgList = null;
@@ -95,11 +93,10 @@ public class DualityCraftingManager
 
     this.cm.registerSetting(Settings.BLOCK, YesNo.NO);
 
-    this.iHost = cmHost;
-    this.craftingTracker = new MultiCraftingTracker(this.iHost, 9);
+    this.cmHost = cmHost;
+    this.craftingTracker = new MultiCraftingTracker(this.cmHost, 9);
 
-    this.actionSource = new MachineSource(this.iHost);
-    this.items.setChangeSource(this.actionSource);
+    this.actionSource = new TBActionSource(this.cmHost);
   }
 
   private static boolean invIsCustomBlocking(BlockingInventoryAdaptor inv) {
@@ -108,7 +105,7 @@ public class DualityCraftingManager
 
   @Override
   public void saveChanges() {
-    this.iHost.saveChanges();
+    this.cmHost.saveChanges();
   }
 
   @Override
@@ -330,7 +327,7 @@ public class DualityCraftingManager
       }
     }
 
-    final TileEntity te = this.iHost.getTileEntity();
+    final TileEntity te = this.cmHost.getTileEntity();
     if (te != null) {
       Platform.notifyBlocksOfNeighbors(te.getWorld(), te.getPos());
     }
@@ -343,7 +340,7 @@ public class DualityCraftingManager
 
     if (is.getItem() instanceof ICraftingPatternItem) {
       final ICraftingPatternItem cpi = (ICraftingPatternItem) is.getItem();
-      final ICraftingPatternDetails details = cpi.getPatternForItem(is, this.iHost.getTileEntity().getWorld());
+      final ICraftingPatternDetails details = cpi.getPatternForItem(is, this.cmHost.getTileEntity().getWorld());
 
       if (details != null) {
         if (this.craftingList == null) {
@@ -413,12 +410,6 @@ public class DualityCraftingManager
   }
 
   public void gridChanged() {
-    try {
-      this.items.setInternal(this.gridProxy.getStorage().getInventory(ITEMS));
-    } catch (final GridAccessException gae) {
-      this.items.setInternal(new NullInventory<>());
-    }
-
     this.notifyNeighbors();
   }
 
@@ -428,7 +419,7 @@ public class DualityCraftingManager
   }
 
   public DimensionalCoord getLocation() {
-    return new DimensionalCoord(this.iHost.getTileEntity());
+    return new DimensionalCoord(this.cmHost.getTileEntity());
   }
 
   public IItemHandler getInternalInventory() {
@@ -500,15 +491,11 @@ public class DualityCraftingManager
   }
 
   public TileEntity getTile() {
-    return (TileEntity) (this.iHost instanceof TileEntity ? this.iHost : null);
+    return (TileEntity) (this.cmHost instanceof TileEntity ? this.cmHost : null);
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T extends IAEStack<T>> IMEMonitor<T> getInventory(IStorageChannel<T> channel) {
-    if (channel == ITEMS) {
-      return (IMEMonitor<T>) this.items;
-    }
     return null;
   }
 
@@ -528,7 +515,7 @@ public class DualityCraftingManager
 
   @Override
   public void updateSetting(final IConfigManager manager, final Enum settingName, final Enum newValue) {
-    this.iHost.saveChanges();
+    this.cmHost.saveChanges();
   }
 
   private boolean invIsBlocked(InventoryAdaptor inv) {
@@ -758,7 +745,7 @@ public class DualityCraftingManager
   }
 
   private IPart getPart() {
-    return (IPart) (this.iHost instanceof IPart ? this.iHost : null);
+    return (IPart) (this.cmHost instanceof IPart ? this.cmHost : null);
   }
 
   public ImmutableSet<ICraftingLink> getRequestedJobs() {
@@ -784,7 +771,7 @@ public class DualityCraftingManager
 
   public void setPriority(final int newValue) {
     this.priority = newValue;
-    this.iHost.saveChanges();
+    this.cmHost.saveChanges();
 
     try {
       this.gridProxy.getGrid().postEvent(new MENetworkCraftingPatternChange(this, this.gridProxy.getNode()));
@@ -803,7 +790,7 @@ public class DualityCraftingManager
 
   public void setSatellite(final String newValue) {
     this.mainSatName = newValue;
-    this.iHost.saveChanges();
+    this.cmHost.saveChanges();
   }
 
   @SuppressWarnings("UnusedDeclaration")
