@@ -112,10 +112,9 @@ public class TB_CustomAE2Packet<T> extends CoordinatesPacket {
       ICraftingManagerHost cmHost = ((ContainerSatelliteSelect) c).getCMHost();
       if (cmHost != null) {
         // GET current satellite bus select
-        CoordinatesPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class)
+        MainProxy.sendPacketToPlayer(PacketHandler.getPacket(TB_SyncNamePacket.class)
             .setSide(cmHost instanceof PartCraftingManager ? ((PartCraftingManager) cmHost).getSide().ordinal() : 0)
-            .setString(cmHost.getSatelliteName()).setTilePos(cmHost.getTileEntity());
-        MainProxy.sendPacketToPlayer(packet, player);
+            .setString(cmHost.getSatelliteName()).setTilePos(cmHost.getTileEntity()), player);
         // GET list of satellite bus
         try {
           for (final IGridNode node : cmHost.getCMDuality().gridProxy.getGrid().getMachines(PartSatelliteBus.class)) {
@@ -130,9 +129,9 @@ public class TB_CustomAE2Packet<T> extends CoordinatesPacket {
         } catch (final GridAccessException ignore) {
           // :P
         }
+        MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ProvideSatResultListPacket.class).setStringList(list), player);
       }
     }
-    MainProxy.sendPacketToPlayer(PacketHandler.getPacket(ProvideSatResultListPacket.class).setStringList(list), player);
   }
 
   @Override

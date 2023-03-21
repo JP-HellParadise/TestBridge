@@ -50,7 +50,7 @@ import testbridge.helpers.interfaces.IBlocks_TB;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 import testbridge.part.PartSatelliteBus;
 
-public class TileCraftingManager extends AENetworkInvTile implements IGridTickable, IInventoryDestination, ICraftingManagerHost, IPriorityHost {
+public class TileEntityCraftingManager extends AENetworkInvTile implements IGridTickable, IInventoryDestination, ICraftingManagerHost, IPriorityHost {
   private final DualityCraftingManager duality = new DualityCraftingManager(this.getProxy(), this);
 
   @MENetworkEventSubscribe

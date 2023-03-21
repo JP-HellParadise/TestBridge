@@ -398,7 +398,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     if (inv != null) {
       return ((TB_IInventoryUtil) inv).roomForItem(stacks.stream().map(ItemIdentifierStack::makeNormalStack).collect(Collectors.toList()));
     }
-    return true;
+    return false;
   }
 
   public void addToCraftList(@Nonnull HashMap<IRequestItems, List<ItemIdentifierStack>> bufferList) {
