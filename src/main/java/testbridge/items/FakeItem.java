@@ -3,8 +3,6 @@ package testbridge.items;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import lombok.Getter;
-
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
@@ -32,7 +30,7 @@ import testbridge.network.GuiIDs;
 import static testbridge.helpers.NBTItemHelper.NBTHelper;
 
 public class FakeItem extends Item {
-  @Getter
+
   private final boolean isPackage;
 
   public FakeItem(boolean isPackage) {

@@ -1,32 +1,30 @@
 buildscript {
-    repositories {
-			maven {
-				url "https://plugins.gradle.org/m2/"
-			}
-			maven {
-				url = 'https://maven.cleanroommc.com'
-			}
-			maven {
-				url = 'https://maven.minecraftforge.net'
-			}
-			maven {
-				url = 'https://repo.spongepowered.org/maven'
-			}
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
     }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3.4'
-		if (project.use_mixins.toBoolean()) {
-			classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
-		}
-		classpath "io.franzbecker:gradle-lombok:5.0.0"
+    maven {
+      url = 'https://maven.cleanroommc.com'
     }
+    maven {
+      url = 'https://maven.minecraftforge.net'
+    }
+    maven {
+      url = 'https://repo.spongepowered.org/maven'
+    }
+  }
+  dependencies {
+    classpath 'net.minecraftforge.gradle:ForgeGradle:2.3.4'
+    if (project.use_mixins.toBoolean()) {
+      classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+    }
+  }
 }
 
-apply plugin: "io.franzbecker.gradle-lombok"
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 if (project.use_mixins.toBoolean()) {
-	apply plugin: 'org.spongepowered.mixin'
+  apply plugin: 'org.spongepowered.mixin'
 }
 
 version = project.mod_version
@@ -36,141 +34,135 @@ archivesBaseName = project.archives_base_name
 sourceCompatibility = targetCompatibility = '1.8'
 
 compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
+  sourceCompatibility = targetCompatibility = '1.8'
 }
 
 configurations {
-    embed
-    implementation.extendsFrom(embed)
+  embed
+  implementation.extendsFrom(embed)
 }
 
 minecraft {
-    version = '1.12.2-14.23.5.2847'
-    runDir = 'run'
-    mappings = 'stable_39'
-	replace("@VERSION@", project.mod_version)
-	def args = []
-	if (project.use_coremod.toBoolean()) {
-		args << '-Dfml.coreMods.load=' + coremod_plugin_class_name
-	}
-	if (project.use_mixins.toBoolean()) {
-		args << '-Dmixin.hotSwap=true'
-		args << '-Dmixin.checks.interfaces=true'
-		args << '-Dmixin.debug.export=true'
-	}
-	args << '-XXaltjvm=dcevm'
-	args << '-javaagent:d:\\hotswapagent142.jar'
-	args << '-Dtb.debugging=true'
-	clientJvmArgs.addAll(args)
-	serverJvmArgs.addAll(args)
-	makeObfSourceJar = false
+  version = '1.12.2-14.23.5.2847'
+  runDir = 'run'
+  mappings = 'stable_39'
+  replace("@VERSION@", project.mod_version)
+  def args = []
+  if (project.use_coremod.toBoolean()) {
+    args << '-Dfml.coreMods.load=' + coremod_plugin_class_name
+  }
+  if (project.use_mixins.toBoolean()) {
+    args << '-Dmixin.hotSwap=true'
+    args << '-Dmixin.checks.interfaces=true'
+    args << '-Dmixin.debug.export=true'
+  }
+  args << '-XXaltjvm=dcevm'
+  args << '-javaagent:d:\\hotswapagent142.jar'
+  args << '-Dtb.debugging=true'
+  clientJvmArgs.addAll(args)
+  serverJvmArgs.addAll(args)
+  makeObfSourceJar = false
 }
 
 repositories {
-	mavenCentral()
-	maven { 
-		url = 'https://maven.cleanroommc.com'
-	}
-	maven {
-		url = 'https://repo.spongepowered.org/maven'
-	}
-	maven {
-		name = "CurseForge"
-		url = 'https://www.cursemaven.com'
-	}
-	maven {
-		url = "https://maven.removeco.de/"
-	}
-	maven {
-		name "Ellpeck"
-		url "https://maven.ellpeck.de"
-	}
-	flatDir {
-		dirs "lib"
-	}
+  mavenCentral()
+  maven {
+    url = 'https://maven.cleanroommc.com'
+  }
+  maven {
+    url = 'https://repo.spongepowered.org/maven'
+  }
+  maven {
+    name = "CurseForge"
+    url = 'https://www.cursemaven.com'
+  }
+  maven {
+    url = "https://maven.removeco.de/"
+  }
+  maven {
+    name "Ellpeck"
+    url "https://maven.ellpeck.de"
+  }
 }
 
 dependencies {
+  if (project.use_assetmover.toBoolean()) {
+    compile 'com.cleanroommc:assetmover:2.0'
+  }
+  if (project.use_mixins.toBoolean()) {
+    compile 'zone.rong:mixinbooter:7.0'
+  }
 
-	if (project.use_assetmover.toBoolean()) {
-		deobfCompile 'com.cleanroommc:assetmover:2.0'
-	}
-	if (project.use_mixins.toBoolean()) {
-		compile 'zone.rong:mixinbooter:5.0'
-	}
+  //Compile things that need deobf
+  deobfCompile project.mcmp_dep
+  deobfCompile project.td_dep
+  deobfCompile project.hei_dep
+  deobfCompile project.lp_dep
+  deobfCompile project.ae2_dep
 
-	compile fileTree(dir: 'lib', include: ['*.jar'])
+  //compileOnly
+  compileOnly project.rf_dep
+  compileOnly project.ccl_dep
+  compileOnly project.top_dep
+  compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
+  compileOnly group: 'li.cil.oc', name: 'OpenComputers', version: 'MC1.12.2-1.7.5.205', classifier: 'api'
+  compileOnly group: 'de.ellpeck.actuallyadditions', name : 'ActuallyAdditions', version: '1.12.2-r152.16', classifier: 'api'
 
-	//Compile things that need deobf
-	deobfCompile project.mcmp_dep
-	deobfCompile project.td_dep
-	deobfCompile project.hei_dep
-	deobfCompile project.lp_dep
-	deobfCompile project.ae2_dep
-
-	//compileOnly
-	compileOnly project.rf_dep
-	compileOnly project.ccl_dep
-	compileOnly project.top_dep
-	compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
-	compileOnly group: 'li.cil.oc', name: 'OpenComputers', version: 'MC1.12.2-1.7.5.205', classifier: 'api'
-	compileOnly group: 'de.ellpeck.actuallyadditions', name : 'ActuallyAdditions', version: '1.12.2-r152.16', classifier: 'api'
-
-	//runtime so that mods loaded on runClient & runServer
-	runtime project.ccl_dep
-	runtime project.rs_dep
-	runtime project.te_dep
-	runtime project.tf_dep
-	runtime project.cofhc_dep
-	runtime project.cofhw_dep
-	runtime project.rf_dep
-	runtime project.top_dep
+  //runtime so that mods loaded on runClient & runServer
+  runtime project.ccl_dep
+  runtime project.rs_dep
+  runtime project.te_dep
+  runtime project.tf_dep
+  runtime project.cofhc_dep
+  runtime project.cofhw_dep
+  runtime project.rf_dep
+  runtime project.top_dep
 
 }
 
 sourceSets {
 
-		api
+  api
 
-    main {
-        ext.refMap = 'mixins.' + archives_base_name + '.refmap.json'
-    }
+  main {
+    ext.refMap = 'mixins.' + archives_base_name + '.refmap.json'
+  }
 
 }
 
 processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property 'version', project.version
-    inputs.property 'mcversion', project.minecraft.version
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-    // copy everything else except the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-	rename '(.+_at.cfg)', 'META-INF/$1' // Access Transformers
+  // this will ensure that this task is redone when the versions change.
+  inputs.property 'version', project.version
+  inputs.property 'mcversion', project.minecraft.version
+  // replace stuff in mcmod.info, nothing else
+  from(sourceSets.main.resources.srcDirs) {
+    include 'mcmod.info'
+    // replace version and mcversion
+    expand 'version':project.version, 'mcversion':project.minecraft.version
+  }
+  // copy everything else except the mcmod.info
+  from(sourceSets.main.resources.srcDirs) {
+    exclude 'mcmod.info'
+  }
+
+  if (project.use_access_transformer.toBoolean()) {
+    rename '(.+_at.cfg)', 'META-INF/$1' // Access Transformers
+  }
 }
 
 jar {
-    manifest {
-		def attribute_map = [:]
-		if (project.use_coremod.toBoolean()) {
-			attribute_map['FMLCorePlugin'] = project.coremod_plugin_class_name
-			if (project.include_mod.toBoolean()) {
-				attribute_map['FMLCorePluginContainsFMLMod'] = true
-				attribute_map['ForceLoadAsMod'] = project.gradle.startParameter.taskNames[0] == "build"
-			}
-		}
-		if (project.use_mixins.toBoolean()) {
-			attribute_map['TweakClass'] = 'org.spongepowered.asm.launch.MixinTweaker'
-		}
-		attributes(attribute_map)
+  manifest {
+    def attribute_map = [:]
+    if (project.use_coremod.toBoolean()) {
+      attribute_map['FMLCorePlugin'] = project.coremod_plugin_class_name
+      if (project.include_mod.toBoolean()) {
+        attribute_map['FMLCorePluginContainsFMLMod'] = true
+        attribute_map['ForceLoadAsMod'] = project.gradle.startParameter.taskNames[0] == "build"
+      }
     }
-
-		from sourceSets.api.output
-		dependsOn apiClasses
+    if (project.use_access_transformer.toBoolean()) {
+      attribute_map['FMLAT'] = project.archives_base_name + '_at.cfg'
+    }
+    attributes(attribute_map)
+  }
 }

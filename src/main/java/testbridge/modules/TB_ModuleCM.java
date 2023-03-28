@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 
 import logisticspipes.utils.tuples.Pair;
-import lombok.Getter;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -43,7 +42,6 @@ import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.*;
 
 import testbridge.helpers.TextHelper;
-import testbridge.helpers.interfaces.ISatellitePipe;
 import testbridge.helpers.interfaces.ITranslationKey;
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeUpdatePacket;
@@ -54,14 +52,10 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
 
   public final InventoryProperty excludedInventory = new InventoryProperty(
       new ItemIdentifierInventory(3, "Excluded Filter Item", 1), "ExcludedInv");
-  @Getter
-  private final UUIDProperty satelliteUUID = new UUIDProperty(null, "satelliteUUID");
-  @Getter
-  private final UUIDProperty resultUUID = new UUIDProperty(null, "resultUUID");
-  @Getter
-  private final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
-  @Getter
-  private final ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
+  public final UUIDProperty satelliteUUID = new UUIDProperty(null, "satelliteUUID");
+  public final UUIDProperty resultUUID = new UUIDProperty(null, "resultUUID");
+  public final EnumProperty<BlockingMode> blockingMode = new EnumProperty<>(BlockingMode.OFF, "blockingMode", BlockingMode.VALUES);
+  public final ClientSideSatResultNames clientSideSatResultNames = new ClientSideSatResultNames();
   private UpdateSatResultFromNames updateSatResultFromNames = null;
   protected SinkReply _sinkReply;
   private final List<Property<?>> properties;
@@ -359,11 +353,11 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
         return;
       }
       if (this.hasItemsToCraft()) {
-        if (this.isBlocking()) {
-          this.parentPipe.spawnParticle(Particles.RedParticle, 1);
-        } else {
+        if (!this.isBlocking()) {
           this.startCrafting();
+          return;
         }
+        this.parentPipe.spawnParticle(Particles.RedParticle, 1);
       }
     }
   }
@@ -377,10 +371,9 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
         HashMap<IRequestItems, List<ItemIdentifierStack>> bufferList = bufferOpt.get();
         bufferList.forEach((key, value) -> value.forEach(it -> addToWaitingList(key, it)));
         craftingList.remove(bufferList);
-        return;
+        this.parentPipe.spawnParticle(Particles.RedParticle, 1);
       }
     }
-    this.parentPipe.spawnParticle(Particles.RedParticle, 1);
   }
 
   private boolean acceptItems(Map.Entry<IRequestItems, List<ItemIdentifierStack>> entry) {
@@ -392,7 +385,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     PipeItemsSatelliteLogistics sat = (PipeItemsSatelliteLogistics) router.getRouter().getPipe();
     if (sat == null) return false;
 
-    IInventoryUtil inv = ((ISatellitePipe) sat).getAvailableAdjacent().inventories()
+    IInventoryUtil inv = sat.getAvailableAdjacent().inventories()
         .stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
     if (inv != null) {
       return stacks.stream().map(ItemIdentifierStack::makeNormalStack).map(it -> new Pair<>(it, inv.roomForItem(it)))

@@ -2,9 +2,6 @@ package testbridge.network.packets.pipe;
 
 import java.util.UUID;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import net.minecraft.entity.player.EntityPlayer;
 
 import logisticspipes.network.abstractpackets.IntegerModuleCoordinatesPacket;
@@ -19,8 +16,6 @@ import testbridge.modules.TB_ModuleCM;
 @StaticResolve
 public class CMPipeSetSatResultPacket extends IntegerModuleCoordinatesPacket {
 
-  @Getter
-  @Setter
   private UUID pipeUUID;
 
   public CMPipeSetSatResultPacket(int id) {
@@ -55,5 +50,10 @@ public class CMPipeSetSatResultPacket extends IntegerModuleCoordinatesPacket {
   @Override
   public ModernPacket template() {
     return new CMPipeSetSatResultPacket(getId());
+  }
+
+  public CMPipeSetSatResultPacket setPipeUUID(UUID pipeUUID) {
+    this.pipeUUID = pipeUUID;
+    return this;
   }
 }

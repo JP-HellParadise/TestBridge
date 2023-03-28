@@ -1,8 +1,5 @@
 package testbridge.container;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -19,14 +16,9 @@ public class ContainerPackage extends AEBaseContainer {
 
   @SideOnly(Side.CLIENT)
   private MEGuiTextField textField;
-
   private final int slotId;
-  @Getter
-  @Setter
   private String satelliteName;
-
-  @Getter
-  private final ItemStackHandler fakeSlot = new ItemStackHandler(1);
+  public final ItemStackHandler fakeSlot = new ItemStackHandler(1);
 
   public ContainerPackage(final EntityPlayer ip) {
     super(ip.inventory, null, null);

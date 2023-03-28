@@ -382,8 +382,8 @@ public class DummyContainer extends logisticspipes.utils.gui.DummyContainer {
 
   private void handleSwitch(Slot slot2, @Nonnull ItemStack out, @Nonnull ItemStack in, EntityPlayer player) {
     if (slot2 instanceof CrafterSlot) {
-      TB_ModuleCM module = (TB_ModuleCM) ((CrafterSlot) slot2).get_pipe().getLogisticsModule();
-      int moduleIndex = ((CrafterSlot) slot2).get_moduleIndex();
+      TB_ModuleCM module = (TB_ModuleCM) ((CrafterSlot) slot2).parentPipe.getLogisticsModule();
+      int moduleIndex = ((CrafterSlot) slot2)._moduleIndex;
       if (out.getItem() == TB_ItemHandlers.moduleCrafter) {
         if (module.hasModule(moduleIndex)) {
           ItemModuleInformationManager.saveInformation(out, module.getModule(moduleIndex));

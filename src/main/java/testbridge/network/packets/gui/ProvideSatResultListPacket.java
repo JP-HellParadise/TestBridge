@@ -3,9 +3,6 @@ package testbridge.network.packets.gui;
 import java.util.List;
 import java.util.UUID;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 
@@ -25,12 +22,7 @@ import testbridge.helpers.AECustomGui;
 @StaticResolve
 public class ProvideSatResultListPacket extends ModernPacket {
 
-  @Getter
-  @Setter
   private List<Pair<String, UUID>> uuidList;
-
-  @Getter
-  @Setter
   private List<String> stringList;
 
   public ProvideSatResultListPacket(int id) {
@@ -72,5 +64,15 @@ public class ProvideSatResultListPacket extends ModernPacket {
   @Override
   public ModernPacket template() {
     return new ProvideSatResultListPacket(getId());
+  }
+
+  public ProvideSatResultListPacket setUuidList(List<Pair<String, UUID>> uuidList) {
+    this.uuidList = uuidList;
+    return this;
+  }
+
+  public ProvideSatResultListPacket setStringList(List<String> stringList) {
+    this.stringList = stringList;
+    return this;
   }
 }

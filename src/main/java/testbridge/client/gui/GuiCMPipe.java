@@ -103,7 +103,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
 
     inventorySlots = dummy;
 
-    blockingModeOverlay = propertyLayer.overlay(module.getBlockingMode());
+    blockingModeOverlay = propertyLayer.overlay(module.blockingMode);
 
     inv = new InventoryBasic("", false, 1);
     fakeSlot = new Slot(inv, 0, 0, 0);
@@ -319,7 +319,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
         itemRender.zLevel = 0.0F;
       } else {
         mc.fontRenderer.drawString(TextUtil.translate(translationKey), left + 9, top + 8, 0x404040);
-        String pipeID = guiButton == 0 ? pipeCM.getModules().getClientSideSatResultNames().satelliteName : pipeCM.getModules().getClientSideSatResultNames().resultName;
+        String pipeID = guiButton == 0 ? pipeCM.getModules().clientSideSatResultNames.satelliteName : pipeCM.getModules().clientSideSatResultNames.resultName;
         int maxWidth = 70;
         if (pipeID.isEmpty()) {
           drawCenteredString(TextUtil.translate(top$cm_prefix + "none"), left + maxWidth / 2 + 7, top + 23, 0x404040);

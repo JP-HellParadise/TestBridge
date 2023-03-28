@@ -2,9 +2,6 @@ package testbridge.network.packets.pipe;
 
 import net.minecraft.entity.player.EntityPlayer;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
 import logisticspipes.utils.StaticResolve;
@@ -17,16 +14,8 @@ import testbridge.modules.TB_ModuleCM;
 @StaticResolve
 public class CMPipeUpdatePacket extends ModuleCoordinatesPacket {
 
-	@Getter
-	@Setter
 	private String satelliteName = "";
-
-	@Getter
-	@Setter
   private String resultName = "";
-
-	@Getter
-	@Setter
 	private int blockingMode;
 
   public CMPipeUpdatePacket(int id) {
@@ -61,5 +50,32 @@ public class CMPipeUpdatePacket extends ModuleCoordinatesPacket {
 	@Override
 	public ModernPacket template() {
 		return new CMPipeUpdatePacket(getId());
+	}
+
+	public String getSatelliteName() {
+		return satelliteName;
+	}
+
+	public CMPipeUpdatePacket setSatelliteName(String satelliteName) {
+		this.satelliteName = satelliteName;
+		return this;
+	}
+
+	public String getResultName() {
+		return resultName;
+	}
+
+	public CMPipeUpdatePacket setResultName(String resultName) {
+		this.resultName = resultName;
+		return this;
+	}
+
+	public int getBlockingMode() {
+		return blockingMode;
+	}
+
+	public CMPipeUpdatePacket setBlockingMode(int blockingMode) {
+		this.blockingMode = blockingMode;
+		return this;
 	}
 }

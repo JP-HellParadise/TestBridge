@@ -100,7 +100,7 @@ public class GuiHandler implements IGuiHandler {
         case TEMPLATE_PKG:
           ItemStack onHand = player.getHeldItemMainhand();
           if (onHand.getItem() instanceof FakeItem) {
-            return new GuiPackage(onHand, player, null);
+            return new GuiPackage(player, null);
           }
           return null;
 

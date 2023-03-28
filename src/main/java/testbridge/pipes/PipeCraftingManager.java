@@ -6,8 +6,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import lombok.Getter;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
@@ -202,7 +200,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
     isRedstone = getWorld().isBlockPowered(getPos());
 
     if (!this.getWorld().isRemote
-        && moduleCM.getBlockingMode().getValue().equals(TB_ModuleCM.BlockingMode.REDSTONE_PULSE)
+        && moduleCM.blockingMode.getValue().equals(TB_ModuleCM.BlockingMode.REDSTONE_PULSE)
         && moduleCM.hasItemsToCraft()
         && isPulse) {
       moduleCM.startCrafting();
@@ -536,7 +534,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
   @Override
   public ISlotUpgradeManager getUpgradeManager(ModulePositionType slot, int positionInt) {
     if (slot != ModulePositionType.SLOT || positionInt >= slotUpgradeManagers.size()) {
-      if (TestBridge.isDebug()) {
+      if (TestBridge.isDebug) {
         new UnsupportedOperationException("Position info aren't for a crafting manager pipe. (" + slot + "/" + positionInt + ")").printStackTrace();
       }
       return super.getUpgradeManager(slot, positionInt);
@@ -560,23 +558,23 @@ public class PipeCraftingManager extends CoreRoutedPipe
   }
 
   public IRouter getMainSatelliteRouter() {
-    final UUID satelliteUUID = getModules().getSatelliteUUID().getValue();
+    final UUID satelliteUUID = getModules().satelliteUUID.getValue();
     final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID);
     return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
   }
 
   public IRouter getMainResultRouter() {
-    final UUID resultUUID = getModules().getResultUUID().getValue();
+    final UUID resultUUID = getModules().resultUUID.getValue();
     final int resultRouterId = SimpleServiceLocator.routerManager.getIDforUUID(resultUUID);
     return SimpleServiceLocator.routerManager.getRouter(resultRouterId);
   }
 
   public int getBlockingByInt() {
-    return this.moduleCM.getBlockingMode().getValue().ordinal();
+    return this.moduleCM.blockingMode.getValue().ordinal();
   }
 
   public String getKeyBlockMode() {
-    return gui$cm_prefix + "blocking." + this.moduleCM.getBlockingMode().getValue().toString().toLowerCase();
+    return gui$cm_prefix + "blocking." + this.moduleCM.blockingMode.getValue().toString().toLowerCase();
   }
 
   /**
@@ -681,8 +679,7 @@ public class PipeCraftingManager extends CoreRoutedPipe
   }
 
   public static class CMTargetInformation implements IAdditionalTargetInformation {
-    @Getter
-    private final int moduleSlot;
+    public final int moduleSlot;
 
     public CMTargetInformation(int slot) {
       moduleSlot = slot;

@@ -1,8 +1,5 @@
 package testbridge.network.packets.pipehandler;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 
@@ -29,8 +26,6 @@ import testbridge.pipes.ResultPipe;
 @StaticResolve
 public class TB_SyncNamePacket extends StringCoordinatesPacket {
 
-  @Getter
-  @Setter
   private int side;
 
   public TB_SyncNamePacket(int id) {
@@ -49,7 +44,7 @@ public class TB_SyncNamePacket extends StringCoordinatesPacket {
       try {
         TileEntity TE = getTileAs(player.getEntityWorld(), IPartHost.class).getTile();
         if (TE instanceof TileCableBus) {
-          IPart part = ((TileCableBus) TE).getPart(AEPartLocation.fromOrdinal(getSide()));
+          IPart part = ((TileCableBus) TE).getPart(AEPartLocation.fromOrdinal(this.side));
           if (part instanceof PartSatelliteBus) {
             ((PartSatelliteBus) part).setSatellitePipeName(getString());
           } else if (part instanceof ICraftingManagerHost) {
@@ -80,5 +75,10 @@ public class TB_SyncNamePacket extends StringCoordinatesPacket {
   @Override
   public ModernPacket template() {
     return new TB_SyncNamePacket(getId());
+  }
+
+  public TB_SyncNamePacket setSide(int side) {
+    this.side = side;
+    return this;
   }
 }

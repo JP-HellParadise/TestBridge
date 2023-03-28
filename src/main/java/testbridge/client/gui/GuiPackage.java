@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.lwjgl.input.Keyboard;
 
-import lombok.Getter;
-
 import mezz.jei.api.gui.IGhostIngredientHandler;
 
 import appeng.client.gui.AEBaseGui;
@@ -40,12 +38,9 @@ public class GuiPackage extends AEBaseGui implements IJEIGhostIngredients {
   private final Map<IGhostIngredientHandler.Target<?>, Object> mapTargetSlot = new HashMap<>();
   private MEGuiTextField textField;
   private GuiButton saveButton;
-  @Getter
-  private final ItemStack itemPackage;
   private final ContainerPackage container;
-  public GuiPackage(ItemStack item, EntityPlayer player, ContainerPackage container) {
+  public GuiPackage(EntityPlayer player, ContainerPackage container) {
     super(container = new ContainerPackage(player));
-    this.itemPackage = item;
     this.container = container;
   }
 
@@ -94,7 +89,7 @@ public class GuiPackage extends AEBaseGui implements IJEIGhostIngredients {
   @Override
   protected void keyTyped(final char character, final int key) throws IOException {
     if (key == Keyboard.KEY_RETURN || key == Keyboard.KEY_NUMPADENTER) { // Enter
-      ItemStack is = container.getFakeSlot().getStackInSlot(0);
+      ItemStack is = container.fakeSlot.getStackInSlot(0);
       MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomAE2Packet.class).setKey("Package.Opening").setValue(textField.getText()).setIs(is).setSetting(true));
     } else if (!this.textField.textboxKeyTyped(character, key)) {
       super.keyTyped(character, key);
@@ -105,7 +100,7 @@ public class GuiPackage extends AEBaseGui implements IJEIGhostIngredients {
   protected void actionPerformed(final GuiButton btn) throws IOException {
     super.actionPerformed(btn);
     if (btn == this.saveButton) {
-      ItemStack is = container.getFakeSlot().getStackInSlot(0);
+      ItemStack is = container.fakeSlot.getStackInSlot(0);
       MainProxy.sendPacketToServer(PacketHandler.getPacket(TB_CustomAE2Packet.class).setKey("Package.Opening").setValue(textField.getText()).setIs(is).setSetting(true));
     }
   }

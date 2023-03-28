@@ -4,8 +4,6 @@ import java.util.*;
 
 import com.google.common.collect.ImmutableSet;
 
-import lombok.Getter;
-
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -47,9 +45,6 @@ import appeng.helpers.MultiCraftingTracker;
 import appeng.helpers.NonBlockingItems;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
-import appeng.me.helpers.MachineSource;
-import appeng.me.storage.MEMonitorPassThrough;
-import appeng.me.storage.NullInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.ConfigManager;
 import appeng.util.IConfigManagerHost;

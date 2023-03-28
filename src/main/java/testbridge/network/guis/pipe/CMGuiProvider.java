@@ -2,9 +2,6 @@ package testbridge.network.guis.pipe;
 
 import javax.annotation.Nonnull;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -30,20 +27,33 @@ import testbridge.pipes.upgrades.ModuleUpgradeManager;
 @StaticResolve
 public class CMGuiProvider extends ModuleCoordinatesGuiProvider {
 
-  @Getter
-  @Setter
   private boolean isBufferUpgrade;
-
-  @Getter
-  @Setter
   private boolean isContainerConnected;
-
-  @Getter
-  @Setter
   private int blockingMode;
 
   public CMGuiProvider(int id) {
     super(id);
+  }
+
+  @Override
+  public void writeData(LPDataOutput output) {
+    super.writeData(output);
+    output.writeBoolean(isBufferUpgrade);
+    output.writeInt(blockingMode);
+    output.writeBoolean(isContainerConnected);
+  }
+
+  @Override
+  public void readData(LPDataInput input) {
+    super.readData(input);
+    isBufferUpgrade = input.readBoolean();
+    blockingMode = input.readInt();
+    isContainerConnected = input.readBoolean();
+  }
+
+  @Override
+  public GuiProvider template() {
+    return new CMGuiProvider(getId());
   }
 
   @Override
@@ -53,7 +63,7 @@ public class CMGuiProvider extends ModuleCoordinatesGuiProvider {
     if (!(pipe.pipe instanceof PipeCraftingManager) || module == null) {
       return null;
     }
-    module.getBlockingMode().setValue(BlockingMode.values()[blockingMode]);
+    module.blockingMode.setValue(BlockingMode.values()[blockingMode]);
     return new GuiCMPipe(player, (PipeCraftingManager) pipe.pipe, module, isBufferUpgrade, isContainerConnected);
   }
 
@@ -99,24 +109,18 @@ public class CMGuiProvider extends ModuleCoordinatesGuiProvider {
     return ((ItemUpgrade) stack.getItem()).getUpgradeForItem(stack, null).isAllowedForModule(module);
   }
 
-  @Override
-  public GuiProvider template() {
-    return new CMGuiProvider(getId());
+  public CMGuiProvider setBufferUpgrade(boolean bufferUpgrade) {
+    isBufferUpgrade = bufferUpgrade;
+    return this;
   }
 
-  @Override
-  public void writeData(LPDataOutput output) {
-    super.writeData(output);
-    output.writeBoolean(isBufferUpgrade);
-    output.writeInt(blockingMode);
-    output.writeBoolean(isContainerConnected);
+  public CMGuiProvider setContainerConnected(boolean containerConnected) {
+    isContainerConnected = containerConnected;
+    return this;
   }
 
-  @Override
-  public void readData(LPDataInput input) {
-    super.readData(input);
-    isBufferUpgrade = input.readBoolean();
-    blockingMode = input.readInt();
-    isContainerConnected = input.readBoolean();
+  public CMGuiProvider setBlockingMode(int blockingMode) {
+    this.blockingMode = blockingMode;
+    return this;
   }
 }

@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Stopwatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import lombok.Getter;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -31,7 +30,7 @@ import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 import testbridge.pipes.upgrades.BufferCMUpgrade;
 
-@Mod(modid = TestBridge.MODID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, guiFactory = "testbridge.client.gui.config.ConfigGuiFactory", acceptedMinecraftVersions = "1.12.2")
+@Mod(modid = TestBridge.MODID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, acceptedMinecraftVersions = "1.12.2")
 public class TestBridge {
 
   public static final String MODID = "testbridge";
@@ -39,8 +38,7 @@ public class TestBridge {
   public static final String VERSION = "@VERSION@";
   public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[4.2,);required-after:logisticspipes;";
 
-  @Getter
-  private static final boolean debug = Boolean.getBoolean("tb.debugging");
+  public static final boolean isDebug = Boolean.getBoolean("tb.debugging");
 
   public TestBridge() {
     MinecraftForge.EVENT_BUS.register(this);

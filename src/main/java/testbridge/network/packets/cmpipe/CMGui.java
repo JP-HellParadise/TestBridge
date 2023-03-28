@@ -1,8 +1,5 @@
 package testbridge.network.packets.cmpipe;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import net.minecraft.entity.player.EntityPlayer;
 
 import logisticspipes.modules.LogisticsModule;
@@ -20,8 +17,6 @@ import testbridge.pipes.PipeCraftingManager;
 @StaticResolve
 public class CMGui extends CoordinatesPacket {
 
-  @Getter
-  @Setter
   private int modulePos;
 
   public CMGui(int id) {
@@ -54,5 +49,10 @@ public class CMGui extends CoordinatesPacket {
   @Override
   public ModernPacket template() {
     return new CMGui(getId());
+  }
+
+  public CMGui setModulePos(int modulePos) {
+    this.modulePos = modulePos;
+    return this;
   }
 }

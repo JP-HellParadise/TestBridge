@@ -1,8 +1,5 @@
 package testbridge.network.packets.pipehandler;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import net.minecraft.entity.player.EntityPlayer;
 
 import appeng.api.parts.IPart;
@@ -28,8 +25,6 @@ import testbridge.pipes.ResultPipe;
 @StaticResolve
 public class TB_SetNamePacket extends StringCoordinatesPacket {
 
-  @Getter
-  @Setter
   private int side;
 
   public TB_SetNamePacket(int id) {
@@ -50,7 +45,7 @@ public class TB_SetNamePacket extends StringCoordinatesPacket {
           progress = (SatellitePipe) pipe.pipe;
         }
       } catch (TargetNotFoundException e) {
-        IPart iPart = getTileAs(player.getEntityWorld(), IPartHost.class).getPart(AEPartLocation.fromOrdinal(getSide()));
+        IPart iPart = getTileAs(player.getEntityWorld(), IPartHost.class).getPart(AEPartLocation.fromOrdinal(this.side));
         if (iPart instanceof PartSatelliteBus) {
           progress = (SatellitePipe) iPart;
         }
@@ -89,6 +84,11 @@ public class TB_SetNamePacket extends StringCoordinatesPacket {
   @Override
   public ModernPacket template() {
     return new TB_SetNamePacket(getId());
+  }
+
+  public TB_SetNamePacket setSide(int side) {
+    this.side = side;
+    return this;
   }
 }
 

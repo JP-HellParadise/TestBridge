@@ -127,7 +127,7 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslati
   private void addConnectInfo(TB_ModuleCM module, IProbeInfo probeInfo) {
     for (int i = 0 ; i < 2 ; i++) {
       String result = module.getNameByUUID(i == 0 ?
-          module.getSatelliteUUID().getValue() : module.getResultUUID().getValue(), i != 0);
+          module.satelliteUUID.getValue() : module.resultUUID.getValue(), i != 0);
       probeInfo.text(new TextHelper(top$cm_prefix + (i == 0 ? "select_sat" : "select_result"))
           .addArgument(result).getTranslated());
     }

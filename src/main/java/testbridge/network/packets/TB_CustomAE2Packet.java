@@ -3,9 +3,6 @@ package testbridge.network.packets;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
@@ -38,25 +35,11 @@ import testbridge.part.PartSatelliteBus;
 
 @StaticResolve
 public class TB_CustomAE2Packet<T> extends CoordinatesPacket {
-  @Getter
-  @Setter
+
   private String key;
-
-  @Getter
-  @Setter
   private String value;
-
-  @Getter
-  @Setter
   private ItemStack is;
-
-  @Getter
-  @Setter
   private boolean setting;
-
-  @Getter
-  @Setter
-  private List<T> list;
 
   public TB_CustomAE2Packet(int id) {
     super(id);
@@ -155,5 +138,25 @@ public class TB_CustomAE2Packet<T> extends CoordinatesPacket {
     this.value = input.readUTF();
     this.is = input.readItemStack();
     this.setting = input.readBoolean();
+  }
+
+  public TB_CustomAE2Packet<T> setKey(String key) {
+    this.key = key;
+    return this;
+  }
+
+  public TB_CustomAE2Packet<T> setValue(String value) {
+    this.value = value;
+    return this;
+  }
+
+  public TB_CustomAE2Packet<T> setIs(ItemStack is) {
+    this.is = is;
+    return this;
+  }
+
+  public TB_CustomAE2Packet<T> setSetting(boolean setting) {
+    this.setting = setting;
+    return this;
   }
 }

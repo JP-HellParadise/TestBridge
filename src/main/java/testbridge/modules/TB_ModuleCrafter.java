@@ -77,14 +77,12 @@ public class TB_ModuleCrafter extends ModuleCrafter {
     if (result == null) return null;
     //
     int multiply = (int) Math.ceil(promise.numberOfItems / (float) result.getStackSize());
-    if(pipeCM.hasBufferUpgrade()){
+    if(pipeCM.hasBufferUpgrade()) {
       boolean hasSatellite = isSatelliteConnected();
       if (!hasSatellite) {
         return null;
       }
 
-      IRouter defSat = pipeCM.getMainSatelliteRouter();
-      if (defSat == null) return null;
       IRequestItems[] target = new IRequestItems[9];
 
       if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
@@ -104,6 +102,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
         }
       }
 
+      IRouter defSat = pipeCM.getMainSatelliteRouter();
       for (int i = 0; i < 9; i++) {
         if (target[i] == null) {
           target[i] = defSat.getPipe();
@@ -261,12 +260,12 @@ public class TB_ModuleCrafter extends ModuleCrafter {
 
   @Override
   public boolean isSatelliteConnected() {
-    if (!checkConnectionByUUID(pipeCM.getModules().getResultUUID())) {
+    if (!checkConnectionByUUID(pipeCM.getModules().resultUUID)) {
       return false;
     }
 
     if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
-      if (!checkConnectionByUUID(pipeCM.getModules().getSatelliteUUID())) {
+      if (!checkConnectionByUUID(pipeCM.getModules().satelliteUUID)) {
         return false;
       }
 
@@ -278,7 +277,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
     } else {
       boolean foundAll = true;
 
-      if (!checkConnectionByUUID(pipeCM.getModules().getSatelliteUUID())) {
+      if (!checkConnectionByUUID(pipeCM.getModules().satelliteUUID)) {
         return false;
       }
 

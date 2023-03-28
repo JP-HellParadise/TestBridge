@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import net.minecraft.util.text.TextFormatting;
 
 import logisticspipes.kotlin.text.Regex;
@@ -15,19 +12,11 @@ import testbridge.utils.TextUtil;
 
 public class TextHelper {
 
-  private final Regex translationKeyRegex = new Regex("([a-z]+\\.)+[a-z]+");
-  @Getter
-  @Setter
+  public final Regex translationKeyRegex = new Regex("([a-z]+\\.)+[a-z]+");
   private String append = "";
-  @Getter
-  @Setter
   private String prepend = "";
-  @Getter
-  private final EnumSet<TextFormatting> baseFormatting = EnumSet.noneOf(TextFormatting.class);
-  @Getter
-  private final List<String> arguments = new ArrayList<>();
-  @Getter
-  @Setter
+  public final EnumSet<TextFormatting> baseFormatting = EnumSet.noneOf(TextFormatting.class);
+  public final List<String> arguments = new ArrayList<>();
   private String key;
 
   public TextHelper(String key) {
@@ -51,5 +40,32 @@ public class TextHelper {
 
   private String translateIfApplicable(String text) {
     return translationKeyRegex.matches(text) ? TextUtil.translate(text) : text;
+  }
+
+  public String getAppend() {
+    return append;
+  }
+
+  public TextHelper setAppend(String append) {
+    this.append = append;
+    return this;
+  }
+
+  public String getPrepend() {
+    return prepend;
+  }
+
+  public TextHelper setPrepend(String prepend) {
+    this.prepend = prepend;
+    return this;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public TextHelper setKey(String key) {
+    this.key = key;
+    return this;
   }
 }

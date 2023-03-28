@@ -2,8 +2,6 @@ package testbridge.helpers.inventory;
 
 import javax.annotation.Nonnull;
 
-import lombok.Getter;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
@@ -18,21 +16,19 @@ import logisticspipes.utils.gui.RestrictedSlot;
 import testbridge.pipes.PipeCraftingManager;
 
 public class CrafterSlot extends RestrictedSlot {
-  @Getter
-  private final PipeCraftingManager _pipe;
-  @Getter
-  private final int _moduleIndex;
+  public final PipeCraftingManager parentPipe;
+  public final int _moduleIndex;
 
   public CrafterSlot(IInventory iinventory, int i, int j, int k, PipeCraftingManager pipe) {
     super(iinventory, i, j, k, ItemModule.class);
-    _pipe = pipe;
+    parentPipe = pipe;
     _moduleIndex = i;
   }
 
   @Nonnull
   @Override
   public ItemStack onTake(@Nonnull EntityPlayer player, @Nonnull ItemStack itemStack) {
-    ItemModuleInformationManager.saveInformation(itemStack, _pipe.getSubModule(_moduleIndex));
+    ItemModuleInformationManager.saveInformation(itemStack, parentPipe.getSubModule(_moduleIndex));
     return super.onTake(player, itemStack);
   }
 
