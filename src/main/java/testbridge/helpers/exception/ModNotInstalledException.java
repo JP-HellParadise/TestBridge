@@ -21,16 +21,15 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package appeng.api.exceptions;
-
+package testbridge.helpers.exception;
 
 public class ModNotInstalledException extends Exception
 {
 
-	private static final long serialVersionUID = -9052435206368425494L;
+    private static final long serialVersionUID = -9052435206368425494L;
 
-	public ModNotInstalledException(final String t )
-	{
-		super( t );
-	}
+    public ModNotInstalledException(final String t )
+    {
+        super( t );
+    }
 }
