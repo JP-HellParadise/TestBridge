@@ -59,6 +59,7 @@ minecraft {
   args << '-XXaltjvm=dcevm'
   args << '-javaagent:d:\\hotswapagent142.jar'
   args << '-Dtb.debugging=true'
+  args << '-Dfml.coreMods.load=logisticspipes.asm.LogisticsPipesCoreLoader'
   clientJvmArgs.addAll(args)
   serverJvmArgs.addAll(args)
   makeObfSourceJar = false
