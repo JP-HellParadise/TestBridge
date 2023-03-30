@@ -95,21 +95,17 @@ dependencies {
     compile 'zone.rong:mixinbooter:7.0'
   }
 
+  // Using CurseMaven
   //Compile things that need deobf
   deobfCompile project.mcmp_dep
   deobfCompile project.td_dep
   deobfCompile project.hei_dep
   deobfCompile project.lp_dep
   deobfCompile project.ae2_dep
-
   //compileOnly
   compileOnly project.rf_dep
   compileOnly project.ccl_dep
   compileOnly project.top_dep
-  compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
-  compileOnly group: 'li.cil.oc', name: 'OpenComputers', version: 'MC1.12.2-1.7.5.205', classifier: 'api'
-  compileOnly group: 'de.ellpeck.actuallyadditions', name : 'ActuallyAdditions', version: '1.12.2-r152.16', classifier: 'api'
-
   //runtime so that mods loaded on runClient & runServer
   runtime project.ccl_dep
   runtime project.rs_dep
@@ -119,6 +115,14 @@ dependencies {
   runtime project.cofhw_dep
   runtime project.rf_dep
   runtime project.top_dep
+
+  // Outside cursemaven scope
+  compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
+  compileOnly group: 'li.cil.oc', name: 'OpenComputers', version: 'MC1.12.2-1.7.5.205', classifier: 'api'
+  compileOnly group: 'de.ellpeck.actuallyadditions', name : 'ActuallyAdditions', version: '1.12.2-r152.16', classifier: 'api'
+  compileOnly group: 'com.mod-buildcraft', name: 'buildcraft-all', version: '7.99.24.6', transitive: false
+  compileOnly group: 'com.jaquadro.minecraft.storagedrawers', name: 'StorageDrawers', version: '1.12.2-5.4.2', transitive: false
+  compileOnly group: 'pl.asie.charset', name: 'Charset', version: '0.5.6.6', classifier: 'api', transitive: false
 
 }
 

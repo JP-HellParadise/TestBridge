@@ -1,14 +1,14 @@
 package testbridge.modules;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
-
-import logisticspipes.utils.tuples.Pair;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -31,6 +31,7 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.computers.objects.CCSinkResponder;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.utils.SinkReply;
+import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -43,6 +44,7 @@ import network.rs485.logisticspipes.property.*;
 
 import testbridge.helpers.TextHelper;
 import testbridge.helpers.interfaces.ITranslationKey;
+import testbridge.helpers.interfaces.TB_IInventoryUtil;
 import testbridge.network.guis.pipe.CMGuiProvider;
 import testbridge.network.packets.pipe.CMPipeUpdatePacket;
 import testbridge.pipes.PipeCraftingManager;
@@ -334,12 +336,12 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
   // Crafting start from here
 
   private void enabledUpdateEntity() {
-    if (!this.parentPipe.isNthTick(5)) {
+    if (!this.parentPipe.isNthTick(10)) {
       return;
     }
 
     if (this.hasItemsToSend()) {
-      this.parentPipe.spawnParticle(Particles.GoldParticle, 1);
+      this.parentPipe.spawnParticle(Particles.BlueParticle, 1);
       this.pushItemsOut();
       return;
     }
@@ -353,26 +355,30 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
         return;
       }
       if (this.hasItemsToCraft()) {
-        if (!this.isBlocking()) {
+        if (this.isBlocking()) {
+          this.parentPipe.spawnParticle(Particles.RedParticle, 1);
+        } else {
           this.startCrafting();
-          return;
         }
-        this.parentPipe.spawnParticle(Particles.RedParticle, 1);
       }
     }
   }
 
   public void startCrafting() {
     IInventoryUtil util = getBufferInventory();
+    AtomicBoolean isCrafting = new AtomicBoolean(false);
     if (parentPipe.canUseEnergy(neededEnergy) && util != null) {
-      Optional<HashMap<IRequestItems, List<ItemIdentifierStack>>> bufferOpt = craftingList.stream().findFirst();
-      if (bufferOpt.isPresent()
-          && bufferOpt.get().entrySet().stream().allMatch(this::acceptItems)) {
-        HashMap<IRequestItems, List<ItemIdentifierStack>> bufferList = bufferOpt.get();
-        bufferList.forEach((key, value) -> value.forEach(it -> addToWaitingList(key, it)));
-        craftingList.remove(bufferList);
-        this.parentPipe.spawnParticle(Particles.RedParticle, 1);
-      }
+      craftingList.stream()
+          .filter(it -> it.entrySet().stream().allMatch(this::acceptItems)).findFirst()
+          .ifPresent(it -> {
+            it.forEach((key, value) -> value.forEach(it2 -> addToWaitingList(key, it2)));
+            isCrafting.set(craftingList.remove(it));
+          });
+    }
+    if (isCrafting.get()) {
+      this.parentPipe.spawnParticle(Particles.GreenParticle, 1);
+    } else {
+      this.parentPipe.spawnParticle(Particles.RedParticle, 1);
     }
   }
 
@@ -388,8 +394,11 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     IInventoryUtil inv = sat.getAvailableAdjacent().inventories()
         .stream().map(LPNeighborTileEntityKt::getInventoryUtil).findFirst().orElse(null);
     if (inv != null) {
-      return stacks.stream().map(ItemIdentifierStack::makeNormalStack).map(it -> new Pair<>(it, inv.roomForItem(it)))
-          .noneMatch(it -> it.getValue1().getCount() < it.getValue2());
+      if (inv instanceof TB_IInventoryUtil)
+        return ((TB_IInventoryUtil) inv).roomForItem(stacks.stream().map(ItemIdentifierStack::makeNormalStack).collect(Collectors.toList()));
+      else
+        return stacks.stream().map(ItemIdentifierStack::makeNormalStack).map(it -> new Pair<>(it, inv.roomForItem(it)))
+            .noneMatch(it -> it.getValue1().getCount() < it.getValue2());
     }
     return false;
   }
@@ -482,7 +491,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
 
     if (this.waitingToSend.isEmpty()) {
       waitingToSend = null;
-      sendCooldown = Math.min(maxDist, sendCooldown == 0 ? 16 : sendCooldown);
+      sendCooldown = maxDist;
     }
   }
 
