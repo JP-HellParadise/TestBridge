@@ -4,7 +4,7 @@
 # Then it generates a log, based on commits.
 # After that builds a jar and uploads it to curseforge/modrinth/GitHub releases
 
-name: Build and release Github
+name: Build and Release
 
 on:
   workflow_dispatch:
