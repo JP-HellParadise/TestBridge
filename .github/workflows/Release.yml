@@ -16,9 +16,9 @@ on:
         type: choice
         description: Release tags
         options:
-          - Alpha
-          - Beta
-          - Release
+          - alpha
+          - beta
+          - release
 
 jobs:
   build:
@@ -61,7 +61,7 @@ jobs:
           curseforge-id: 719357
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          github-tag: "v${{ github.event.inputs.version }}"
+          github-tag: "v${{ github.event.inputs.version }}-${{ github.event.inputs.tags }}"
           github-generate-changelog: true
           github-draft: false
           github-prerelease: false
@@ -70,7 +70,7 @@ jobs:
           files-primary: build/libs/!(*-@(dev|sources|javadoc)).jar
           name: TestBridge-${{ github.event.inputs.version }}
           version: ${{ github.event.inputs.version }}
-          version-type: ${{ github.event.inputs.release_type }}
+          version-type: ${{ github.event.inputs.tags }}
           loaders: |
             forge
           game-versions: |
