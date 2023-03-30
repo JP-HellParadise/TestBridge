@@ -23,10 +23,9 @@ import org.apache.logging.log4j.Level;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModAPIManager;
 
-import appeng.api.exceptions.ModNotInstalledException;
-
 import testbridge.core.TB_Config;
 import testbridge.core.TestBridge;
+import testbridge.helpers.exception.ModNotInstalledException;
 
 final class IntegrationNode {
 
