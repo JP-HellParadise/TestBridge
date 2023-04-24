@@ -16,7 +16,8 @@ import mcjty.theoneprobe.api.ProbeMode;
 
 import appeng.tile.AEBaseTile;
 
-import testbridge.core.TestBridge;
+import io.github.korewali.Tags;
+
 import testbridge.integration.modules.theoneprobe.tile.CraftingManagerProvider;
 import testbridge.integration.modules.theoneprobe.tile.ITileProbInfoProvider;
 
@@ -31,7 +32,7 @@ public final class TileInfoProvider implements IProbeInfoProvider {
 
   @Override
   public String getID() {
-    return TestBridge.MODID + ":TileInfoProvider";
+    return Tags.MODID + ":TileInfoProvider";
   }
 
   @Override

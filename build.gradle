@@ -7,7 +7,7 @@ plugins {
   id("maven-publish")
   id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.7"
   id("eclipse")
-  id("com.gtnewhorizons.retrofuturagradle") version "1.3.3"
+  id("com.gtnewhorizons.retrofuturagradle") version "1.3.4"
   id("com.matthewprenger.cursegradle") version "1.4.0"
 }
 
@@ -25,6 +25,10 @@ java {
   // Generate sources and javadocs jars when building and publishing
   withSourcesJar()
   withJavadocJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+  options.encoding = "UTF-8"
 }
 
 configurations {
@@ -52,6 +56,8 @@ minecraft {
   extraRunJvmArguments.addAll(args)
 
   injectedTags.put("VERSION", project.version)
+  injectedTags.put("MODID", project.archivesBaseName)
+  injectedTags.put("MODNAME", project.mod_name)
 }
 
 // Generate a my.project.Tags class with the version number as a field
@@ -82,7 +88,6 @@ repositories {
 }
 
 dependencies {
-
   if (project.use_assetmover.toBoolean()) {
     implementation 'com.cleanroommc:assetmover:2.0'
   }
@@ -90,15 +95,15 @@ dependencies {
     implementation 'zone.rong:mixinbooter:7.0'
   }
 
-  // Using CurseMaven
+  // CurseMaven scope
   // required deobf component
-  implementation rfg.deobf(project.mcmp_dep)
-  implementation rfg.deobf(project.td_dep)
-  implementation rfg.deobf(project.hei_dep)
-  implementation rfg.deobf(project.lp_dep)
-  apiImplementation rfg.deobf(project.ae2_dep)
+  api rfg.deobf(project.mcmp_dep)
+  api rfg.deobf(project.td_dep)
+  api rfg.deobf(project.lp_dep)
+  api rfg.deobf(project.ae2_dep)
 
   // non deobf component
+  api project.hei_dep
   implementation project.rf_dep
   implementation project.ccl_dep
   implementation project.top_dep
@@ -112,7 +117,7 @@ dependencies {
 
   // outside cursemaven scope
   compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
-  compileOnly group: 'li.cil.oc', name: 'OpenComputers', version: 'MC1.12.2-1.7.5.205', classifier: 'api'
+  compileOnly group: 'li.cil.oc', name: 'OpenComputers', version: 'MC1.12.2-1.7.5.205', classifier: 'api' // "haha you cant compiling without me"
   compileOnly group: 'de.ellpeck.actuallyadditions', name : 'ActuallyAdditions', version: '1.12.2-r152.16', classifier: 'api'
   compileOnly group: 'com.mod-buildcraft', name: 'buildcraft-all', version: '7.99.24.6', transitive: false
   compileOnly group: 'com.jaquadro.minecraft.storagedrawers', name: 'StorageDrawers', version: '1.12.2-5.4.2', transitive: false
@@ -146,6 +151,15 @@ if (project.use_mixins.toBoolean()) {
             "-AoutSrgFile=${mixinSrg}",
             "-AoutRefMapFile=${refMap}",
     ]
+  }
+}
+
+if (project.use_access_transformer.toBoolean()) {
+  for (File at : sourceSets.getByName("main").resources.files) {
+    if (at.name.toLowerCase().endsWith("_at.cfg")) {
+      tasks.deobfuscateMergedJarToSrg.accessTransformerFiles.from(at)
+      tasks.srgifyBinpatchedJar.accessTransformerFiles.from(at)
+    }
   }
 }
 
@@ -189,6 +203,8 @@ jar {
     }
     attributes(attribute_map)
   }
+  // Add all embedded dependencies into the jar
+  from(provider{ configurations.embed.collect {it.isDirectory() ? it : zipTree(it)} })
 }
 
 idea {
