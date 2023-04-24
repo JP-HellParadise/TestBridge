@@ -32,7 +32,7 @@ public class RegisterHelper {
   /**
    * Register a single model for an {@link Item}.
    * <p>
-   * Uses {@code modelLocation} as the domain/path and {@link "inventory"} as the variant.
+   * Uses {@code modelLocation} as the domain/path and {@code "inventory"} as the variant.
    *
    * @param item          The Item
    * @param modelLocation The model location

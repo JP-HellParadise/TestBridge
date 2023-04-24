@@ -4,11 +4,11 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "compat.TB_MixinTOPAddon",
+    "network.TB_MixinGuiOpenChassis",
     "network.TB_MixinModuleCGP",
     "network.TB_MixinModuleCoordinatesPacket",
     "pipes.upgrades.TB_ItemExtraction",
-    "pipes.upgrades.TB_ItemStackExtraction",
-    "network.TB_MixinGuiOpenChassis"
+    "pipes.upgrades.TB_ItemStackExtraction"
   ],
   "client": [],
   "server": []

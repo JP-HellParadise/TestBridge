@@ -18,7 +18,8 @@ import mcjty.theoneprobe.api.ProbeMode;
 import appeng.api.parts.IPart;
 import appeng.integration.modules.theoneprobe.part.PartAccessor;
 
-import testbridge.core.TestBridge;
+import io.github.korewali.Tags;
+
 import testbridge.integration.modules.theoneprobe.part.CraftingManagerProvider;
 import testbridge.integration.modules.theoneprobe.part.IPartProbInfoProvider;
 import testbridge.integration.modules.theoneprobe.part.SatelliteBusProvider;
@@ -37,7 +38,7 @@ public class PartInfoProvider implements IProbeInfoProvider {
 
   @Override
   public String getID() {
-    return TestBridge.MODID + ":PartInfoProvider";
+    return Tags.MODID + ":PartInfoProvider";
   }
 
   @Override

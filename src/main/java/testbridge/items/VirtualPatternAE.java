@@ -129,6 +129,9 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
    * Create new virtual pattern 1:1 to original AE2 version with custom handle.
    * <p>
    * Usage: To create {@link FakeItem} that contains ItemStack
+   * @param in Input
+   * @param out Output
+   * @return {@link VirtualPatternHelper}
    */
   @Optional.Method(modid = "appliedenergistics2")
   public static ICraftingPatternDetails newPattern(final ItemStack in, final ItemStack out) {

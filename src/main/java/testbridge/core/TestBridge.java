@@ -21,6 +21,8 @@ import net.minecraftforge.registries.IForgeRegistry;
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 
+import io.github.korewali.Tags;
+
 import testbridge.datafixer.TBDataFixer;
 import testbridge.integration.IntegrationRegistry;
 import testbridge.integration.IntegrationType;
@@ -30,12 +32,8 @@ import testbridge.pipes.PipeCraftingManager;
 import testbridge.pipes.ResultPipe;
 import testbridge.pipes.upgrades.BufferCMUpgrade;
 
-@Mod(modid = TestBridge.MODID, name = TestBridge.NAME, version = TestBridge.VERSION, dependencies = TestBridge.DEPS, acceptedMinecraftVersions = "1.12.2")
+@Mod(modid = Tags.MODID, name = Tags.MODNAME, version = Tags.VERSION, dependencies = TestBridge.DEPS, acceptedMinecraftVersions = "1.12.2")
 public class TestBridge {
-
-  public static final String MODID = "testbridge";
-  public static final String NAME = "Test Bridge";
-  public static final String VERSION = "@VERSION@";
   public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[4.2,);required-after:logisticspipes;";
 
   public static final boolean isDebug = Boolean.getBoolean("tb.debugging");
@@ -44,10 +42,10 @@ public class TestBridge {
     MinecraftForge.EVENT_BUS.register(this);
   }
 
-  @Mod.Instance(TestBridge.MODID)
+  @Mod.Instance(Tags.MODID)
   public static TestBridge INSTANCE;
 
-  public static final Logger log = LogManager.getLogger(NAME);
+  public static final Logger log = LogManager.getLogger(Tags.MODNAME);
 
   @Mod.EventHandler
   public void preInit(FMLPreInitializationEvent event) {
