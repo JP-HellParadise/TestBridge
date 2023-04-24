@@ -55,14 +55,15 @@ import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.InvOperation;
 
+import io.github.korewali.Tags;
+
 import testbridge.integration.modules.appliedenergistics2.AE2Module;
-import testbridge.core.TestBridge;
 import testbridge.helpers.DualityCraftingManager;
 import testbridge.helpers.interfaces.ICraftingManagerHost;
 
 public class PartCraftingManager extends PartBasicState
     implements IGridTickable, IStorageMonitorable, IInventoryDestination, ICraftingManagerHost, IAEAppEngInventory, IPriorityHost {
-  public static final ResourceLocation MODEL_BASE = new ResourceLocation(TestBridge.MODID, "part/crafting_manager_base");
+  public static final ResourceLocation MODEL_BASE = new ResourceLocation(Tags.MODID, "part/crafting_manager_base");
 
   @PartModels
   public static final PartModel MODELS_OFF = new PartModel(MODEL_BASE, new ResourceLocation(AppEng.MOD_ID, "part/interface_off"));

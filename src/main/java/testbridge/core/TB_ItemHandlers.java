@@ -15,6 +15,8 @@ import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import logisticspipes.LPItems;
 import logisticspipes.modules.ModuleCrafter;
 
+import io.github.korewali.Tags;
+
 import testbridge.items.FakeItem;
 import testbridge.items.VirtualPatternAE;
 
@@ -58,9 +60,9 @@ public class TB_ItemHandlers {
       itemName = "randomItem_" + RandomStringUtils.randomAlphabetic(10);
     }
     if (key.equals("")) {
-      translationKey = TestBridge.MODID + "." + itemName;
+      translationKey = Tags.MODID + "." + itemName;
     } else translationKey = key;
-    final Item result = item.setTranslationKey(translationKey).setRegistryName(TestBridge.MODID, itemName);
+    final Item result = item.setTranslationKey(translationKey).setRegistryName(Tags.MODID, itemName);
     if (creativeTabs != null) {
       return result.setCreativeTab(creativeTabs);
     }
@@ -78,9 +80,9 @@ public class TB_ItemHandlers {
       itemName = "randomBlock_" + RandomStringUtils.randomAlphabetic(10);
     }
     if (key.equals("")) {
-      translationKey = TestBridge.MODID + "." + itemName;
+      translationKey = Tags.MODID + "." + itemName;
     } else translationKey = key;
-    final Block result = block.setTranslationKey(translationKey).setRegistryName(TestBridge.MODID, itemName);
+    final Block result = block.setTranslationKey(translationKey).setRegistryName(Tags.MODID, itemName);
     if (creativeTabs != null) {
       return result.setCreativeTab(creativeTabs);
     }

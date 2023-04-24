@@ -18,7 +18,7 @@ import appeng.core.AppEng;
 
 import logisticspipes.LPConstants;
 
-import testbridge.core.TestBridge;
+import io.github.korewali.Tags;
 
 public class MissingMappingHandler {
   private final Map<String, String> itemIDMap = ImmutableMap.<String, String>builder()
@@ -51,7 +51,7 @@ public class MissingMappingHandler {
           modID = AppEng.MOD_ID;
           break;
         default:
-          modID = TestBridge.MODID;
+          modID = Tags.MODID;
       }
       Block value = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(modID, entry[1]));
       if (value == null) continue;
@@ -83,7 +83,7 @@ public class MissingMappingHandler {
           modID = AppEng.MOD_ID;
           break;
         default:
-          modID = TestBridge.MODID;
+          modID = Tags.MODID;
       }
       Item value = ForgeRegistries.ITEMS.getValue(new ResourceLocation(modID, entry[1]));
       if (value == null) continue;

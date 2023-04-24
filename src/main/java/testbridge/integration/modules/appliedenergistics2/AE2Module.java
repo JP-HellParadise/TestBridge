@@ -43,6 +43,8 @@ import appeng.items.parts.PartType;
 import appeng.util.prioritylist.IPartitionList;
 import appeng.util.prioritylist.MergedPriorityList;
 
+import io.github.korewali.Tags;
+
 import testbridge.container.ContainerCraftingManager;
 import testbridge.container.ContainerSatelliteSelect;
 import testbridge.core.TB_ItemHandlers;
@@ -129,7 +131,7 @@ public class AE2Module implements IIntegrationModule {
   // Register recipe
   private static void loadRecipes() {
     // Recipe group
-    ResourceLocation group = new ResourceLocation(TestBridge.MODID, "recipes");
+    ResourceLocation group = new ResourceLocation(Tags.MODID, "recipes");
     // AE2 API definitions
     IMaterials materials = AE2Module.INSTANCE.api.definitions().materials();
     IBlocks blocks = AE2Module.INSTANCE.api.definitions().blocks();
@@ -142,16 +144,16 @@ public class AE2Module implements IIntegrationModule {
         'f', materials.formationCore().maybeStack(1).orElse(ItemStack.EMPTY),
         'i', "ingotIron",
         'c', materials.calcProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
-        setRegistryName(new ResourceLocation(TestBridge.MODID, "recipes/satellite_bus")));
+        setRegistryName(new ResourceLocation(Tags.MODID, "recipes/satellite_bus")));
 
     // ME Crafting Manager part
     ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, AE2Module.CRAFTINGMANAGER_PART_SRC.stack(1),
         /* Input */ tile_cm).
-        setRegistryName(new ResourceLocation(TestBridge.MODID, "recipes/cm_block_to_part")));
+        setRegistryName(new ResourceLocation(Tags.MODID, "recipes/cm_block_to_part")));
 
     ForgeRegistries.RECIPES.register(new ShapelessOreRecipe(group, tile_cm,
         /* Input */ AE2Module.CRAFTINGMANAGER_PART_SRC.stack(1)).
-        setRegistryName(new ResourceLocation(TestBridge.MODID, "recipes/cm_part_to_block")));
+        setRegistryName(new ResourceLocation(Tags.MODID, "recipes/cm_part_to_block")));
 
     // ME Crafting Manager block
     ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, tile_cm,
@@ -165,14 +167,14 @@ public class AE2Module implements IIntegrationModule {
         'u', materials.cardPatternExpansion().maybeStack(1).orElse(ItemStack.EMPTY),
         'I', blocks.iface().maybeStack(1).orElse(ItemStack.EMPTY),
         'l', materials.logicProcessor().maybeStack(1).orElse(ItemStack.EMPTY)).
-        setRegistryName(new ResourceLocation(TestBridge.MODID, "recipes/craftingmanager_part")));
+        setRegistryName(new ResourceLocation(Tags.MODID, "recipes/craftingmanager_part")));
 
     // Item Package
     ForgeRegistries.RECIPES.register(new ShapedOreRecipe(group, new ItemStack(TB_ItemHandlers.itemPackage),
         "pw",
         'p', Items.PAPER,
         'w', "plankWood").
-        setRegistryName(new ResourceLocation(TestBridge.MODID, "recipes/item_package")));
+        setRegistryName(new ResourceLocation(Tags.MODID, "recipes/item_package")));
   }
 
   // Register item model

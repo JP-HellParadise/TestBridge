@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "compat.TB_MixinTOPAddon",
+    "network.TB_MixinGuiOpenChassis",
     "invutil.TB_InventoryUtil",
     "network.TB_MixinGuiOpenChassis",
     "network.TB_MixinModuleCGP",
