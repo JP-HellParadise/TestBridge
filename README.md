@@ -3,7 +3,7 @@
 [![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/KorewaLidesu/TestBridge/main_build.yml?label=test%20build&logo=github&style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml)
 [![GitHub](https://img.shields.io/github/license/KorewaLidesu/TestBridge?style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/blob/master/LICENSE)
 
-This mod currently utilizies **Gradle 8.1.1** + **RetroFuturaGradle 1.3.3** + **Forge 14.23.5.2847**.
+This mod currently utilizies **Gradle 8.1.1** + **RetroFuturaGradle 1.3.4** + **Forge 14.23.5.2847**.
 
 ## Features
 - Logistics Pipe:
