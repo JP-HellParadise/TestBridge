@@ -51,7 +51,6 @@ minecraft {
   args << '-XXaltjvm=dcevm'
   args << '-javaagent:d:\\hotswapagent142.jar'
   args << '-Dtb.debugging=true'
-  args << '-Dfml.coreMods.load=logisticspipes.asm.LogisticsPipesCoreLoader'
 
   extraRunJvmArguments.addAll(args)
 
@@ -173,7 +172,9 @@ processResources {
     // replace version and mcversion
     fcd.expand (
             'version': project.version,
-            'mcversion': project.minecraft.version
+            'mcversion': project.minecraft.version,
+            'modid': project.archivesBaseName,
+            'modname': project.mod_name
     )
   }
 
@@ -237,4 +238,12 @@ idea {
 
 tasks.named("processIdeaSettings").configure {
   dependsOn("injectTags")
+}
+
+runClient.configure {
+  extraJvmArgs.add('-Dfml.coreMods.load=logisticspipes.asm.LogisticsPipesCoreLoader')
+}
+
+runServer.configure {
+  extraJvmArgs.add('-Dfml.coreMods.load=logisticspipes.asm.LogisticsPipesCoreLoader')
 }
