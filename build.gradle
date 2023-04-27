@@ -7,8 +7,9 @@ plugins {
   id("maven-publish")
   id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.7"
   id("eclipse")
-  id("com.gtnewhorizons.retrofuturagradle") version "1.3.4"
+  id("com.gtnewhorizons.retrofuturagradle") version "1.3.5"
   id("com.matthewprenger.cursegradle") version "1.4.0"
+  id 'com.diffplug.spotless' version '6.7.2'
 }
 
 version = project.mod_version
@@ -27,6 +28,10 @@ java {
   withJavadocJar()
 }
 
+project.extensions.add(com.diffplug.blowdryer.Blowdryer, "Blowdryer", com.diffplug.blowdryer.Blowdryer) // Make blowdryer available in "apply from:" scripts
+apply plugin: 'com.diffplug.spotless'
+apply from: Blowdryer.file('spotless.gradle')
+
 tasks.withType(JavaCompile).configureEach {
   options.encoding = "UTF-8"
 }
@@ -38,7 +43,7 @@ configurations {
 
 minecraft {
   mcVersion = '1.12.2'
-  username = "devEnv"
+  username = "Player0"
   def args = ["-ea:${project.group}"]
   if (project.use_coremod.toBoolean()) {
     args << '-Dfml.coreMods.load=' + coremod_plugin_class_name
@@ -61,7 +66,7 @@ minecraft {
 
 // Generate a my.project.Tags class with the version number as a field
 tasks.injectTags.configure {
-  outputClassName.set("${project.group}.Tags")
+  outputClassName.set("${project.group}.${project.archivesBaseName}.Tags")
 }
 
 repositories {
@@ -94,7 +99,7 @@ dependencies {
     implementation 'zone.rong:mixinbooter:7.0'
   }
 
-  // CurseMaven scope
+  // CurseMaven
   // required deobf component
   api rfg.deobf(project.mcmp_dep)
   api rfg.deobf(project.td_dep)
@@ -114,7 +119,7 @@ dependencies {
   runtimeOnly project.cofhc_dep
   runtimeOnly project.cofhw_dep
 
-  // outside cursemaven scope
+  // outside cursemaven
   compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
   compileOnly group: 'li.cil.oc', name: 'OpenComputers', version: 'MC1.12.2-1.7.5.205', classifier: 'api' // "haha you cant compiling without me"
   compileOnly group: 'de.ellpeck.actuallyadditions', name : 'ActuallyAdditions', version: '1.12.2-r152.16', classifier: 'api'
@@ -166,6 +171,7 @@ processResources {
   // this will ensure that this task is redone when the versions change.
   inputs.property 'version', project.version
   inputs.property 'mcversion', project.minecraft.version
+  exclude("spotless.gradle")
   // replace stuff in mcmod.info, nothing else
   filesMatching(['mcmod.info', 'pack.mcmeta']) { fcd ->
     include 'mcmod.info'
@@ -224,6 +230,9 @@ idea {
       "4. Run Obfuscated Server"(Gradle) {
         taskNames = ["runObfServer"]
       }
+      "5. Apply spotless"(Gradle) {
+        taskNames = ["spotlessApply"]
+      }
     }
     compiler.javac {
       afterEvaluate {
@@ -240,10 +249,8 @@ tasks.named("processIdeaSettings").configure {
   dependsOn("injectTags")
 }
 
-runClient.configure {
-  extraJvmArgs.add('-Dfml.coreMods.load=logisticspipes.asm.LogisticsPipesCoreLoader')
-}
-
-runServer.configure {
-  extraJvmArgs.add('-Dfml.coreMods.load=logisticspipes.asm.LogisticsPipesCoreLoader')
+for (runTask in ["runClient", "runServer"]) {
+  tasks.named(runTask).configure {
+    extraJvmArgs.add('-Dfml.coreMods.load=logisticspipes.asm.LogisticsPipesCoreLoader')
+  }
 }
