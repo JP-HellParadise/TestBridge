@@ -1,14 +1,10 @@
 package net.jp.hellparadise.testbridge.client.popup;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.GuiGraphics;
@@ -21,6 +17,9 @@ import net.jp.hellparadise.testbridge.network.packets.gui.RequestResultPipeListP
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.math.BlockPos;
 import network.rs485.logisticspipes.util.TextUtil;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class GuiSelectResultPopup extends SubGuiScreen {
 
