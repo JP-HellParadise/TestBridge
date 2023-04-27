@@ -1,14 +1,14 @@
 [
 {
-  "modid": "testbridge",
-  "name": "Test Bridge",
-  "description": "Rewrite Logistics Bridge in attempt.",
+  "modid": "${modid}",
+  "name": "${modname}",
+  "description": "Rewrite Logistics Bridge in an attempt.",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
+  "url": "https://www.curseforge.com/minecraft/mc-mods/testbridge",
   "updateUrl": "",
-  "authorList": ["Korewa_Li"],
-  "credits": "Authors of Test Bridge",
+  "authorList": ["KorewaLidesu"],
+  "credits": "Logistics Pipe, Logistics Bridge and its fork",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

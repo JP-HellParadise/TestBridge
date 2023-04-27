@@ -1,6 +1,6 @@
 {
   "minVersion": "0.8",
-  "package": "testbridge.mixins.logisticspipes",
+  "package": "net.jp.hellparadise.testbridge.mixins.logisticspipes",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "compat.TB_MixinTOPAddon",
