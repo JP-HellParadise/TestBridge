@@ -1,6 +1,8 @@
 package net.jp.hellparadise.testbridge.modules;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -31,6 +33,7 @@ import logisticspipes.utils.tuples.Pair;
 
 import net.jp.hellparadise.testbridge.helpers.TextHelper;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
+import net.jp.hellparadise.testbridge.helpers.interfaces.TB_IInventoryUtil;
 import net.jp.hellparadise.testbridge.network.guis.pipe.CMGuiProvider;
 import net.jp.hellparadise.testbridge.network.packets.pipe.CMPipeUpdatePacket;
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
@@ -363,12 +366,12 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     // Crafting start from here
 
     private void enabledUpdateEntity() {
-        if (!this.parentPipe.isNthTick(5)) {
+        if (!this.parentPipe.isNthTick(10)) {
             return;
         }
 
         if (this.hasItemsToSend()) {
-            this.parentPipe.spawnParticle(Particles.GoldParticle, 1);
+            this.parentPipe.spawnParticle(Particles.BlueParticle, 1);
             this.pushItemsOut();
             return;
         }
@@ -382,29 +385,34 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
                 return;
             }
             if (this.hasItemsToCraft()) {
-                if (!this.isBlocking()) {
+                if (this.isBlocking()) {
+                    this.parentPipe.spawnParticle(Particles.RedParticle, 1);
+                } else {
                     this.startCrafting();
-                    return;
                 }
-                this.parentPipe.spawnParticle(Particles.RedParticle, 1);
             }
         }
     }
 
     public void startCrafting() {
         IInventoryUtil util = getBufferInventory();
+        AtomicBoolean isCrafting = new AtomicBoolean(false);
         if (parentPipe.canUseEnergy(neededEnergy) && util != null) {
-            Optional<HashMap<IRequestItems, List<ItemIdentifierStack>>> bufferOpt = craftingList.stream()
-                .findFirst();
-            if (bufferOpt.isPresent() && bufferOpt.get()
-                .entrySet()
-                .stream()
-                .allMatch(this::acceptItems)) {
-                HashMap<IRequestItems, List<ItemIdentifierStack>> bufferList = bufferOpt.get();
-                bufferList.forEach((key, value) -> value.forEach(it -> addToWaitingList(key, it)));
-                craftingList.remove(bufferList);
-                this.parentPipe.spawnParticle(Particles.RedParticle, 1);
-            }
+            craftingList.stream()
+                .filter(
+                    it -> it.entrySet()
+                        .stream()
+                        .allMatch(this::acceptItems))
+                .findFirst()
+                .ifPresent(it -> {
+                    it.forEach((key, value) -> value.forEach(it2 -> addToWaitingList(key, it2)));
+                    isCrafting.set(craftingList.remove(it));
+                });
+        }
+        if (isCrafting.get()) {
+            this.parentPipe.spawnParticle(Particles.GreenParticle, 1);
+        } else {
+            this.parentPipe.spawnParticle(Particles.RedParticle, 1);
         }
     }
 
@@ -428,7 +436,11 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
             .findFirst()
             .orElse(null);
         if (inv != null) {
-            return stacks.stream()
+            if (inv instanceof TB_IInventoryUtil) return ((TB_IInventoryUtil) inv).roomForItem(
+                stacks.stream()
+                    .map(ItemIdentifierStack::makeNormalStack)
+                    .collect(Collectors.toList()));
+            else return stacks.stream()
                 .map(ItemIdentifierStack::makeNormalStack)
                 .map(it -> new Pair<>(it, inv.roomForItem(it)))
                 .noneMatch(
@@ -548,7 +560,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
 
         if (this.waitingToSend.isEmpty()) {
             waitingToSend = null;
-            sendCooldown = Math.min(maxDist, sendCooldown == 0 ? 16 : sendCooldown);
+            sendCooldown = maxDist;
         }
     }
 
