@@ -8,7 +8,7 @@ import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.IProbeInfoProvider;
 import mcjty.theoneprobe.api.ProbeMode;
 
-import net.jp.hellparadise.testbridge.Tags;
+import net.jp.hellparadise.testbridge.core.Reference;
 import net.jp.hellparadise.testbridge.integration.modules.theoneprobe.part.CraftingManagerProvider;
 import net.jp.hellparadise.testbridge.integration.modules.theoneprobe.part.IPartProbInfoProvider;
 import net.jp.hellparadise.testbridge.integration.modules.theoneprobe.part.SatelliteBusProvider;
@@ -37,7 +37,7 @@ public class PartInfoProvider implements IProbeInfoProvider {
 
     @Override
     public String getID() {
-        return Tags.MODID + ":PartInfoProvider";
+        return Reference.MODID + ":PartInfoProvider";
     }
 
     @Override

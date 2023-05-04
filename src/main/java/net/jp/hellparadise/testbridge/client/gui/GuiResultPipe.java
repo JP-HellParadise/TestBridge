@@ -13,7 +13,7 @@ import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 
-import net.jp.hellparadise.testbridge.network.packets.pipehandler.TB_SetNamePacket;
+import net.jp.hellparadise.testbridge.network.packets.implementation.TB_SetNamePacket;
 import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;

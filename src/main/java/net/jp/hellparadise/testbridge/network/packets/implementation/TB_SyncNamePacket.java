@@ -1,4 +1,4 @@
-package net.jp.hellparadise.testbridge.network.packets.pipehandler;
+package net.jp.hellparadise.testbridge.network.packets.implementation;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.StringCoordinatesPacket;

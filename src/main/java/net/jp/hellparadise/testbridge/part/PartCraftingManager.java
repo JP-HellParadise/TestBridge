@@ -2,7 +2,7 @@ package net.jp.hellparadise.testbridge.part;
 
 import java.util.List;
 
-import net.jp.hellparadise.testbridge.Tags;
+import net.jp.hellparadise.testbridge.core.Reference;
 import net.jp.hellparadise.testbridge.helpers.DualityCraftingManager;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
 import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
@@ -61,7 +61,9 @@ import com.google.common.collect.ImmutableSet;
 public class PartCraftingManager extends PartBasicState implements IGridTickable, IStorageMonitorable,
     IInventoryDestination, ICraftingManagerHost, IAEAppEngInventory, IPriorityHost {
 
-    public static final ResourceLocation MODEL_BASE = new ResourceLocation(Tags.MODID, "part/crafting_manager_base");
+    public static final ResourceLocation MODEL_BASE = new ResourceLocation(
+        Reference.MODID,
+        "part/crafting_manager_base");
 
     @PartModels
     public static final PartModel MODELS_OFF = new PartModel(

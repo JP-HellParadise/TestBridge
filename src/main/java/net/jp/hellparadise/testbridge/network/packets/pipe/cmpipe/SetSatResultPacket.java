@@ -1,4 +1,4 @@
-package net.jp.hellparadise.testbridge.network.packets.pipe;
+package net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe;
 
 import java.util.UUID;
 
@@ -12,11 +12,11 @@ import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
-public class CMPipeSetSatResultPacket extends IntegerModuleCoordinatesPacket {
+public class SetSatResultPacket extends IntegerModuleCoordinatesPacket {
 
     private UUID pipeUUID;
 
-    public CMPipeSetSatResultPacket(int id) {
+    public SetSatResultPacket(int id) {
         super(id);
     }
 
@@ -47,10 +47,10 @@ public class CMPipeSetSatResultPacket extends IntegerModuleCoordinatesPacket {
 
     @Override
     public ModernPacket template() {
-        return new CMPipeSetSatResultPacket(getId());
+        return new SetSatResultPacket(getId());
     }
 
-    public CMPipeSetSatResultPacket setPipeUUID(UUID pipeUUID) {
+    public SetSatResultPacket setPipeUUID(UUID pipeUUID) {
         this.pipeUUID = pipeUUID;
         return this;
     }

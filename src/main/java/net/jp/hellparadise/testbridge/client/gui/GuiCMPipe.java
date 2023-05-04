@@ -26,8 +26,8 @@ import net.jp.hellparadise.testbridge.helpers.inventory.DummyContainer;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM.BlockingMode;
 import net.jp.hellparadise.testbridge.network.guis.pipe.CMGuiProvider;
-import net.jp.hellparadise.testbridge.network.packets.cmpipe.CMGui;
-import net.jp.hellparadise.testbridge.network.packets.pipe.CMPipeSetSatResultPacket;
+import net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe.CMGui;
+import net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe.SetSatResultPacket;
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.jp.hellparadise.testbridge.pipes.upgrades.ModuleUpgradeManager;
 import net.minecraft.client.gui.GuiButton;
@@ -309,7 +309,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
                             .getBlockPos(),
                         false,
                         uuid -> MainProxy.sendPacketToServer(
-                            PacketHandler.getPacket(CMPipeSetSatResultPacket.class)
+                            PacketHandler.getPacket(SetSatResultPacket.class)
                                 .setPipeUUID(uuid)
                                 .setInteger(id)
                                 .setModulePos(pipeCM.getModules()))));
@@ -319,7 +319,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
                         pipeCM.getModules()
                             .getBlockPos(),
                         uuid -> MainProxy.sendPacketToServer(
-                            PacketHandler.getPacket(CMPipeSetSatResultPacket.class)
+                            PacketHandler.getPacket(SetSatResultPacket.class)
                                 .setPipeUUID(uuid)
                                 .setInteger(id)
                                 .setModulePos(pipeCM.getModules()))));

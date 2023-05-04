@@ -14,7 +14,7 @@ import net.jp.hellparadise.testbridge.container.ContainerSatelliteSelect;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
 import net.jp.hellparadise.testbridge.items.FakeItem;
 import net.jp.hellparadise.testbridge.network.packets.gui.ProvideSatResultListPacket;
-import net.jp.hellparadise.testbridge.network.packets.pipehandler.TB_SyncNamePacket;
+import net.jp.hellparadise.testbridge.network.packets.implementation.TB_SyncNamePacket;
 import net.jp.hellparadise.testbridge.part.PartCraftingManager;
 import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
 import net.minecraft.entity.player.EntityPlayer;

@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.core.TestBridge;
 import net.jp.hellparadise.testbridge.helpers.NBTItemHelper;
-import net.jp.hellparadise.testbridge.network.GuiIDs;
+import net.jp.hellparadise.testbridge.network.guis.GuiEnum;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
@@ -74,7 +74,7 @@ public class FakeItem extends Item {
                 this.clearPackage(is, player);
                 return new ActionResult<>(EnumActionResult.SUCCESS, is);
             } else if (!isHolder) {
-                player.openGui(TestBridge.INSTANCE, GuiIDs.TEMPLATE_PKG.ordinal(), w, hand.ordinal(), 0, 0);
+                player.openGui(TestBridge.INSTANCE, GuiEnum.TEMPLATE_PKG.ordinal(), w, hand.ordinal(), 0, 0);
                 return new ActionResult<>(EnumActionResult.SUCCESS, is);
             }
         }

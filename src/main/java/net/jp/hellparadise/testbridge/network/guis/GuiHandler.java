@@ -1,4 +1,4 @@
-package net.jp.hellparadise.testbridge.network;
+package net.jp.hellparadise.testbridge.network.guis;
 
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.gui.DummyContainer;
@@ -26,8 +26,8 @@ public class GuiHandler implements IGuiHandler {
     @Override
     public Object getServerGuiElement(int ID, EntityPlayer player, World world, final int x, final int y, final int z) {
         // Satellite Bus checker
-        if (ID >= GuiIDs.SATELLITE_BUS.begin() && ID < GuiIDs.SATELLITE_BUS.end()) {
-            AEPartLocation side = AEPartLocation.fromOrdinal(ID - GuiIDs.SATELLITE_BUS.begin());
+        if (ID >= GuiEnum.SATELLITE_BUS.begin() && ID < GuiEnum.SATELLITE_BUS.end()) {
+            AEPartLocation side = AEPartLocation.fromOrdinal(ID - GuiEnum.SATELLITE_BUS.begin());
             TileEntity TE = world.getTileEntity(new BlockPos(x, y, z));
             if (TE instanceof IPartHost) {
                 IPart part = ((IPartHost) TE).getPart(side);
@@ -47,7 +47,7 @@ public class GuiHandler implements IGuiHandler {
             if (tile instanceof LogisticsTileGenericPipe) {
                 pipe = (LogisticsTileGenericPipe) tile;
             }
-            switch (GuiIDs.values()[ID]) {
+            switch (GuiEnum.values()[ID]) {
                 case RESULT_PIPE:
                     if (pipe != null && pipe.pipe instanceof ResultPipe) {
                         return new DummyContainer(player.inventory, null);
@@ -70,12 +70,13 @@ public class GuiHandler implements IGuiHandler {
     }
 
     @Override
-    public Object getClientGuiElement(int ID, EntityPlayer player, final World world, int x, int y, int z) {
+    public Object getClientGuiElement(int guiID, EntityPlayer player, final World world, int x, int y, int z) {
         // Satellite Bus checker
-        if (ID >= GuiIDs.SATELLITE_BUS.begin() && ID < GuiIDs.SATELLITE_BUS.end()) {
+        if (guiID >= GuiEnum.SATELLITE_BUS.begin() && guiID < GuiEnum.SATELLITE_BUS.end()) {
             TileEntity TE = world.getTileEntity(new BlockPos(x, y, z));
             if (TE instanceof IPartHost) {
-                IPart part = ((IPartHost) TE).getPart(AEPartLocation.fromOrdinal(ID - GuiIDs.SATELLITE_BUS.begin()));
+                IPart part = ((IPartHost) TE)
+                    .getPart(AEPartLocation.fromOrdinal(guiID - GuiEnum.SATELLITE_BUS.begin()));
                 if (part instanceof PartSatelliteBus) {
                     return new GuiResultPipe<>((PartSatelliteBus) part, "gui.satellite.");
                 }
@@ -83,13 +84,13 @@ public class GuiHandler implements IGuiHandler {
             return null;
         }
 
-        if (ID < 100 && ID >= 0) {
+        if (guiID < 100 && guiID >= 0) {
             TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
             LogisticsTileGenericPipe pipe = null;
             if (tile instanceof LogisticsTileGenericPipe) {
                 pipe = (LogisticsTileGenericPipe) tile;
             }
-            switch (GuiIDs.values()[ID]) {
+            switch (GuiEnum.values()[guiID]) {
                 case RESULT_PIPE:
                     if (pipe != null && pipe.pipe instanceof ResultPipe) {
                         return new GuiResultPipe<>(((ResultPipe) pipe.pipe), "gui.result.");

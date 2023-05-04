@@ -83,7 +83,8 @@ public class TB_Config extends Configuration {
     public enum TBFeature {
 
         LOGGING("Logging"),
-        INTEGRATION_LOGGING("IntegrationLogging", false);
+        INTEGRATION_LOGGING("IntegrationLogging", false),
+        DEBUG_LOGGING("DebugLogging", false, "Enable debug logging, thus allow for detail info");
 
         final String key;
         final boolean enabled;

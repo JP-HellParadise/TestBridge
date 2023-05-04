@@ -3,9 +3,9 @@ package net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import net.jp.hellparadise.testbridge.Tags;
 import net.jp.hellparadise.testbridge.container.ContainerCraftingManager;
 import net.jp.hellparadise.testbridge.container.ContainerSatelliteSelect;
+import net.jp.hellparadise.testbridge.core.Reference;
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.core.TestBridge;
 import net.jp.hellparadise.testbridge.helpers.interfaces.IBlocks_TB;
@@ -159,7 +159,7 @@ public class AE2Module implements IIntegrationModule {
     // Register recipe
     private static void loadRecipes() {
         // Recipe group
-        ResourceLocation group = new ResourceLocation(Tags.MODID, "recipes");
+        ResourceLocation group = new ResourceLocation(Reference.MODID, "recipes");
         // AE2 API definitions
         IMaterials materials = AE2Module.INSTANCE.api.definitions()
             .materials();
@@ -185,16 +185,16 @@ public class AE2Module implements IIntegrationModule {
                 materials.calcProcessor()
                     .maybeStack(1)
                     .orElse(ItemStack.EMPTY))
-                        .setRegistryName(new ResourceLocation(Tags.MODID, "recipes/satellite_bus")));
+                        .setRegistryName(new ResourceLocation(Reference.MODID, "recipes/satellite_bus")));
 
         // ME Crafting Manager part
         ForgeRegistries.RECIPES.register(
             new ShapelessOreRecipe(group, AE2Module.CRAFTINGMANAGER_PART_SRC.stack(1), /* Input */ tile_cm)
-                .setRegistryName(new ResourceLocation(Tags.MODID, "recipes/cm_block_to_part")));
+                .setRegistryName(new ResourceLocation(Reference.MODID, "recipes/cm_block_to_part")));
 
         ForgeRegistries.RECIPES.register(
             new ShapelessOreRecipe(group, tile_cm, /* Input */ AE2Module.CRAFTINGMANAGER_PART_SRC.stack(1))
-                .setRegistryName(new ResourceLocation(Tags.MODID, "recipes/cm_part_to_block")));
+                .setRegistryName(new ResourceLocation(Reference.MODID, "recipes/cm_part_to_block")));
 
         // ME Crafting Manager block
         ForgeRegistries.RECIPES.register(
@@ -232,7 +232,7 @@ public class AE2Module implements IIntegrationModule {
                 materials.logicProcessor()
                     .maybeStack(1)
                     .orElse(ItemStack.EMPTY))
-                        .setRegistryName(new ResourceLocation(Tags.MODID, "recipes/craftingmanager_part")));
+                        .setRegistryName(new ResourceLocation(Reference.MODID, "recipes/craftingmanager_part")));
 
         // Item Package
         ForgeRegistries.RECIPES.register(
@@ -243,7 +243,7 @@ public class AE2Module implements IIntegrationModule {
                 'p',
                 Items.PAPER,
                 'w',
-                "plankWood").setRegistryName(new ResourceLocation(Tags.MODID, "recipes/item_package")));
+                "plankWood").setRegistryName(new ResourceLocation(Reference.MODID, "recipes/item_package")));
     }
 
     // Register item model

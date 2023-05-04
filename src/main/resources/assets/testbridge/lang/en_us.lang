@@ -97,6 +97,10 @@ top.testbridge.crafting_manager.router_error=$REDRouter not found
 
 chat.testbridge.satellite_bus.duplicated=$REDFailed to upload _satName due to an exist satellite on the network.
 chat.testbridge.satellite_bus.success=$GREENSuccess to upload _satName.
+chat.testbridge.pipe_crafting_manager.craftjob=Crafting job:
+chat.testbridge.pipe_crafting_manager.sendjob=Sending job:
+chat.testbridge.pipe_crafting_manager.empty=Empty
+
 
 # commands
 # commands.examplemod.examplecommand.usage=/example <value>

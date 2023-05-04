@@ -1,4 +1,4 @@
-package net.jp.hellparadise.testbridge.network.packets.cmpipe;
+package net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe;
 
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;

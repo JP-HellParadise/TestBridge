@@ -7,7 +7,7 @@ import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.IProbeInfoProvider;
 import mcjty.theoneprobe.api.ProbeMode;
 
-import net.jp.hellparadise.testbridge.Tags;
+import net.jp.hellparadise.testbridge.core.Reference;
 import net.jp.hellparadise.testbridge.integration.modules.theoneprobe.tile.CraftingManagerProvider;
 import net.jp.hellparadise.testbridge.integration.modules.theoneprobe.tile.ITileProbInfoProvider;
 import net.minecraft.block.state.IBlockState;
@@ -31,7 +31,7 @@ public final class TileInfoProvider implements IProbeInfoProvider {
 
     @Override
     public String getID() {
-        return Tags.MODID + ":TileInfoProvider";
+        return Reference.MODID + ":TileInfoProvider";
     }
 
     @Override
