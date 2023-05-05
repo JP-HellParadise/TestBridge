@@ -456,6 +456,10 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
         if (parentPipe.canUseEnergy(neededEnergy) && util != null) {
             craftingList.stream()
                 .filter(
+                    it -> it.values()
+                        .stream()
+                        .allMatch(this::hasAllItemInBuffer))
+                .filter(
                     it -> it.entrySet()
                         .stream()
                         .allMatch(this::acceptItems))
@@ -589,7 +593,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
                                 parentPipe.getItemSendMode(),
                                 null,
                                 parentPipe.getPointedOrientation());
-                            maxDist = Math.max(
+                            maxDist = removed.getCount() <= 1 ? 16 : Math.max(
                                 maxDist,
                                 (int) entry.getKey()
                                     .getRouter()
