@@ -593,13 +593,14 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
                                 parentPipe.getItemSendMode(),
                                 null,
                                 parentPipe.getPointedOrientation());
-                            maxDist = removed.getCount() <= 1 ? 16 : Math.max(
-                                maxDist,
-                                (int) entry.getKey()
-                                    .getRouter()
-                                    .getPipe()
-                                    .getPos()
-                                    .distanceSq(parentPipe.getPos()));
+                            maxDist = removed.getCount() <= 1 ? 16
+                                : Math.max(
+                                    maxDist,
+                                    (int) entry.getKey()
+                                        .getRouter()
+                                        .getPipe()
+                                        .getPos()
+                                        .distanceSq(parentPipe.getPos()));
                             i.remove();
                             hasDoneSomething = true;
                         }
