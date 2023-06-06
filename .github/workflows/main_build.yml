@@ -15,7 +15,6 @@ on:
       - 'LICENSE'
       - 'README.md'
   pull_request:
-    branches: [ "master" ]
     paths-ignore:
       - '.github/workflows/Release.yml'
       - 'LICENSE'
@@ -37,8 +36,13 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
-    - name: Build with Gradle
-      run: ./gradlew build
+        cache: gradle # Only cache stuff since test build action happen mostly
+
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: build
+
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
       with:
