@@ -1,6 +1,6 @@
 package net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2;
 
-import java.lang.reflect.Field;
+import java.lang.invoke.MethodHandle;
 import java.util.*;
 
 import net.jp.hellparadise.testbridge.container.ContainerCraftingManager;
@@ -14,13 +14,13 @@ import net.jp.hellparadise.testbridge.helpers.inventory.HideFakeItem;
 import net.jp.hellparadise.testbridge.integration.IIntegrationModule;
 import net.jp.hellparadise.testbridge.part.PartCraftingManager;
 import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
+import net.jp.hellparadise.testbridge.utils.Reflector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -59,11 +59,31 @@ public class AE2Module implements IIntegrationModule {
     public static AE2Module INSTANCE;
     public final IAppEngApi api;
     public static HideFakeItem HIDE_FAKE_ITEM;
-    public static Field MergedPriorityList_negative, GuiMEMonitorable_Repo, ItemRepo_myPartitionList;
     public static PartType SATELLITE_BUS, CRAFTINGMANAGER_PART;
     public static ItemStackSrc SATELLITE_BUS_SRC, CRAFTINGMANAGER_PART_SRC;
     public static GuiBridge GUI_CRAFTINGMANAGER, GUI_SATELLITESELECT;
     public static ItemStack tile_cm;
+
+    public static final MethodHandle GuiMEMonitorable_RepoGetter;
+    public static final MethodHandle ItemRepo_MyPartitionListGetter;
+    public static final MethodHandle ItemRepo_MyPartitionListSetter;
+    public static final MethodHandle bootstrapComponentsF;
+    public static final MethodHandle ItemVariantsComponent_Item;
+    public static final MethodHandle ItemVariantsComponent_Resources;
+
+    static {
+        try {
+            // "I reject performance" - Korewa_Li
+            GuiMEMonitorable_RepoGetter = Reflector.resolveFieldGetter(GuiMEMonitorable.class, "repo");
+            ItemRepo_MyPartitionListGetter = Reflector.resolveFieldGetter(ItemRepo.class, "myPartitionList");
+            ItemRepo_MyPartitionListSetter = Reflector.resolveFieldSetter(ItemRepo.class, "myPartitionList");
+            bootstrapComponentsF = Reflector.resolveFieldGetter(FeatureFactory.class, "bootstrapComponents");
+            ItemVariantsComponent_Item = Reflector.resolveFieldGetter(ItemVariantsComponent.class, "item");
+            ItemVariantsComponent_Resources = Reflector.resolveFieldGetter(ItemVariantsComponent.class, "resources");
+        } catch (SecurityException se) {
+            throw new RuntimeException(se);
+        }
+    }
 
     public AE2Module(IAppEngApi api) {
         this.api = api;
@@ -71,13 +91,6 @@ public class AE2Module implements IIntegrationModule {
     }
 
     public void preInit() {
-        try {
-            AE2Module.MergedPriorityList_negative = MergedPriorityList.class.getDeclaredField("negative");
-            AE2Module.MergedPriorityList_negative.setAccessible(true);
-        } catch (NoSuchFieldException | SecurityException e) {
-            e.printStackTrace();
-        }
-
         // Register Part
         AE2Module.SATELLITE_BUS = EnumHelper.addEnum(
             PartType.class,
@@ -133,18 +146,6 @@ public class AE2Module implements IIntegrationModule {
     }
 
     public void init() {
-        if (FMLLaunchHandler.side() == Side.CLIENT) { // Client only
-            // Hacking to the terminal
-            try {
-                GuiMEMonitorable_Repo = GuiMEMonitorable.class.getDeclaredField("repo");
-                GuiMEMonitorable_Repo.setAccessible(true);
-                ItemRepo_myPartitionList = ItemRepo.class.getDeclaredField("myPartitionList");
-                ItemRepo_myPartitionList.setAccessible(true);
-            } catch (SecurityException | NoSuchFieldException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
         // Init event handler
         MinecraftForge.EVENT_BUS.register(AE2EventHandler.init.class);
 
@@ -253,30 +254,24 @@ public class AE2Module implements IIntegrationModule {
         try {
             FeatureFactory ff = Api.INSTANCE.definitions()
                 .getRegistry();
-            Field bootstrapComponentsF = FeatureFactory.class.getDeclaredField("bootstrapComponents");
-            bootstrapComponentsF.setAccessible(true);
             Map<Class<? extends IBootstrapComponent>, List<IBootstrapComponent>> bootstrapComponents = (Map<Class<? extends IBootstrapComponent>, List<IBootstrapComponent>>) bootstrapComponentsF
-                .get(ff);
+                .invoke(ff);
             List<IBootstrapComponent> itemRegComps = bootstrapComponents.get(IModelRegistrationComponent.class);
             ItemVariantsComponent partReg = null;
-            Field ItemVariantsComponent_item = ItemVariantsComponent.class.getDeclaredField("item");
-            ItemVariantsComponent_item.setAccessible(true);
             for (IBootstrapComponent iBootstrapComponent : itemRegComps) {
                 if (iBootstrapComponent instanceof ItemVariantsComponent) {
-                    Item item = (Item) ItemVariantsComponent_item.get(iBootstrapComponent);
+                    Item item = (Item) ItemVariantsComponent_Item.invoke(iBootstrapComponent);
                     if (item == ItemPart.instance) {
                         partReg = (ItemVariantsComponent) iBootstrapComponent;
                         break;
                     }
                 }
             }
-            Field ItemVariantsComponent_resources = ItemVariantsComponent.class.getDeclaredField("resources");
-            ItemVariantsComponent_resources.setAccessible(true);
-            HashSet<ResourceLocation> resources = (HashSet<ResourceLocation>) ItemVariantsComponent_resources
-                .get(partReg);
+            HashSet<ResourceLocation> resources = (HashSet<ResourceLocation>) ItemVariantsComponent_Resources
+                .invoke(partReg);
             resources.addAll(AE2Module.SATELLITE_BUS.getItemModels());
             resources.addAll(AE2Module.CRAFTINGMANAGER_PART.getItemModels());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException("Error registering part model", e);
         }
     }
@@ -284,32 +279,30 @@ public class AE2Module implements IIntegrationModule {
     // Hacking stuff
     @SuppressWarnings("unchecked")
     @SideOnly(Side.CLIENT)
-    static void hideFakeItems(GuiScreenEvent.BackgroundDrawnEvent event) {
+    static void hideFakeItems() {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.currentScreen instanceof GuiMEMonitorable) {
-            GuiMEMonitorable g = (GuiMEMonitorable) mc.currentScreen;
-            if (AE2Module.HIDE_FAKE_ITEM == null) {
-                AE2Module.HIDE_FAKE_ITEM = new HideFakeItem();
-            }
+            GuiMEMonitorable gui = (GuiMEMonitorable) mc.currentScreen;
+            if (AE2Module.HIDE_FAKE_ITEM == null) AE2Module.HIDE_FAKE_ITEM = new HideFakeItem();
             try {
-                ItemRepo r = (ItemRepo) GuiMEMonitorable_Repo.get(g);
-                IPartitionList<IAEItemStack> pl = (IPartitionList<IAEItemStack>) ItemRepo_myPartitionList.get(r);
-                if (pl instanceof MergedPriorityList) {
-                    MergedPriorityList<IAEItemStack> ml = (MergedPriorityList<IAEItemStack>) pl;
-                    Collection<IPartitionList<IAEItemStack>> negative = (Collection<IPartitionList<IAEItemStack>>) AE2Module.MergedPriorityList_negative
-                        .get(ml);
-                    if (!negative.contains(AE2Module.HIDE_FAKE_ITEM)) {
-                        negative.add(AE2Module.HIDE_FAKE_ITEM);
-                        r.updateView();
+                ItemRepo guiItemRepo = (ItemRepo) GuiMEMonitorable_RepoGetter.invoke(gui);
+                IPartitionList<IAEItemStack> partList = (IPartitionList<IAEItemStack>) ItemRepo_MyPartitionListGetter
+                    .invoke(guiItemRepo);
+                if (partList instanceof MergedPriorityList) {
+                    MergedPriorityList<IAEItemStack> ml = (MergedPriorityList<IAEItemStack>) partList;
+                    if (AE2Module.HIDE_FAKE_ITEM.getStreams()
+                        .allMatch(ml::isListed)) {
+                        ml.addNewList(AE2Module.HIDE_FAKE_ITEM, false);
+                        guiItemRepo.updateView();
                     }
                 } else {
-                    MergedPriorityList<IAEItemStack> mList = new MergedPriorityList<>();
-                    ItemRepo_myPartitionList.set(r, mList);
-                    if (pl != null) mList.addNewList(pl, true);
-                    mList.addNewList(AE2Module.HIDE_FAKE_ITEM, false);
-                    r.updateView();
+                    MergedPriorityList<IAEItemStack> newMList = new MergedPriorityList<>();
+                    ItemRepo_MyPartitionListSetter.invoke(guiItemRepo, newMList);
+                    if (partList != null) newMList.addNewList(partList, true);
+                    newMList.addNewList(AE2Module.HIDE_FAKE_ITEM, false);
+                    guiItemRepo.updateView();
                 }
-            } catch (Exception ignore) {}
+            } catch (Throwable ignored) {}
         }
     }
 }

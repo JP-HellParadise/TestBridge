@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = GuiOpenChassis.class, remap = false)
 public abstract class TB_MixinGuiOpenChassis extends CoordinatesPacket {
 
+    // stub
     public TB_MixinGuiOpenChassis(int id) {
         super(id);
     }

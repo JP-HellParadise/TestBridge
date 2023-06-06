@@ -1,6 +1,7 @@
 package net.jp.hellparadise.testbridge.core;
 
 import java.io.File;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import logisticspipes.items.ItemUpgrade;
@@ -29,6 +30,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.registries.IForgeRegistry;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,7 +44,10 @@ import com.google.common.base.Stopwatch;
     acceptedMinecraftVersions = "1.12.2")
 public class TestBridge {
 
-    public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[4.2,);required-after:logisticspipes;";
+    public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[8.2,);required-after:logisticspipes@[0.10.4.44,);";
+
+    public static final boolean isVMOpenJ9 = SystemUtils.JAVA_VM_NAME.toLowerCase(Locale.ROOT)
+        .contains("openj9");
 
     @SidedProxy(
         modId = Reference.MODID,

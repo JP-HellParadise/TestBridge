@@ -218,7 +218,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
     }
 
     @Override
-    public boolean recievePassive() {
+    public boolean receivePassive() {
         return false;
     }
 

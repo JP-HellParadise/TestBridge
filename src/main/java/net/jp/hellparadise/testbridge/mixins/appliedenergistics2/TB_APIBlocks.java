@@ -30,7 +30,7 @@ public abstract class TB_APIBlocks implements IBlocks_TB {
     }
 
     @Inject(method = "<init>", at = @At(value = "RETURN"), remap = false)
-    public void setCmBlock(FeatureFactory registry, PartModels partModels, CallbackInfo ci) {
+    public void createCmBlock(FeatureFactory registry, PartModels partModels, CallbackInfo ci) {
         this.cmBlock = registry.block("crafting_manager", BlockCraftingManager::new)
             .features(AEFeature.INTERFACE)
             .tileEntity(new TileEntityDefinition(TileEntityCraftingManager.class))

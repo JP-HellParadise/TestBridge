@@ -1,6 +1,5 @@
 package net.jp.hellparadise.testbridge.mixins.logisticspipes.network;
 
-import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.CoordinatesGuiProvider;
 import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -14,6 +13,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+
+@SuppressWarnings("unchecked")
 @Mixin(value = ModuleCoordinatesGuiProvider.class, remap = false)
 public abstract class TB_MixinModuleCGP extends CoordinatesGuiProvider {
 
@@ -24,16 +28,28 @@ public abstract class TB_MixinModuleCGP extends CoordinatesGuiProvider {
         super(id);
     }
 
+    @WrapOperation(
+        method = "getLogisticsModule",
+        at = @At(value = "INVOKE", target = "Llogisticspipes/LogisticsPipes;isDEBUG()Z", ordinal = 1),
+        remap = false)
+    public <T> boolean disableWrongError(Operation<Boolean> original, World ignoredWorld, Class<T> ignoredClazz,
+                                         @Local LogisticsTileGenericPipe pipe) {
+        if (pipe.pipe instanceof PipeCraftingManager) {
+            return false;
+        } else {
+            return original.call();
+        }
+    }
+
     @Inject(
         method = "getLogisticsModule",
         at = @At(value = "RETURN", ordinal = 1, shift = At.Shift.BEFORE),
         cancellable = true,
         remap = false)
-    public <T> void test(World world, Class<T> clazz, CallbackInfoReturnable<LogisticsModule> cir) {
-        LogisticsTileGenericPipe pipe = this.getTileAs(world, LogisticsTileGenericPipe.class);
+    public <T> void redirectToCmModule(World world, Class<T> clazz, CallbackInfoReturnable<T> cir,
+        @Local LogisticsTileGenericPipe pipe) {
         if (pipe.pipe instanceof PipeCraftingManager) {
-            LogisticsModule module = ((PipeCraftingManager) pipe.pipe).getSubModule(this.positionInt);
-            cir.setReturnValue(module);
+            cir.setReturnValue((T) ((PipeCraftingManager) pipe.pipe).getSubModule(this.positionInt));
         }
     }
 }

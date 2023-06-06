@@ -16,7 +16,7 @@ import logisticspipes.utils.gui.GuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.UpgradeSlot;
-import logisticspipes.utils.gui.extention.GuiExtention;
+import logisticspipes.utils.gui.extension.GuiExtension;
 
 import net.jp.hellparadise.testbridge.client.popup.GuiSelectResultPopup;
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
@@ -107,7 +107,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
 
         excludedSlotIDs = new int[3];
         for (int x = 0; x < 3; x++) {
-            excludedSlotIDs[x] = extentionControllerLeft
+            excludedSlotIDs[x] = extensionControllerLeft
                 .registerControlledSlot(dummy.addDummySlot(x, module.excludedInventory, x * 18 - 141, 55));
         }
 
@@ -120,6 +120,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
     }
 
     @Override
+    @SuppressWarnings("invocation")
     protected void drawSlot(Slot slotIn) {
         ItemStack stack = slotIn.getStack();
         // Either player inv or Crafter Slot
@@ -180,11 +181,11 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
     public void initGui() {
         super.initGui();
         buttonList.clear();
-        extentionControllerLeft.clear();
+        extensionControllerLeft.clear();
 
         CMExtension extension = new CMExtension("gui.satellite.GuiName", new ItemStack(LPItems.pipeSatellite), 0);
         extension.registerButton(
-            extentionControllerLeft.registerControlledButton(
+            extensionControllerLeft.registerControlledButton(
                 addButton(
                     new SmallGuiButton(
                         1,
@@ -193,10 +194,10 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
                         37,
                         10,
                         TextUtil.translate(PREFIX + "Select")))));
-        extentionControllerLeft.addExtention(extension);
+        extensionControllerLeft.addExtension(extension);
         extension = new CMExtension("gui.result.GuiName", new ItemStack(TB_ItemHandlers.pipeResult), 1);
         extension.registerButton(
-            extentionControllerLeft.registerControlledButton(
+            extensionControllerLeft.registerControlledButton(
                 addButton(
                     new SmallGuiButton(
                         2,
@@ -205,17 +206,17 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
                         37,
                         10,
                         TextUtil.translate(PREFIX + "Select")))));
-        extentionControllerLeft.addExtention(extension);
+        extensionControllerLeft.addExtension(extension);
 
         if (hasBufferUpgrade) {
             BufferExtension buffered = new BufferExtension(new ItemStack(TB_ItemHandlers.upgradeBuffer));
             buffered.registerButton(
-                extentionControllerLeft.registerControlledButton(
+                extensionControllerLeft.registerControlledButton(
                     addButton(blockingButton = new GuiButton(4, guiLeft - 143, guiTop + 23, 140, 14, getModeText()))));
             for (int i = 0; i < 3; i++) {
                 buffered.registerSlot(excludedSlotIDs[i]);
             }
-            extentionControllerLeft.addExtention(buffered);
+            extensionControllerLeft.addExtension(buffered);
         }
 
         if (extendedSlot != -1) {
@@ -277,7 +278,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
             }
         }
 
-        super.renderExtentions();
+        super.renderExtensions();
     }
 
     private void showUpgrade(int slotId) {
@@ -351,7 +352,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
                     .toLowerCase());
     }
 
-    private final class CMExtension extends GuiExtention {
+    private final class CMExtension extends GuiExtension {
 
         private final ItemStack showItem;
         private final String translationKey;
@@ -374,7 +375,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
         }
 
         @Override
-        public void renderForground(int left, int top) {
+        public void renderForeground(int left, int top) {
             if (!isFullyExtended()) {
                 GL11.glEnable(GL12.GL_RESCALE_NORMAL);
                 OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
@@ -405,7 +406,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
         }
     }
 
-    private final class BufferExtension extends GuiExtention {
+    private final class BufferExtension extends GuiExtension {
 
         private final ItemStack showItem;
 
@@ -424,7 +425,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
         }
 
         @Override
-        public void renderForground(int left, int top) {
+        public void renderForeground(int left, int top) {
             if (!isFullyExtended()) {
                 GL11.glEnable(GL12.GL_RESCALE_NORMAL);
                 OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);

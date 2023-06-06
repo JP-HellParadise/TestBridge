@@ -130,12 +130,6 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
     }
 
     @Override
-    public void finishInit() {
-        super.finishInit();
-        moduleCM.finishInit();
-    }
-
-    @Override
     public void writeToNBT(@Nonnull NBTTagCompound nbttagcompound) {
         super.writeToNBT(nbttagcompound);
         updateModuleInventory();

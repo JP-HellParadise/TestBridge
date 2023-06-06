@@ -2,6 +2,7 @@ package net.jp.hellparadise.testbridge.helpers.inventory;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
@@ -33,6 +34,10 @@ public class HideFakeItem implements IPartitionList<IAEItemStack> {
     @Override
     public Iterable<IAEItemStack> getItems() {
         return ITEMS;
+    }
+
+    public Stream<IAEItemStack> getStreams() {
+        return ITEMS.stream();
     }
 
 }
