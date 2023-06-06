@@ -33,7 +33,7 @@ public abstract class TB_MixinModuleCGP extends CoordinatesGuiProvider {
         at = @At(value = "INVOKE", target = "Llogisticspipes/LogisticsPipes;isDEBUG()Z", ordinal = 1),
         remap = false)
     public <T> boolean disableWrongError(Operation<Boolean> original, World ignoredWorld, Class<T> ignoredClazz,
-                                         @Local LogisticsTileGenericPipe pipe) {
+        @Local LogisticsTileGenericPipe pipe) {
         if (pipe.pipe instanceof PipeCraftingManager) {
             return false;
         } else {
