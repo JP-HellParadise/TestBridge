@@ -3,7 +3,7 @@ package net.jp.hellparadise.testbridge.client;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.textures.Textures;
 
-import net.jp.hellparadise.testbridge.core.TestBridge;
+import net.jp.hellparadise.testbridge.core.TB_Config;
 
 public class TB_Textures extends Textures {
 
@@ -31,7 +31,8 @@ public class TB_Textures extends Textures {
         TESTBRIDGE_RESULT_TEXTURE = registerTexture(par1IIconRegister, TB_Textures.TESTBRIDGE_RESULT_TEXTURE_FILE, 1);
         TESTBRIDGE_CMPIPE_TEXTURE = registerTexture(par1IIconRegister, TB_Textures.TESTBRIDGE_CMPIPE_TEXTURE_FILE, 1);
 
-        if (TestBridge.isDebug) {
+        if (TB_Config.instance()
+            .isFeatureEnabled(TB_Config.TBFeature.DEBUG_LOGGING)) {
             System.out.println("TB: pipetextures " + index);
         }
     }

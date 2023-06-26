@@ -19,13 +19,13 @@ import net.minecraft.util.math.BlockPos;
 import network.rs485.logisticspipes.util.TextUtil;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 public class GuiSelectResultPopup extends SubGuiScreen {
 
     private final String GUI_LANG_KEY = "gui.popup.selectresult.";
     private final Consumer<UUID> handleResult;
-    private ObjectList<Pair<String, UUID>> pipeList;
+    private List<Pair<String, UUID>> pipeList = ObjectLists.emptyList();
     private final TextListDisplay textList;
 
     public GuiSelectResultPopup(BlockPos pos, Consumer<UUID> handleResult) {

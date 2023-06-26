@@ -7,8 +7,6 @@ import appeng.util.Platform;
 
 public class NBTItemHelper {
 
-    public static NBTItemHelper NBTHelper = new NBTItemHelper();
-
     /**
      * Get ItemStack
      * 
@@ -17,7 +15,7 @@ public class NBTItemHelper {
      * @param singleStack    Get definition of ItemStack
      * @return Stored ItemStack with correct count
      */
-    public final ItemStack getItemStack(final ItemStack is, final boolean checkContainer, final boolean singleStack) {
+    public static ItemStack getItemStack(final ItemStack is, final boolean checkContainer, final boolean singleStack) {
         if (is.getTagCompound() != null && is.getTagCompound()
             .hasKey("__itemHold")
             && (!checkContainer || is.getTagCompound()
@@ -28,16 +26,15 @@ public class NBTItemHelper {
             if (!singleStack) holder.setCount(holder.getCount() * is.getCount());
             return holder;
         }
-        return new ItemStack(Items.AIR);
+        return ItemStack.EMPTY;
     }
 
-    public final String getItemInfo(final ItemStack is, final ItemInfo info) {
-        if (this.getItemStack(is, false, true)
-            .isEmpty()) return "";
-        final ItemStack item = this.getItemStack(is, false, true);
+    public static String getItemInfo(final ItemStack is, final ItemInfo info) {
+        if (getItemStack(is, false, true).isEmpty()) return "";
+        final ItemStack item = getItemStack(is, false, true);
         switch (info) {
             case DESTINATION:
-                return this.getDestination(is);
+                return getDestination(is);
             case DISPLAY_NAME:
                 return Platform.getItemDisplayName(item);
             case ITEM_COUNT:
@@ -47,7 +44,7 @@ public class NBTItemHelper {
         }
     }
 
-    public final String getDestination(ItemStack is) {
+    public static String getDestination(ItemStack is) {
         return is.getTagCompound() != null ? is.getTagCompound()
             .getString("__pkgDest") : "";
     }

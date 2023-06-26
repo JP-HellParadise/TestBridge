@@ -25,10 +25,10 @@ import logisticspipes.utils.tuples.Pair;
 
 import net.jp.hellparadise.testbridge.client.TB_Textures;
 import net.jp.hellparadise.testbridge.core.TestBridge;
-import net.jp.hellparadise.testbridge.network.GuiIDs;
+import net.jp.hellparadise.testbridge.network.guis.GuiEnum;
+import net.jp.hellparadise.testbridge.network.packets.implementation.TB_SyncNamePacket;
 import net.jp.hellparadise.testbridge.network.packets.pipe.OrientationPacket;
 import net.jp.hellparadise.testbridge.network.packets.pipe.RequestOrientationPacket;
-import net.jp.hellparadise.testbridge.network.packets.pipehandler.TB_SyncNamePacket;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
@@ -316,7 +316,7 @@ public class ResultPipe extends CoreRoutedPipe implements IChangeListener, Satel
             .setPosY(getY())
             .setPosZ(getZ());
         MainProxy.sendPacketToPlayer(packet, entityplayer);
-        entityplayer.openGui(TestBridge.INSTANCE, GuiIDs.RESULT_PIPE.ordinal(), getWorld(), getX(), getY(), getZ());
+        entityplayer.openGui(TestBridge.INSTANCE, GuiEnum.RESULT_PIPE.ordinal(), getWorld(), getX(), getY(), getZ());
     }
 
     @Nonnull

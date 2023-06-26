@@ -45,17 +45,21 @@ import logisticspipes.utils.tuples.Pair;
 
 import net.jp.hellparadise.testbridge.client.TB_Textures;
 import net.jp.hellparadise.testbridge.client.gui.GuiCMPipe;
+import net.jp.hellparadise.testbridge.core.TB_Config;
 import net.jp.hellparadise.testbridge.core.TestBridge;
 import net.jp.hellparadise.testbridge.helpers.CMTransportLayer;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCrafter;
-import net.jp.hellparadise.testbridge.network.packets.pipe.CMPipeModuleContent;
+import net.jp.hellparadise.testbridge.network.packets.MessagePlayer;
 import net.jp.hellparadise.testbridge.network.packets.pipe.OrientationPacket;
 import net.jp.hellparadise.testbridge.network.packets.pipe.RequestOrientationPacket;
+import net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe.ModuleContent;
 import net.jp.hellparadise.testbridge.pipes.upgrades.BufferCMUpgrade;
 import net.jp.hellparadise.testbridge.pipes.upgrades.ModuleUpgradeManager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
@@ -123,12 +127,6 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
             return TB_Textures.LOGISTICSPIPE_POWERED_TEXTURE;
         }
         return TB_Textures.LOGISTICSPIPE_CHASSI_NOTROUTED_TEXTURE;
-    }
-
-    @Override
-    public void finishInit() {
-        super.finishInit();
-        moduleCM.finishInit();
     }
 
     @Override
@@ -301,7 +299,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         if (MainProxy.isServer(getWorld())) {
             if (!localModeWatchers.isEmpty()) {
                 MainProxy.sendToPlayerList(
-                    PacketHandler.getPacket(CMPipeModuleContent.class)
+                    PacketHandler.getPacket(ModuleContent.class)
                         .setIdentList(ItemIdentifierStack.getListFromInventory(_moduleInventory))
                         .setPosX(getX())
                         .setPosY(getY())
@@ -358,6 +356,24 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         if (entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND)
             .isEmpty()) {
             return false;
+        }
+
+        if (entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND)
+            .getItem() == Items.STICK) {
+            if (MainProxy.isServer(getWorld())) {
+                if (settings == null || settings.openGui) {
+                    ArrayList<String> message = new ArrayList<>();
+                    message.add("chat.testbridge.pipe_crafting_manager.craftjob");
+                    message.addAll(moduleCM.getCraftListDebug());
+                    message.add("chat.testbridge.pipe_crafting_manager.sendjob");
+                    message.addAll(moduleCM.getWaitToSendDebug());
+                    TestBridge.getNetwork()
+                        .sendTo(MessagePlayer.PACKET.setMessage(message), (EntityPlayerMP) entityplayer);
+                } else {
+                    entityplayer.sendMessage(new TextComponentTranslation("lp.chat.permissiondenied"));
+                }
+            }
+            return true;
         }
 
         if (entityplayer.isSneaking() && SimpleServiceLocator.configToolHandler
@@ -560,7 +576,8 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
     @Override
     public ISlotUpgradeManager getUpgradeManager(ModulePositionType slot, int positionInt) {
         if (slot != ModulePositionType.SLOT || positionInt >= slotUpgradeManagers.size()) {
-            if (TestBridge.isDebug) {
+            if (TB_Config.instance()
+                .isFeatureEnabled(TB_Config.TBFeature.DEBUG_LOGGING)) {
                 new UnsupportedOperationException(
                     "Position info aren't for a crafting manager pipe. (" + slot + "/" + positionInt + ")")
                         .printStackTrace();

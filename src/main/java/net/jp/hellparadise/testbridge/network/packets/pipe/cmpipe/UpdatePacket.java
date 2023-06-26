@@ -1,4 +1,4 @@
-package net.jp.hellparadise.testbridge.network.packets.pipe;
+package net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe;
 
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
@@ -10,13 +10,13 @@ import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
 
 @StaticResolve
-public class CMPipeUpdatePacket extends ModuleCoordinatesPacket {
+public class UpdatePacket extends ModuleCoordinatesPacket {
 
     private String satelliteName = "";
     private String resultName = "";
     private int blockingMode;
 
-    public CMPipeUpdatePacket(int id) {
+    public UpdatePacket(int id) {
         super(id);
     }
 
@@ -47,14 +47,14 @@ public class CMPipeUpdatePacket extends ModuleCoordinatesPacket {
 
     @Override
     public ModernPacket template() {
-        return new CMPipeUpdatePacket(getId());
+        return new UpdatePacket(getId());
     }
 
     public String getSatelliteName() {
         return satelliteName;
     }
 
-    public CMPipeUpdatePacket setSatelliteName(String satelliteName) {
+    public UpdatePacket setSatelliteName(String satelliteName) {
         this.satelliteName = satelliteName;
         return this;
     }
@@ -63,7 +63,7 @@ public class CMPipeUpdatePacket extends ModuleCoordinatesPacket {
         return resultName;
     }
 
-    public CMPipeUpdatePacket setResultName(String resultName) {
+    public UpdatePacket setResultName(String resultName) {
         this.resultName = resultName;
         return this;
     }
@@ -72,7 +72,7 @@ public class CMPipeUpdatePacket extends ModuleCoordinatesPacket {
         return blockingMode;
     }
 
-    public CMPipeUpdatePacket setBlockingMode(int blockingMode) {
+    public UpdatePacket setBlockingMode(int blockingMode) {
         this.blockingMode = blockingMode;
         return this;
     }

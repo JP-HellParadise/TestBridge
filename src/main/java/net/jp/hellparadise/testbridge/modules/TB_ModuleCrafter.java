@@ -47,6 +47,9 @@ import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.property.UUIDProperty;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
 public class TB_ModuleCrafter extends ModuleCrafter {
 
     private WeakReference<TileEntity> lastAccessedCrafter = new WeakReference<>(null);
@@ -114,7 +117,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
                 }
             }
 
-            HashMap<IRequestItems, List<ItemIdentifierStack>> buffer = new HashMap<>();
+            Object2ObjectMap<IRequestItems, List<ItemIdentifierStack>> buffer = new Object2ObjectOpenHashMap<>();
 
             for (int i = 0; i < target.length; i++) {
                 ItemIdentifierStack materials = dummyInventory.getIDStackInSlot(i);

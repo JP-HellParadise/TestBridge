@@ -6,7 +6,7 @@ import java.util.Map;
 
 import logisticspipes.LPConstants;
 
-import net.jp.hellparadise.testbridge.Tags;
+import net.jp.hellparadise.testbridge.core.Reference;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -51,7 +51,7 @@ public class MissingMappingHandler {
                     modID = AppEng.MOD_ID;
                     break;
                 default:
-                    modID = Tags.MODID;
+                    modID = Reference.MODID;
             }
             Block value = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(modID, entry[1]));
             if (value == null) continue;
@@ -84,7 +84,7 @@ public class MissingMappingHandler {
                     modID = AppEng.MOD_ID;
                     break;
                 default:
-                    modID = Tags.MODID;
+                    modID = Reference.MODID;
             }
             Item value = ForgeRegistries.ITEMS.getValue(new ResourceLocation(modID, entry[1]));
             if (value == null) continue;

@@ -20,7 +20,7 @@ public class CMTransportLayer extends TransportLayer {
     @Override
     public EnumFacing itemArrived(IRoutedItem item, EnumFacing blocked) {
         if (item.getItemIdentifierStack() != null) {
-            pipe.recievedItem(
+            pipe.receivedItem(
                 item.getItemIdentifierStack()
                     .getStackSize());
         }

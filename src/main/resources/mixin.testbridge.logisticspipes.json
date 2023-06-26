@@ -4,6 +4,8 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "compat.TB_MixinTOPAddon",
+    "devenv.DebugModeEnable",
+    "invutil.TB_InventoryUtil",
     "network.TB_MixinGuiOpenChassis",
     "network.TB_MixinModuleCGP",
     "network.TB_MixinModuleCoordinatesPacket",

@@ -9,11 +9,11 @@ import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-import net.jp.hellparadise.testbridge.Tags;
+import net.jp.hellparadise.testbridge.core.Reference;
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.core.TestBridge;
-import net.jp.hellparadise.testbridge.network.GuiIDs;
-import net.jp.hellparadise.testbridge.network.packets.pipehandler.TB_SyncNamePacket;
+import net.jp.hellparadise.testbridge.network.guis.GuiEnum;
+import net.jp.hellparadise.testbridge.network.packets.implementation.TB_SyncNamePacket;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -44,19 +44,19 @@ import appeng.util.SettingsFrom;
 
 public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe {
 
-    public static final ResourceLocation MODEL_BASE = new ResourceLocation(Tags.MODID, "part/satellite_bus_base");
+    public static final ResourceLocation MODEL_BASE = new ResourceLocation(Reference.MODID, "part/satellite_bus_base");
     @PartModels
     public static final IPartModel MODELS_OFF = new PartModel(
         MODEL_BASE,
-        new ResourceLocation(Tags.MODID, "part/satellite_bus_off"));
+        new ResourceLocation(Reference.MODID, "part/satellite_bus_off"));
     @PartModels
     public static final IPartModel MODELS_ON = new PartModel(
         MODEL_BASE,
-        new ResourceLocation(Tags.MODID, "part/satellite_bus_on"));
+        new ResourceLocation(Reference.MODID, "part/satellite_bus_on"));
     @PartModels
     public static final IPartModel MODELS_HAS_CHANNEL = new PartModel(
         MODEL_BASE,
-        new ResourceLocation(Tags.MODID, "part/satellite_bus_has_channel"));
+        new ResourceLocation(Reference.MODID, "part/satellite_bus_has_channel"));
 
     public static final Set<PartSatelliteBus> AllSatellites = Collections.newSetFromMap(new WeakHashMap<>());
     private String satPartName = "";
@@ -157,7 +157,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
                 MainProxy.sendPacketToPlayer(packet, player);
                 player.openGui(
                     TestBridge.INSTANCE,
-                    GuiIDs.SATELLITE_BUS.begin() + this.getSide()
+                    GuiEnum.SATELLITE_BUS.begin() + this.getSide()
                         .ordinal(),
                     this.getTile()
                         .getWorld(),

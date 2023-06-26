@@ -1,4 +1,4 @@
-package net.jp.hellparadise.testbridge.network.packets.pipe;
+package net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe;
 
 import logisticspipes.network.abstractpackets.InventoryModuleCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -9,15 +9,15 @@ import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.minecraft.entity.player.EntityPlayer;
 
 @StaticResolve
-public class CMPipeModuleContent extends InventoryModuleCoordinatesPacket {
+public class ModuleContent extends InventoryModuleCoordinatesPacket {
 
-    public CMPipeModuleContent(int id) {
+    public ModuleContent(int id) {
         super(id);
     }
 
     @Override
     public ModernPacket template() {
-        return new CMPipeModuleContent(getId());
+        return new ModuleContent(getId());
     }
 
     @Override

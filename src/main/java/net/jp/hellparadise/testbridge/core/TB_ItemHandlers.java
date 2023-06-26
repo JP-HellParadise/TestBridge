@@ -5,7 +5,6 @@ import javax.annotation.Nonnull;
 import logisticspipes.LPItems;
 import logisticspipes.modules.ModuleCrafter;
 
-import net.jp.hellparadise.testbridge.Tags;
 import net.jp.hellparadise.testbridge.items.FakeItem;
 import net.jp.hellparadise.testbridge.items.VirtualPatternAE;
 import net.minecraft.block.Block;
@@ -55,17 +54,17 @@ public class TB_ItemHandlers {
         } else {
             if (TB_Config.instance()
                 .isFeatureEnabled(TB_Config.TBFeature.LOGGING))
-                TestBridge.log.error(
+                TestBridge.log.info(
                     "{} don't have name properly, will create random name instead!",
                     item.getClass()
                         .getName());
             itemName = "randomItem_" + RandomStringUtils.randomAlphabetic(10);
         }
         if (key.equals("")) {
-            translationKey = Tags.MODID + "." + itemName;
+            translationKey = Reference.MODID + "." + itemName;
         } else translationKey = key;
         final Item result = item.setTranslationKey(translationKey)
-            .setRegistryName(Tags.MODID, itemName);
+            .setRegistryName(Reference.MODID, itemName);
         if (creativeTabs != null) {
             return result.setCreativeTab(creativeTabs);
         }
@@ -81,17 +80,17 @@ public class TB_ItemHandlers {
         } else {
             if (TB_Config.instance()
                 .isFeatureEnabled(TB_Config.TBFeature.LOGGING))
-                TestBridge.log.error(
+                TestBridge.log.info(
                     "{} don't have name properly, will create random name instead!",
                     block.getClass()
                         .getName());
             itemName = "randomBlock_" + RandomStringUtils.randomAlphabetic(10);
         }
         if (key.equals("")) {
-            translationKey = Tags.MODID + "." + itemName;
+            translationKey = Reference.MODID + "." + itemName;
         } else translationKey = key;
         final Block result = block.setTranslationKey(translationKey)
-            .setRegistryName(Tags.MODID, itemName);
+            .setRegistryName(Reference.MODID, itemName);
         if (creativeTabs != null) {
             return result.setCreativeTab(creativeTabs);
         }
