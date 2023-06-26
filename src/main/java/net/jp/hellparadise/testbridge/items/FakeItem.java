@@ -44,7 +44,7 @@ public class FakeItem extends Item {
             final boolean isHolder = is.hasTagCompound() && is.getTagCompound()
                 .getBoolean("__actContainer");
             if (isHolder && !w.isRemote
-                && !NBTItemHelper.NBTHelper.getItemStack(is, true, true)
+                && !NBTItemHelper.getItemStack(is, true, true)
                     .isEmpty()) {
                 if (player.isSneaking()) {
                     for (int i = 0; i < is.getCount(); i++) {
@@ -54,7 +54,7 @@ public class FakeItem extends Item {
                                 player.posX,
                                 player.posY,
                                 player.posZ,
-                                NBTItemHelper.NBTHelper.getItemStack(is, true, true)
+                                NBTItemHelper.getItemStack(is, true, true)
                                     .copy()));
                     }
                     is.shrink(is.getCount());
@@ -65,7 +65,7 @@ public class FakeItem extends Item {
                             player.posX,
                             player.posY,
                             player.posZ,
-                            NBTItemHelper.NBTHelper.getItemStack(is, true, true)
+                            NBTItemHelper.getItemStack(is, true, true)
                                 .copy()));
                     is.shrink(1);
                 }
@@ -116,21 +116,21 @@ public class FakeItem extends Item {
         final ITooltipFlag advancedTooltips) {
         if (isPackage) {
             if (stack.hasTagCompound()) {
-                if (!NBTItemHelper.NBTHelper.getItemStack(stack, false, true)
+                if (!NBTItemHelper.getItemStack(stack, false, true)
                     .isEmpty()) {
                     if (stack.getTagCompound()
                         .getBoolean("__actContainer")) {
                         tooltip.add(
                             I18n.format(
                                 "tooltip.testbridge.placeholder",
-                                NBTItemHelper.NBTHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.FULL_INFO)));
+                                NBTItemHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.FULL_INFO)));
                         tooltip.add(I18n.format("tooltip.testbridge.placeholder.rightclick"));
                     } else tooltip.add(
                         I18n.format(
                             "tooltip.testbridge.package_content",
-                            NBTItemHelper.NBTHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.FULL_INFO)));
+                            NBTItemHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.FULL_INFO)));
                 }
-                String name = NBTItemHelper.NBTHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.DESTINATION);
+                String name = NBTItemHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.DESTINATION);
                 if (!name.isEmpty()) tooltip.add(I18n.format("tooltip.testbridge.satName", name));
                 if (tooltip.size() < 2) tooltip.add(I18n.format("tooltip.testbridge.package_empty"));
             }
@@ -138,7 +138,7 @@ public class FakeItem extends Item {
             if (stack.hasTagCompound()) tooltip.add(
                 I18n.format(
                     "tooltip.testbridge.request",
-                    NBTItemHelper.NBTHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.FULL_INFO)));
+                    NBTItemHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.FULL_INFO)));
             else tooltip.add(I18n.format("tooltip.testbridge.fakeItemNull"));
             tooltip.add(I18n.format("tooltip.testbridge.techItem"));
         }
@@ -150,11 +150,11 @@ public class FakeItem extends Item {
         if (isPackage && stack.hasTagCompound()) {
             String satName = stack.getTagCompound()
                 .getString("__pkgDest");
-            if (!satName.equals("") && !(NBTItemHelper.NBTHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.FULL_INFO)
+            if (!satName.equals("") && !(NBTItemHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.FULL_INFO)
                 .isEmpty())) {
                 return net.minecraft.util.text.translation.I18n.translateToLocalFormatted(
                     "tooltip.testbridge.packageName",
-                    NBTItemHelper.NBTHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.FULL_INFO),
+                    NBTItemHelper.getItemInfo(stack, NBTItemHelper.ItemInfo.FULL_INFO),
                     satName);
             }
         }

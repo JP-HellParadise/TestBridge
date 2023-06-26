@@ -362,7 +362,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
                 visitArray(packageList, cin, false);
 
                 packageList.stream()
-                    .map(pkg -> VirtualPatternAE.newPattern(NBTItemHelper.NBTHelper.getItemStack(pkg, true, true), pkg))
+                    .map(pkg -> VirtualPatternAE.newPattern(NBTItemHelper.getItemStack(pkg, true, true), pkg))
                     .forEach(this.craftingList::add);
 
                 this.craftingList.add(details);
@@ -549,9 +549,8 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
         if (patternDetails instanceof VirtualPatternHelper) {
             ItemStack output = patternDetails.getCondensedOutputs()[0].getDefinition();
             // If pattern has output contains package, we will work here first instead
-            if (output.getItem() == TB_ItemHandlers.itemPackage
-                && !NBTItemHelper.NBTHelper.getItemStack(output, true, true)
-                    .isEmpty()) {
+            if (output.getItem() == TB_ItemHandlers.itemPackage && !NBTItemHelper.getItemStack(output, true, true)
+                .isEmpty()) {
                 this.addToCreatePkgList(output);
                 return true;
             }
@@ -567,9 +566,9 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
         for (int x = 0; x < table.getSizeInventory(); x++) {
             final ItemStack is = table.getStackInSlot(x);
             if (!is.isEmpty()) {
-                if (is.getItem() == TB_ItemHandlers.itemPackage && !NBTItemHelper.NBTHelper.getItemStack(is, true, true)
+                if (is.getItem() == TB_ItemHandlers.itemPackage && !NBTItemHelper.getItemStack(is, true, true)
                     .isEmpty()) {
-                    String satName = NBTItemHelper.NBTHelper.getItemInfo(is, NBTItemHelper.ItemInfo.DESTINATION);
+                    String satName = NBTItemHelper.getItemInfo(is, NBTItemHelper.ItemInfo.DESTINATION);
                     if (!satName.isEmpty()) this.addToSatList(satName);
                     else return this.cleanCrafting();
                 } else {
@@ -598,9 +597,8 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
                         final ItemStack is = table.getStackInSlot(x);
                         if (!is.isEmpty()) {
                             if (is.getItem() == TB_ItemHandlers.itemPackage) {
-                                String name = NBTItemHelper.NBTHelper
-                                    .getItemInfo(is, NBTItemHelper.ItemInfo.DESTINATION);
-                                ItemStack holder = NBTItemHelper.NBTHelper.getItemStack(is, true, false);
+                                String name = NBTItemHelper.getItemInfo(is, NBTItemHelper.ItemInfo.DESTINATION);
+                                ItemStack holder = NBTItemHelper.getItemStack(is, true, false);
                                 if (satName.equals(name) && !holder.isEmpty()) {
                                     this.addToSendListOnSat(satName, holder);
                                     table.removeStackFromSlot(x);
@@ -787,7 +785,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
             for (final ItemStack is : this.createPkgList) {
                 if (!is.isEmpty()) {
                     // Return items instead of not useful placeholder
-                    drops.add(NBTItemHelper.NBTHelper.getItemStack(is, true, false));
+                    drops.add(NBTItemHelper.getItemStack(is, true, false));
                 }
             }
         }
