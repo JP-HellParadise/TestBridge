@@ -107,6 +107,7 @@ dependencies {
 
   // CurseMaven
   // required deobf component
+  api rfg.deobf("${project.mui_dep}")
   api rfg.deobf("${project.mcmp_dep}")
   api rfg.deobf("${project.td_dep}")
   api rfg.deobf("${project.lp_dep}")
