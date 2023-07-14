@@ -4,16 +4,12 @@ import com.cleanroommc.modularui.screen.ModularScreen;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.ISendRoutedItem;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.CoordinatesPacket;
-import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
@@ -21,7 +17,6 @@ import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.EnumFacingUtil;
-import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import net.jp.hellparadise.testbridge.client.LP_Textures;
 import net.jp.hellparadise.testbridge.client.gui.SatelliteGuiHolder;
@@ -36,16 +31,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.TextComponentTranslation;
-import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.connection.*;
 
-public class ResultPipe extends CoreRoutedPipe implements IChangeListener, SatellitePipe, ISendRoutedItem {
+public class ResultPipe extends CoreRoutedPipe implements SatelliteGuiHolder, IChangeListener, ISendRoutedItem {
 
     public static final Set<ResultPipe> AllResults = Collections.newSetFromMap(new WeakHashMap<>());
     private String resultPipeName = "";
     private boolean initial = false;
-    @Nullable
-    private SingleAdjacent pointedAdjacent = null;
+    @Nullable private SingleAdjacent pointedAdjacent = null;
 
     @Override
     public TextureType getCenterTexture() {
@@ -124,18 +117,9 @@ public class ResultPipe extends CoreRoutedPipe implements IChangeListener, Satel
     public void ensureAllSatelliteStatus() {
         if (resultPipeName.isEmpty()) {
             ResultPipe.AllResults.remove(this);
-        }
-        if (!resultPipeName.isEmpty()) {
+        } else {
             ResultPipe.AllResults.add(this);
         }
-    }
-
-    @Override
-    public void updateWatchers() {
-        CoordinatesPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class)
-            .setString(resultPipeName)
-            .setTilePos(this.getContainer());
-        MainProxy.sendPacketToAllWatchingChunk(this.container, packet);
     }
 
     @Override
@@ -149,8 +133,7 @@ public class ResultPipe extends CoreRoutedPipe implements IChangeListener, Satel
     /**
      * Returns the pointed adjacent EnumFacing or null, if this pipe does not have an attached inventory.
      */
-    @Nullable
-    @Override
+    @Nullable @Override
     public EnumFacing getPointedOrientation() {
         if (pointedAdjacent == null) return null;
         return pointedAdjacent.getDir();
@@ -210,8 +193,7 @@ public class ResultPipe extends CoreRoutedPipe implements IChangeListener, Satel
         }
     }
 
-    @Nullable
-    private Pair<NeighborTileEntity<TileEntity>, ConnectionType> nextPointedOrientation(
+    @Nullable private Pair<NeighborTileEntity<TileEntity>, ConnectionType> nextPointedOrientation(
         @Nullable EnumFacing previousDirection) {
         final Map<NeighborTileEntity<TileEntity>, ConnectionType> neighbors = getAdjacent().neighbors();
         final Stream<NeighborTileEntity<TileEntity>> sortedNeighborsStream = neighbors.keySet()

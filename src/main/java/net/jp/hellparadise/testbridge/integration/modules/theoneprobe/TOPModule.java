@@ -1,9 +1,7 @@
 package net.jp.hellparadise.testbridge.integration.modules.theoneprobe;
 
 import java.util.function.Function;
-
 import mcjty.theoneprobe.api.ITheOneProbe;
-
 import net.jp.hellparadise.testbridge.integration.IIntegrationModule;
 import net.jp.hellparadise.testbridge.integration.IntegrationRegistry;
 import net.jp.hellparadise.testbridge.integration.IntegrationType;

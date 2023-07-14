@@ -3,10 +3,8 @@ package net.jp.hellparadise.testbridge.pipes;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import logisticspipes.LPItems;
 import logisticspipes.config.Configs;
 import logisticspipes.interfaces.*;
@@ -42,8 +40,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-
-import net.jp.hellparadise.testbridge.client.TB_Textures;
+import net.jp.hellparadise.testbridge.client.LP_Textures;
 import net.jp.hellparadise.testbridge.client.gui.GuiCMPipe;
 import net.jp.hellparadise.testbridge.core.TB_Config;
 import net.jp.hellparadise.testbridge.core.TestBridge;
@@ -85,8 +82,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
     private final NonNullList<ModuleUpgradeManager> slotUpgradeManagers = NonNullList.create();
     private boolean isRedstone = false;
     public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
-    @Nullable
-    private SingleAdjacent pointedAdjacent = null;
+    @Nullable private SingleAdjacent pointedAdjacent = null;
 
     @CCCommand(description = "Returns the size of this container pipe")
     public int getChassisSize() {
@@ -208,8 +204,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         }
     }
 
-    @Nullable
-    public LogisticsModule getSubModule(int slot) {
+    @Nullable public LogisticsModule getSubModule(int slot) {
         return moduleCM.getModule(slot);
     }
 
@@ -425,8 +420,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         return itemStack.getItem() == Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));
     }
 
-    @Nullable
-    private LogisticsModule getModuleForItem(@Nonnull ItemStack itemStack, @Nullable LogisticsModule currentModule,
+    @Nullable private LogisticsModule getModuleForItem(@Nonnull ItemStack itemStack, @Nullable LogisticsModule currentModule,
         @Nullable IWorldProvider world, @Nullable IPipeServiceProvider service) {
         if (itemStack.isEmpty()) {
             return null;
@@ -629,8 +623,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
     /**
      * Returns the pointed adjacent EnumFacing or null, if this pipe does not have an attached inventory.
      */
-    @Nullable
-    @Override
+    @Nullable @Override
     public EnumFacing getPointedOrientation() {
         if (pointedAdjacent == null) return null;
         return pointedAdjacent.getDir();
@@ -690,8 +683,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         }
     }
 
-    @Nullable
-    private Pair<NeighborTileEntity<TileEntity>, ConnectionType> nextPointedOrientation(
+    @Nullable private Pair<NeighborTileEntity<TileEntity>, ConnectionType> nextPointedOrientation(
         @Nullable EnumFacing previousDirection) {
         final Map<NeighborTileEntity<TileEntity>, ConnectionType> neighbors = getAdjacent().neighbors();
         final Stream<NeighborTileEntity<TileEntity>> sortedNeighborsStream = neighbors.keySet()

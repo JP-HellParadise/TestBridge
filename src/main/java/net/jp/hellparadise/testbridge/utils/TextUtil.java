@@ -3,11 +3,9 @@ package net.jp.hellparadise.testbridge.utils;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicReference;
-
 import logisticspipes.kotlin.text.MatchResult;
 import logisticspipes.kotlin.text.Regex;
 import logisticspipes.kotlin.text.StringsKt;
-
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 

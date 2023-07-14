@@ -2,13 +2,11 @@ package net.jp.hellparadise.testbridge.network.packets.gui;
 
 import java.util.List;
 import java.util.UUID;
-
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.tuples.Pair;
-
 import net.jp.hellparadise.testbridge.client.gui.GuiSatelliteSelect;
 import net.jp.hellparadise.testbridge.client.popup.GuiSelectResultPopup;
 import net.jp.hellparadise.testbridge.helpers.AECustomGui;

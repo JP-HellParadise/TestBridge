@@ -20,7 +20,6 @@ import net.jp.hellparadise.testbridge.core.TestBridge;
 import net.jp.hellparadise.testbridge.helpers.exception.ModNotInstalledException;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModAPIManager;
-
 import org.apache.logging.log4j.Level;
 
 final class IntegrationNode {

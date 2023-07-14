@@ -1,15 +1,15 @@
 package net.jp.hellparadise.testbridge.modules;
 
+import com.google.common.collect.ImmutableList;
+import it.unimi.dsi.fastutil.objects.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import logisticspipes.interfaces.*;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.modules.LogisticsModule;
@@ -31,7 +31,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-
 import net.jp.hellparadise.testbridge.helpers.TextHelper;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
 import net.jp.hellparadise.testbridge.helpers.interfaces.TB_IInventoryUtil;
@@ -48,12 +47,9 @@ import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.*;
 
-import com.google.common.collect.ImmutableList;
-import it.unimi.dsi.fastutil.objects.*;
-
 public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey, IGuiOpenControler {
 
-    public final InventoryProperty excludedInventory = new InventoryProperty(
+    public final ItemIdentifierInventoryProperty excludedInventory = new ItemIdentifierInventoryProperty(
         new ItemIdentifierInventory(3, "Excluded Filter Item", 1),
         "ExcludedInv");
     public final UUIDProperty satelliteUUID = new UUIDProperty(null, "satelliteUUID");
@@ -107,8 +103,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
         this.modules.clear(slot);
     }
 
-    @Nullable
-    public LogisticsModule getModule(int slot) {
+    @Nullable public LogisticsModule getModule(int slot) {
         return this.modules.get(slot)
             .getModule();
     }
@@ -154,7 +149,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
 
     private UUID getUUIDForResultName(String name) {
         for (ResultPipe pipe : ResultPipe.AllResults) {
-            if (pipe.getSatellitePipeName()
+            if (pipe.getSatelliteName()
                 .equals(name)) {
                 return pipe.getRouter()
                     .getId();
@@ -298,7 +293,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
                     if (!isResult && pipe instanceof PipeItemsSatelliteLogistics) {
                         name = ((PipeItemsSatelliteLogistics) pipe).getSatellitePipeName();
                     } else if (isResult && pipe instanceof ResultPipe) {
-                        name = ((ResultPipe) pipe).getSatellitePipeName();
+                        name = ((ResultPipe) pipe).getSatelliteName();
                     }
                     return new TextHelper(top$cm_prefix + "valid")
                         .addArgument(name.isEmpty() ? new TextHelper(top$cm_prefix + "none").getTranslated() : name)

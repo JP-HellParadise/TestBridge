@@ -1,16 +1,14 @@
 package net.jp.hellparadise.testbridge.core;
 
+import com.google.common.base.Stopwatch;
 import java.io.File;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
-
 import net.jp.hellparadise.testbridge.datafixer.TBDataFixer;
 import net.jp.hellparadise.testbridge.integration.IntegrationRegistry;
 import net.jp.hellparadise.testbridge.integration.IntegrationType;
-import net.jp.hellparadise.testbridge.network.guis.GuiHandler;
 import net.jp.hellparadise.testbridge.network.packets.MessagePlayer;
 import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
@@ -29,12 +27,9 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.registries.IForgeRegistry;
-
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.google.common.base.Stopwatch;
 
 @Mod(
     modid = Reference.MODID,
@@ -105,7 +100,6 @@ public class TestBridge {
         log.info("==================================================================================");
         log.info("Start Initialization");
 
-        NetworkRegistry.INSTANCE.registerGuiHandler(TestBridge.INSTANCE, new GuiHandler());
         TBDataFixer.INSTANCE.init();
         IntegrationRegistry.INSTANCE.init();
 

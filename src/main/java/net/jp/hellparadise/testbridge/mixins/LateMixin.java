@@ -1,13 +1,10 @@
 package net.jp.hellparadise.testbridge.mixins;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import net.minecraftforge.fml.common.Loader;
-
 import zone.rong.mixinbooter.ILateMixinLoader;
-
-import com.google.common.collect.ImmutableList;
 
 public class LateMixin implements ILateMixinLoader {
 

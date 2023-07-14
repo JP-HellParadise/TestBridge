@@ -1,9 +1,7 @@
 package net.jp.hellparadise.testbridge.helpers.interfaces;
 
 import java.util.List;
-
 import javax.annotation.Nonnull;
-
 import net.minecraft.item.ItemStack;
 
 public interface TB_IInventoryUtil {

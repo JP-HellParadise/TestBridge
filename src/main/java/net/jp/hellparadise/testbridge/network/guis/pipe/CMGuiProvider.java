@@ -1,7 +1,6 @@
 package net.jp.hellparadise.testbridge.network.guis.pipe;
 
 import javax.annotation.Nonnull;
-
 import logisticspipes.items.ItemUpgrade;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractguis.GuiProvider;
@@ -9,7 +8,6 @@ import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-
 import net.jp.hellparadise.testbridge.client.gui.GuiCMPipe;
 import net.jp.hellparadise.testbridge.helpers.inventory.DummyContainer;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM;

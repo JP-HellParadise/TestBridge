@@ -1,7 +1,7 @@
 package net.jp.hellparadise.testbridge.network.packets;
 
+import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
-
 import net.jp.hellparadise.testbridge.core.TestBridge;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -9,8 +9,6 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-
-import io.netty.buffer.ByteBuf;
 
 public class MessagePlayer implements IMessage {
 

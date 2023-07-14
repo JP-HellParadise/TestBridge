@@ -3,7 +3,6 @@ package net.jp.hellparadise.testbridge.network.packets.implementation;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.packets.satpipe.SetNameResult;
 import logisticspipes.utils.StaticResolve;
-
 import net.jp.hellparadise.testbridge.client.gui.GuiResultPipe;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.client.FMLClientHandler;

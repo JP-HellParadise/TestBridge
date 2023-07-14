@@ -1,14 +1,11 @@
 package net.jp.hellparadise.testbridge.helpers;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.annotation.Nonnull;
-
-import net.minecraft.entity.player.EntityPlayer;
-
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
+import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nonnull;
+import net.minecraft.entity.player.EntityPlayer;
 
 public class TBActionSource implements IActionSource {
 

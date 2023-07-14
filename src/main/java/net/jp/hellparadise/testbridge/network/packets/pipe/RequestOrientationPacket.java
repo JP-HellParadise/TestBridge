@@ -7,7 +7,6 @@ import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.jp.hellparadise.testbridge.pipes.ResultPipe;
 import net.minecraft.entity.player.EntityPlayer;

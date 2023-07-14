@@ -1,5 +1,8 @@
 package net.jp.hellparadise.testbridge.network.packets.implementation;
 
+import appeng.api.parts.IPart;
+import appeng.api.parts.IPartHost;
+import appeng.api.util.AEPartLocation;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.StringCoordinatesPacket;
@@ -8,17 +11,12 @@ import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-
 import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
 import net.jp.hellparadise.testbridge.pipes.ResultPipe;
 import net.minecraft.entity.player.EntityPlayer;
 import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
-
-import appeng.api.parts.IPart;
-import appeng.api.parts.IPartHost;
-import appeng.api.util.AEPartLocation;
 
 @StaticResolve
 public class TB_SetNamePacket extends StringCoordinatesPacket {

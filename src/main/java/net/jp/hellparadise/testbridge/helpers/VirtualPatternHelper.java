@@ -1,15 +1,5 @@
 package net.jp.hellparadise.testbridge.helpers;
 
-import java.util.*;
-
-import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.world.World;
-
 import appeng.api.AEApi;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.channels.IItemStorageChannel;
@@ -17,6 +7,14 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.container.ContainerNull;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+import java.util.*;
+import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.world.World;
 
 public class VirtualPatternHelper implements ICraftingPatternDetails, Comparable<VirtualPatternHelper> {
 

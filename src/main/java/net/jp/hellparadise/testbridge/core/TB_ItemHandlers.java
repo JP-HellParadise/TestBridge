@@ -1,10 +1,8 @@
 package net.jp.hellparadise.testbridge.core;
 
 import javax.annotation.Nonnull;
-
 import logisticspipes.LPItems;
 import logisticspipes.modules.ModuleCrafter;
-
 import net.jp.hellparadise.testbridge.items.FakeItem;
 import net.jp.hellparadise.testbridge.items.VirtualPatternAE;
 import net.minecraft.block.Block;
@@ -13,7 +11,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
-
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class TB_ItemHandlers {
@@ -49,7 +46,7 @@ public class TB_ItemHandlers {
         CreativeTabs creativeTabs) {
         String itemName;
         String translationKey;
-        if (!name.equals("")) {
+        if (!name.isEmpty()) {
             itemName = "item_" + name;
         } else {
             if (TB_Config.instance()
@@ -60,7 +57,7 @@ public class TB_ItemHandlers {
                         .getName());
             itemName = "randomItem_" + RandomStringUtils.randomAlphabetic(10);
         }
-        if (key.equals("")) {
+        if (key.isEmpty()) {
             translationKey = Reference.MODID + "." + itemName;
         } else translationKey = key;
         final Item result = item.setTranslationKey(translationKey)
@@ -75,7 +72,7 @@ public class TB_ItemHandlers {
         CreativeTabs creativeTabs) {
         String itemName;
         String translationKey;
-        if (!name.equals("")) {
+        if (!name.isEmpty()) {
             itemName = "block_" + name;
         } else {
             if (TB_Config.instance()
@@ -86,7 +83,7 @@ public class TB_ItemHandlers {
                         .getName());
             itemName = "randomBlock_" + RandomStringUtils.randomAlphabetic(10);
         }
-        if (key.equals("")) {
+        if (key.isEmpty()) {
             translationKey = Reference.MODID + "." + itemName;
         } else translationKey = key;
         final Block result = block.setTranslationKey(translationKey)

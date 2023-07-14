@@ -3,7 +3,6 @@ package net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.network.abstractpackets.ModuleCoordinatesPacket;
 import logisticspipes.utils.StaticResolve;
-
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM;
 import net.minecraft.entity.player.EntityPlayer;
 import network.rs485.logisticspipes.util.LPDataInput;

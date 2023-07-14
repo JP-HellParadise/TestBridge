@@ -2,16 +2,13 @@ package net.jp.hellparadise.testbridge.helpers.inventory;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.Nonnull;
-
 import logisticspipes.interfaces.IGuiOpenControler;
 import logisticspipes.interfaces.ISlotCheck;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.utils.ReflectionHelper;
 import logisticspipes.utils.gui.*;
-
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM;
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;

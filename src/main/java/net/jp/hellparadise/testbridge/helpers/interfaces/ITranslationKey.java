@@ -1,7 +1,6 @@
 package net.jp.hellparadise.testbridge.helpers.interfaces;
 
 import logisticspipes.LPConstants;
-
 import net.jp.hellparadise.testbridge.core.Reference;
 
 public interface ITranslationKey {

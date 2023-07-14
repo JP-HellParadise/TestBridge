@@ -1,10 +1,10 @@
 package net.jp.hellparadise.testbridge.modules;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.lang.ref.WeakReference;
 import java.util.*;
-
 import javax.annotation.Nonnull;
-
 import logisticspipes.blocks.crafting.LogisticsCraftingTableTileEntity;
 import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
@@ -36,7 +36,6 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-
 import net.jp.hellparadise.testbridge.helpers.IISHelper;
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.minecraft.item.ItemStack;
@@ -46,9 +45,6 @@ import network.rs485.logisticspipes.connection.LPNeighborTileEntityKt;
 import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.inventory.IItemIdentifierInventory;
 import network.rs485.logisticspipes.property.UUIDProperty;
-
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class TB_ModuleCrafter extends ModuleCrafter {
 
@@ -702,7 +698,7 @@ public class TB_ModuleCrafter extends ModuleCrafter {
 
     /**
      * Simple method to check if pipe is present on route table
-     * 
+     *
      * @param UUID UUIDProperty
      * @return Connecting state
      */

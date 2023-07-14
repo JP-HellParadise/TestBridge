@@ -1,9 +1,9 @@
 package net.jp.hellparadise.testbridge.client.gui;
 
+import appeng.api.parts.IPartHost;
+import appeng.parts.AEBasePart;
 import java.io.IOException;
-
 import javax.annotation.Nonnull;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -12,22 +12,17 @@ import logisticspipes.utils.gui.GuiGraphics;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
-
+import net.jp.hellparadise.testbridge.helpers.interfaces.SatelliteInfo;
 import net.jp.hellparadise.testbridge.network.packets.implementation.TB_SetNamePacket;
 import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
-import network.rs485.logisticspipes.SatellitePipe;
 import network.rs485.logisticspipes.util.TextUtil;
-
 import org.lwjgl.input.Keyboard;
 
-import appeng.api.parts.IPartHost;
-import appeng.parts.AEBasePart;
-
-public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScreen {
+public class GuiResultPipe<T extends SatelliteInfo> extends LogisticsBaseGuiScreen {
 
     private final String PREFIX;
     private final T tile;
@@ -97,7 +92,7 @@ public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScre
     protected void drawGuiContainerForegroundLayer(int par1, int par2) {
         super.drawGuiContainerForegroundLayer(par1, par2);
         drawCenteredString(TextUtil.translate(PREFIX + "GuiName"), 59, 7, 0x404040);
-        String name = TextUtil.getTrimmedString(tile.getSatellitePipeName(), 100, mc.fontRenderer, "...");
+        String name = TextUtil.getTrimmedString(tile.getSatelliteName(), 100, mc.fontRenderer, "...");
         int yOffset = 0;
         if (!response.isEmpty()) {
             drawCenteredString(
@@ -134,7 +129,7 @@ public class GuiResultPipe<T extends SatellitePipe> extends LogisticsBaseGuiScre
     public void handleResponse(SatelliteNamingResult result, String newName) {
         response = result.toString();
         if (result == SatelliteNamingResult.SUCCESS) {
-            tile.setSatellitePipeName(newName);
+            tile.setSatelliteName(newName);
         }
     }
 

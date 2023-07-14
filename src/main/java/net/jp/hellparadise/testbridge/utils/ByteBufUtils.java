@@ -1,10 +1,8 @@
 package net.jp.hellparadise.testbridge.utils;
 
-import java.nio.charset.StandardCharsets;
-
-import javax.annotation.Nullable;
-
 import io.netty.buffer.ByteBuf;
+import java.nio.charset.StandardCharsets;
+import javax.annotation.Nullable;
 
 public class ByteBufUtils {
 
@@ -51,8 +49,7 @@ public class ByteBufUtils {
         return buffer.readBoolean();
     }
 
-    @Nullable
-    public static String readUTF(ByteBuf buffer) {
+    @Nullable public static String readUTF(ByteBuf buffer) {
         byte[] arr = readByteArray(buffer);
         if (arr == null) {
             return null;

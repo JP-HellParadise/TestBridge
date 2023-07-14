@@ -1,7 +1,6 @@
 package net.jp.hellparadise.testbridge.datafixer;
 
 import javax.annotation.Nonnull;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.datafix.FixTypes;

@@ -2,7 +2,6 @@ package net.jp.hellparadise.testbridge.proxy;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.world.World;
@@ -26,8 +25,7 @@ public class ServerProxy implements Proxy {
     }
 
     @Override
-    @Nullable
-    public EntityPlayer getPlayer(MessageContext context) {
+    @Nullable public EntityPlayer getPlayer(MessageContext context) {
         if (context.side.isServer()) {
             return context.getServerHandler().player;
         } else {
@@ -37,8 +35,7 @@ public class ServerProxy implements Proxy {
     }
 
     @Override
-    @Nullable
-    public World getWorld(MessageContext context) {
+    @Nullable public World getWorld(MessageContext context) {
         if (context.side.isServer()) {
             return context.getServerHandler().player.getServerWorld();
         } else {

@@ -1,9 +1,7 @@
 package net.jp.hellparadise.testbridge.mixins.logisticspipes.devenv;
 
 import logisticspipes.LogisticsPipes;
-
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

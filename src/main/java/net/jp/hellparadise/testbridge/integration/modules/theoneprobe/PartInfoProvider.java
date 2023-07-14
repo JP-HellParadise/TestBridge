@@ -1,13 +1,14 @@
 package net.jp.hellparadise.testbridge.integration.modules.theoneprobe;
 
+import appeng.api.parts.IPart;
+import appeng.integration.modules.theoneprobe.part.PartAccessor;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Optional;
-
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.IProbeInfoProvider;
 import mcjty.theoneprobe.api.ProbeMode;
-
 import net.jp.hellparadise.testbridge.core.Reference;
 import net.jp.hellparadise.testbridge.integration.modules.theoneprobe.part.CraftingManagerProvider;
 import net.jp.hellparadise.testbridge.integration.modules.theoneprobe.part.IPartProbInfoProvider;
@@ -16,11 +17,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-
-import appeng.api.parts.IPart;
-import appeng.integration.modules.theoneprobe.part.PartAccessor;
-
-import com.google.common.collect.Lists;
 
 public class PartInfoProvider implements IProbeInfoProvider {
 

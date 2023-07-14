@@ -1,22 +1,17 @@
 package net.jp.hellparadise.testbridge.mixins.logisticspipes.invutil;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.List;
-
 import javax.annotation.Nonnull;
-
 import logisticspipes.utils.InventoryUtil;
-
 import net.jp.hellparadise.testbridge.helpers.interfaces.TB_IInventoryUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 
 @Mixin(value = InventoryUtil.class, remap = false)
 public abstract class TB_InventoryUtil implements TB_IInventoryUtil {

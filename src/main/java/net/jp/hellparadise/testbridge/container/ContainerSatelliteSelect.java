@@ -1,14 +1,13 @@
 package net.jp.hellparadise.testbridge.container;
 
-import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.tileentity.TileEntity;
-
 import appeng.api.config.SecurityPermissions;
 import appeng.api.parts.IPart;
 import appeng.container.AEBaseContainer;
 import appeng.container.guisync.GuiSync;
 import appeng.util.Platform;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.tileentity.TileEntity;
 
 public class ContainerSatelliteSelect extends AEBaseContainer {
 

@@ -1,13 +1,11 @@
 package net.jp.hellparadise.testbridge.helpers.inventory;
 
 import javax.annotation.Nonnull;
-
 import logisticspipes.LPItems;
 import logisticspipes.items.ItemModule;
 import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.ModuleCrafter;
 import logisticspipes.utils.gui.RestrictedSlot;
-
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;

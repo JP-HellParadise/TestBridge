@@ -1,8 +1,29 @@
 package net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2;
 
+import appeng.api.AEPlugin;
+import appeng.api.IAppEngApi;
+import appeng.api.config.SecurityPermissions;
+import appeng.api.definitions.IBlocks;
+import appeng.api.definitions.IMaterials;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.bootstrap.FeatureFactory;
+import appeng.bootstrap.IBootstrapComponent;
+import appeng.bootstrap.components.IModelRegistrationComponent;
+import appeng.bootstrap.components.ItemVariantsComponent;
+import appeng.client.gui.implementations.GuiMEMonitorable;
+import appeng.client.me.ItemRepo;
+import appeng.core.Api;
+import appeng.core.features.AEFeature;
+import appeng.core.features.ItemStackSrc;
+import appeng.core.sync.GuiBridge;
+import appeng.core.sync.GuiHostType;
+import appeng.integration.IntegrationType;
+import appeng.items.parts.ItemPart;
+import appeng.items.parts.PartType;
+import appeng.util.prioritylist.IPartitionList;
+import appeng.util.prioritylist.MergedPriorityList;
 import java.lang.invoke.MethodHandle;
 import java.util.*;
-
 import net.jp.hellparadise.testbridge.container.ContainerCraftingManager;
 import net.jp.hellparadise.testbridge.container.ContainerSatelliteSelect;
 import net.jp.hellparadise.testbridge.core.Reference;
@@ -30,29 +51,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
-import appeng.api.AEPlugin;
-import appeng.api.IAppEngApi;
-import appeng.api.config.SecurityPermissions;
-import appeng.api.definitions.IBlocks;
-import appeng.api.definitions.IMaterials;
-import appeng.api.storage.data.IAEItemStack;
-import appeng.bootstrap.FeatureFactory;
-import appeng.bootstrap.IBootstrapComponent;
-import appeng.bootstrap.components.IModelRegistrationComponent;
-import appeng.bootstrap.components.ItemVariantsComponent;
-import appeng.client.gui.implementations.GuiMEMonitorable;
-import appeng.client.me.ItemRepo;
-import appeng.core.Api;
-import appeng.core.features.AEFeature;
-import appeng.core.features.ItemStackSrc;
-import appeng.core.sync.GuiBridge;
-import appeng.core.sync.GuiHostType;
-import appeng.integration.IntegrationType;
-import appeng.items.parts.ItemPart;
-import appeng.items.parts.PartType;
-import appeng.util.prioritylist.IPartitionList;
-import appeng.util.prioritylist.MergedPriorityList;
-
 @AEPlugin
 public class AE2Module implements IIntegrationModule {
 
@@ -61,7 +59,7 @@ public class AE2Module implements IIntegrationModule {
     public static HideFakeItem HIDE_FAKE_ITEM;
     public static PartType SATELLITE_BUS, CRAFTINGMANAGER_PART;
     public static ItemStackSrc SATELLITE_BUS_SRC, CRAFTINGMANAGER_PART_SRC;
-    public static GuiBridge GUI_CRAFTINGMANAGER, GUI_SATELLITESELECT;
+    public static GuiBridge GUI_CRAFTINGMANAGER, GUI_SATSELECT;
     public static ItemStack tile_cm;
 
     public static final MethodHandle GuiMEMonitorable_RepoGetter;
@@ -128,9 +126,9 @@ public class AE2Module implements IIntegrationModule {
             GuiHostType.WORLD,
             SecurityPermissions.BUILD);
 
-        AE2Module.GUI_SATELLITESELECT = EnumHelper.addEnum(
+        AE2Module.GUI_SATSELECT = EnumHelper.addEnum(
             GuiBridge.class,
-            "GUI_SATELLITESELECT",
+            "GUI_SATSELECT",
             new Class[] { Class.class, Class.class, GuiHostType.class, SecurityPermissions.class },
             ContainerSatelliteSelect.class,
             ICraftingManagerHost.class,

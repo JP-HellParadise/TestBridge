@@ -2,7 +2,6 @@ package net.jp.hellparadise.testbridge.network.packets.gui;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.BooleanCoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
@@ -12,7 +11,6 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.tuples.Pair;
-
 import net.jp.hellparadise.testbridge.pipes.ResultPipe;
 import net.minecraft.entity.player.EntityPlayer;
 
@@ -56,7 +54,7 @@ public class RequestResultPipeListPacket extends BooleanCoordinatesPacket {
                         .get()))
             .map(
                 it -> new Pair<>(
-                    it.getSatellitePipeName(),
+                    it.getSatelliteName(),
                     it.getRouter()
                         .getId()))
             .collect(Collectors.toList());

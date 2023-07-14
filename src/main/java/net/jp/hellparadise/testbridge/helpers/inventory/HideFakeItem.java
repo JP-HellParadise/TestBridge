@@ -1,17 +1,15 @@
 package net.jp.hellparadise.testbridge.helpers.inventory;
 
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.util.prioritylist.IPartitionList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.item.ItemStack;
-
-import appeng.api.storage.channels.IItemStorageChannel;
-import appeng.api.storage.data.IAEItemStack;
-import appeng.util.prioritylist.IPartitionList;
 
 public class HideFakeItem implements IPartitionList<IAEItemStack> {
 

@@ -1,8 +1,5 @@
 package net.jp.hellparadise.testbridge.container;
 
-import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
-import net.minecraft.entity.player.InventoryPlayer;
-
 import appeng.api.config.SecurityPermissions;
 import appeng.api.config.Settings;
 import appeng.api.config.YesNo;
@@ -11,6 +8,8 @@ import appeng.container.guisync.GuiSync;
 import appeng.container.implementations.ContainerUpgradeable;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.util.Platform;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
+import net.minecraft.entity.player.InventoryPlayer;
 
 public class ContainerCraftingManager extends ContainerUpgradeable {
 

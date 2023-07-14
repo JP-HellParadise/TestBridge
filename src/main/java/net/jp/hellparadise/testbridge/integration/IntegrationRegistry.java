@@ -17,7 +17,6 @@ package net.jp.hellparadise.testbridge.integration;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.Side;
 

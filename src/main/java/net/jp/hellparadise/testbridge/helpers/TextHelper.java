@@ -3,9 +3,7 @@ package net.jp.hellparadise.testbridge.helpers;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-
 import logisticspipes.kotlin.text.Regex;
-
 import net.jp.hellparadise.testbridge.utils.TextUtil;
 import net.minecraft.util.text.TextFormatting;
 

@@ -7,7 +7,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
-
 import net.jp.hellparadise.testbridge.core.TestBridge;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 

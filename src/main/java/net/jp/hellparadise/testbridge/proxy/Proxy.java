@@ -2,7 +2,6 @@ package net.jp.hellparadise.testbridge.proxy;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.world.World;
@@ -13,11 +12,9 @@ public interface Proxy {
     @Nonnull
     IThreadListener getThreadListener(MessageContext context);
 
-    @Nullable
-    EntityPlayer getPlayer(MessageContext context);
+    @Nullable EntityPlayer getPlayer(MessageContext context);
 
-    @Nullable
-    World getWorld(MessageContext context);
+    @Nullable World getWorld(MessageContext context);
 
     class WrongSideException extends RuntimeException {
 

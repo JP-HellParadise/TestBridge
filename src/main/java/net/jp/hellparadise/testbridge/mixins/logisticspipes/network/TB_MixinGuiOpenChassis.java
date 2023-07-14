@@ -5,11 +5,9 @@ import logisticspipes.network.NewGuiHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.packets.gui.GuiOpenChassis;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
-
 import net.jp.hellparadise.testbridge.network.guis.pipe.CMGuiProvider;
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.minecraft.entity.player.EntityPlayer;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

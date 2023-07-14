@@ -1,14 +1,13 @@
 package net.jp.hellparadise.testbridge.helpers.interfaces;
 
-import net.jp.hellparadise.testbridge.helpers.DualityCraftingManager;
-import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-
 import appeng.api.implementations.IUpgradeableHost;
 import appeng.api.networking.crafting.ICraftingProvider;
 import appeng.api.networking.crafting.ICraftingRequester;
 import appeng.core.sync.GuiBridge;
+import net.jp.hellparadise.testbridge.helpers.DualityCraftingManager;
+import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 
 public interface ICraftingManagerHost extends ICraftingProvider, IUpgradeableHost, ICraftingRequester {
 

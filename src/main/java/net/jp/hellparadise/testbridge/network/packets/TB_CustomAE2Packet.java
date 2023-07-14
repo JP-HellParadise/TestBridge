@@ -1,18 +1,17 @@
 package net.jp.hellparadise.testbridge.network.packets;
 
+import appeng.api.networking.IGridHost;
+import appeng.api.networking.IGridNode;
+import appeng.me.GridAccessException;
 import java.util.ArrayList;
 import java.util.List;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
-
-import net.jp.hellparadise.testbridge.container.ContainerPackage;
 import net.jp.hellparadise.testbridge.container.ContainerSatelliteSelect;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
-import net.jp.hellparadise.testbridge.items.FakeItem;
 import net.jp.hellparadise.testbridge.network.packets.gui.ProvideSatResultListPacket;
 import net.jp.hellparadise.testbridge.network.packets.implementation.TB_SyncNamePacket;
 import net.jp.hellparadise.testbridge.part.PartCraftingManager;
@@ -21,15 +20,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.Optional;
 import network.rs485.logisticspipes.util.LPDataInput;
 import network.rs485.logisticspipes.util.LPDataOutput;
-
-import appeng.api.networking.IGridHost;
-import appeng.api.networking.IGridNode;
-import appeng.me.GridAccessException;
 
 @StaticResolve
 public class TB_CustomAE2Packet<T> extends CoordinatesPacket {

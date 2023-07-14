@@ -1,6 +1,4 @@
 {
-    "parent": "block/cube_all",
-    "textures": {
-        "all": "testbridge:blocks/crafting_manager"
-    }
+      "parent": "block/cube_all",
+      "textures": {"all": "testbridge:blocks/crafting_manager"}
 }

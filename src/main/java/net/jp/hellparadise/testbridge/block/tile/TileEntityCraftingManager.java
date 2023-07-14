@@ -1,22 +1,5 @@
 package net.jp.hellparadise.testbridge.block.tile;
 
-import java.util.List;
-
-import net.jp.hellparadise.testbridge.helpers.DualityCraftingManager;
-import net.jp.hellparadise.testbridge.helpers.interfaces.IBlocks_TB;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
-import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
-import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
@@ -46,8 +29,22 @@ import appeng.util.Platform;
 import appeng.util.SettingsFrom;
 import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.InvOperation;
-
 import com.google.common.collect.ImmutableSet;
+import java.util.List;
+import net.jp.hellparadise.testbridge.helpers.DualityCraftingManager;
+import net.jp.hellparadise.testbridge.helpers.interfaces.IBlocks_TB;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
+import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
+import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class TileEntityCraftingManager extends AENetworkInvTile
     implements IGridTickable, IInventoryDestination, ICraftingManagerHost, IPriorityHost {

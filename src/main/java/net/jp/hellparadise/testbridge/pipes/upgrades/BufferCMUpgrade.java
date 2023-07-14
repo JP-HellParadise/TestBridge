@@ -3,7 +3,6 @@ package net.jp.hellparadise.testbridge.pipes.upgrades;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
-
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 
 public class BufferCMUpgrade implements IPipeUpgrade {

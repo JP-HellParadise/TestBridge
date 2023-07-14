@@ -4,8 +4,7 @@ import logisticspipes.LPItems;
 import logisticspipes.blocks.LogisticsProgramCompilerTileEntity;
 import logisticspipes.recipes.NBTIngredient;
 import logisticspipes.recipes.RecipeManager;
-
-import net.jp.hellparadise.testbridge.client.TB_Textures;
+import net.jp.hellparadise.testbridge.client.LP_Textures;
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.integration.IIntegrationModule;
 import net.minecraft.item.Item;
@@ -19,7 +18,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class LPModule implements IIntegrationModule {
 
-    public static TB_Textures TBTextures = new TB_Textures();
+    public static LP_Textures TBTextures = new LP_Textures();
 
     public void preInit() {
         MinecraftForge.EVENT_BUS.register(LPEventHandler.preInit.class);

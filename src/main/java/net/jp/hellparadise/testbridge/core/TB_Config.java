@@ -3,7 +3,6 @@ package net.jp.hellparadise.testbridge.core;
 import java.io.File;
 import java.util.Collection;
 import java.util.EnumSet;
-
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;

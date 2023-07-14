@@ -6,7 +6,6 @@ import logisticspipes.pipes.upgrades.*;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.SimpleStackInventory;
-
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;

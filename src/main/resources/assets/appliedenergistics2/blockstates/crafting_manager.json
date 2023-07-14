@@ -1,7 +1,1 @@
-{
-  "variants": {
-    "normal": {
-      "model": "testbridge:crafting_manager"
-    }
-  }
-}
+{"variants": {"normal": {"model": "testbridge:crafting_manager"}}}

@@ -5,7 +5,6 @@ import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
-
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.minecraft.util.EnumFacing;
 

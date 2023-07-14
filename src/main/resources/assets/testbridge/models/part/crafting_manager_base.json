@@ -1,45 +1,205 @@
 {
-	"textures": {
-		"sidesStatus": "appliedenergistics2:parts/monitor_sides_status",
-		"particle": "testbridge:blocks/crafting_manager",
-		"front": "testbridge:blocks/crafting_manager",
-		"back": "appliedenergistics2:parts/monitor_back"
-	},
-	"elements": [
-		{
-			"from": [2, 2, 0],
-			"to": [14, 14, 2],
-			"faces": {
-				"north": {"uv": [2, 2, 14, 14], "texture": "#front"},
-				"east": {"uv": [13, 2, 14, 14], "texture": "#front"},
-				"south": {"uv": [2, 2, 14, 14], "texture": "#front"},
-				"west": {"uv": [2, 2, 3, 14], "texture": "#front"},
-				"up": {"uv": [2, 2, 14, 3], "texture": "#front"},
-				"down": {"uv": [2, 13, 14, 14], "texture": "#front"}
-			}
-		},
-		{
-			"from": [5, 5, 3],
-			"to": [11, 11, 4],
-			"faces": {
-				"north": {"uv": [5, 5, 11, 11], "texture": "#back"},
-				"east": {"uv": [12, 5, 13, 11], "texture": "#back"},
-				"south": {"uv": [5, 5, 11, 11], "texture": "#back"},
-				"west": {"uv": [3, 5, 4, 11], "texture": "#back"},
-				"up": {"uv": [5, 3, 11, 4], "texture": "#back"},
-				"down": {"uv": [5, 12, 11, 13], "texture": "#back"}
-			}
-		},
-		{
-			"from": [5, 5, 2],
-			"to": [11, 11, 3],
-			"faces": {
-				"east": {"uv": [13, 5, 14, 11], "texture": "#sidesStatus"},
-				"south": {"uv": [5, 5, 11, 11], "texture": "#missing"},
-				"west": {"uv": [2, 5, 3, 11], "texture": "#sidesStatus"},
-				"up": {"uv": [5, 2, 11, 3], "texture": "#sidesStatus"},
-				"down": {"uv": [5, 13, 11, 14], "texture": "#sidesStatus"}
-			}
-		}
-	]
+      "textures": {
+            "sidesStatus": "appliedenergistics2:parts/monitor_sides_status",
+            "back": "appliedenergistics2:parts/monitor_back",
+            "particle": "testbridge:blocks/crafting_manager",
+            "front": "testbridge:blocks/crafting_manager"
+      },
+      "elements": [
+            {
+                  "from": [
+                        2,
+                        2,
+                        0
+                  ],
+                  "to": [
+                        14,
+                        14,
+                        2
+                  ],
+                  "faces": {
+                        "east": {
+                              "uv": [
+                                    13,
+                                    2,
+                                    14,
+                                    14
+                              ],
+                              "texture": "#front"
+                        },
+                        "south": {
+                              "uv": [
+                                    2,
+                                    2,
+                                    14,
+                                    14
+                              ],
+                              "texture": "#front"
+                        },
+                        "north": {
+                              "uv": [
+                                    2,
+                                    2,
+                                    14,
+                                    14
+                              ],
+                              "texture": "#front"
+                        },
+                        "west": {
+                              "uv": [
+                                    2,
+                                    2,
+                                    3,
+                                    14
+                              ],
+                              "texture": "#front"
+                        },
+                        "up": {
+                              "uv": [
+                                    2,
+                                    2,
+                                    14,
+                                    3
+                              ],
+                              "texture": "#front"
+                        },
+                        "down": {
+                              "uv": [
+                                    2,
+                                    13,
+                                    14,
+                                    14
+                              ],
+                              "texture": "#front"
+                        }
+                  }
+            },
+            {
+                  "from": [
+                        5,
+                        5,
+                        3
+                  ],
+                  "to": [
+                        11,
+                        11,
+                        4
+                  ],
+                  "faces": {
+                        "east": {
+                              "uv": [
+                                    12,
+                                    5,
+                                    13,
+                                    11
+                              ],
+                              "texture": "#back"
+                        },
+                        "south": {
+                              "uv": [
+                                    5,
+                                    5,
+                                    11,
+                                    11
+                              ],
+                              "texture": "#back"
+                        },
+                        "north": {
+                              "uv": [
+                                    5,
+                                    5,
+                                    11,
+                                    11
+                              ],
+                              "texture": "#back"
+                        },
+                        "west": {
+                              "uv": [
+                                    3,
+                                    5,
+                                    4,
+                                    11
+                              ],
+                              "texture": "#back"
+                        },
+                        "up": {
+                              "uv": [
+                                    5,
+                                    3,
+                                    11,
+                                    4
+                              ],
+                              "texture": "#back"
+                        },
+                        "down": {
+                              "uv": [
+                                    5,
+                                    12,
+                                    11,
+                                    13
+                              ],
+                              "texture": "#back"
+                        }
+                  }
+            },
+            {
+                  "from": [
+                        5,
+                        5,
+                        2
+                  ],
+                  "to": [
+                        11,
+                        11,
+                        3
+                  ],
+                  "faces": {
+                        "east": {
+                              "uv": [
+                                    13,
+                                    5,
+                                    14,
+                                    11
+                              ],
+                              "texture": "#sidesStatus"
+                        },
+                        "south": {
+                              "uv": [
+                                    5,
+                                    5,
+                                    11,
+                                    11
+                              ],
+                              "texture": "#missing"
+                        },
+                        "west": {
+                              "uv": [
+                                    2,
+                                    5,
+                                    3,
+                                    11
+                              ],
+                              "texture": "#sidesStatus"
+                        },
+                        "up": {
+                              "uv": [
+                                    5,
+                                    2,
+                                    11,
+                                    3
+                              ],
+                              "texture": "#sidesStatus"
+                        },
+                        "down": {
+                              "uv": [
+                                    5,
+                                    13,
+                                    11,
+                                    14
+                              ],
+                              "texture": "#sidesStatus"
+                        }
+                  }
+            }
+      ]
 }

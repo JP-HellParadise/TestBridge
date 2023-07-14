@@ -1,10 +1,10 @@
 package net.jp.hellparadise.testbridge.integration.modules.theoneprobe.part;
 
+import appeng.api.parts.IPart;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
 import mcjty.theoneprobe.config.Config;
-
 import net.jp.hellparadise.testbridge.helpers.TextHelper;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
 import net.jp.hellparadise.testbridge.part.PartCraftingManager;
@@ -12,8 +12,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
-
-import appeng.api.parts.IPart;
 
 public class CraftingManagerProvider implements IPartProbInfoProvider, ITranslationKey {
 

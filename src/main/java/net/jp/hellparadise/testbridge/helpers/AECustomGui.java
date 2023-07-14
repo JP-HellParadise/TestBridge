@@ -1,11 +1,9 @@
 package net.jp.hellparadise.testbridge.helpers;
 
+import appeng.client.gui.AEBaseGui;
 import java.io.IOException;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.inventory.Container;
-
-import appeng.client.gui.AEBaseGui;
 
 public abstract class AECustomGui extends AEBaseGui {
 

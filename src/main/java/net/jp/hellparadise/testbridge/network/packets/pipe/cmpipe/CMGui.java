@@ -5,7 +5,6 @@ import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.utils.StaticResolve;
-
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.minecraft.entity.player.EntityPlayer;
 import network.rs485.logisticspipes.module.Gui;

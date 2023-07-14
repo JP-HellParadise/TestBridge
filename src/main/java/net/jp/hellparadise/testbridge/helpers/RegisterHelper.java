@@ -2,7 +2,6 @@ package net.jp.hellparadise.testbridge.helpers;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import net.jp.hellparadise.testbridge.helpers.interfaces.MeshDefinitionFix;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;

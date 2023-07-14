@@ -1,23 +1,5 @@
 package net.jp.hellparadise.testbridge.part;
 
-import java.util.List;
-
-import net.jp.hellparadise.testbridge.core.Reference;
-import net.jp.hellparadise.testbridge.helpers.DualityCraftingManager;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
-import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
-
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.definitions.IMaterials;
@@ -55,8 +37,23 @@ import appeng.util.SettingsFrom;
 import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.InvOperation;
-
 import com.google.common.collect.ImmutableSet;
+import java.util.List;
+import net.jp.hellparadise.testbridge.core.Reference;
+import net.jp.hellparadise.testbridge.helpers.DualityCraftingManager;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
+import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class PartCraftingManager extends PartBasicState implements IGridTickable, IStorageMonitorable,
     IInventoryDestination, ICraftingManagerHost, IAEAppEngInventory, IPriorityHost {

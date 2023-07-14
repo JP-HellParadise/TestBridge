@@ -56,7 +56,7 @@ item.appliedenergistics2.multi_part.craftingmanager_part.name=ME Crafting Manage
 
 # GUI
 
-gui.item_package.Save=Save
+
 
 gui.satellite.GuiName=Satellite Name
 gui.result.GuiName=Result Name

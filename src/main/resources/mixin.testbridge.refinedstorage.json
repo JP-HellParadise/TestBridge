@@ -1,9 +1,8 @@
 {
-  "minVersion": "0.8",
-  "package": "net.jp.hellparadise.testbridge.mixins.refinedstorage",
-  "compatibilityLevel": "JAVA_8",
-  "mixins": [
-  ],
-  "client": [],
-  "server": []
+      "server": [],
+      "mixins": [],
+      "minVersion": "0.8",
+      "package": "net.jp.hellparadise.testbridge.mixins.refinedstorage",
+      "compatibilityLevel": "JAVA_8",
+      "client": []
 }

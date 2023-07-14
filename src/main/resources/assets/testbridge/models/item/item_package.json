@@ -1,6 +1,4 @@
 {
-	"parent": "item/generated",
-	"textures": {
-		"layer0": "testbridge:items/package"
-	}
+      "parent": "item/generated",
+      "textures": {"layer0": "testbridge:items/package"}
 }

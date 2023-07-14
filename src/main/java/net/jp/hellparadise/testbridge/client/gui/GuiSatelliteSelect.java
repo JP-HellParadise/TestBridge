@@ -1,16 +1,17 @@
 package net.jp.hellparadise.testbridge.client.gui;
 
+import appeng.core.sync.GuiBridge;
+import appeng.core.sync.network.NetworkHandler;
+import appeng.core.sync.packets.PacketSwitchGuis;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
 import logisticspipes.network.PacketHandler;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.gui.GuiGraphics;
 import logisticspipes.utils.gui.IGuiAccess;
 import logisticspipes.utils.gui.TextListDisplay;
-
 import net.jp.hellparadise.testbridge.container.ContainerSatelliteSelect;
 import net.jp.hellparadise.testbridge.helpers.AECustomGui;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
@@ -19,10 +20,6 @@ import net.jp.hellparadise.testbridge.network.packets.TB_CustomAE2Packet;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
 import network.rs485.logisticspipes.util.TextUtil;
-
-import appeng.core.sync.GuiBridge;
-import appeng.core.sync.network.NetworkHandler;
-import appeng.core.sync.packets.PacketSwitchGuis;
 
 public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess, ITranslationKey {
 

@@ -1,22 +1,5 @@
 package net.jp.hellparadise.testbridge.helpers;
 
-import java.util.*;
-
-import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
-import net.jp.hellparadise.testbridge.items.VirtualPatternAE;
-import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
-
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.config.Settings;
@@ -56,9 +39,23 @@ import appeng.util.inv.BlockingInventoryAdaptor;
 import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.InvOperation;
-
 import com.google.common.collect.ImmutableSet;
 import de.ellpeck.actuallyadditions.api.tile.IPhantomTile;
+import java.util.*;
+import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
+import net.jp.hellparadise.testbridge.items.VirtualPatternAE;
+import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
 public class DualityCraftingManager implements IGridTickable, IStorageMonitorable, IInventoryDestination,
     IAEAppEngInventory, IConfigManagerHost, ICraftingProvider, IConfigurableObject, ISegmentedInventory {
@@ -362,7 +359,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
                 visitArray(packageList, cin, false);
 
                 packageList.stream()
-                    .map(pkg -> VirtualPatternAE.newPattern(NBTItemHelper.getItemStack(pkg, true, true), pkg))
+                    .map(pkg -> VirtualPatternAE.newPattern(PackageHelper.getItemStack(pkg, true, true), pkg))
                     .forEach(this.craftingList::add);
 
                 this.craftingList.add(details);
@@ -549,7 +546,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
         if (patternDetails instanceof VirtualPatternHelper) {
             ItemStack output = patternDetails.getCondensedOutputs()[0].getDefinition();
             // If pattern has output contains package, we will work here first instead
-            if (output.getItem() == TB_ItemHandlers.itemPackage && !NBTItemHelper.getItemStack(output, true, true)
+            if (output.getItem() == TB_ItemHandlers.itemPackage && !PackageHelper.getItemStack(output, true, true)
                 .isEmpty()) {
                 this.addToCreatePkgList(output);
                 return true;
@@ -566,9 +563,9 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
         for (int x = 0; x < table.getSizeInventory(); x++) {
             final ItemStack is = table.getStackInSlot(x);
             if (!is.isEmpty()) {
-                if (is.getItem() == TB_ItemHandlers.itemPackage && !NBTItemHelper.getItemStack(is, true, true)
+                if (is.getItem() == TB_ItemHandlers.itemPackage && !PackageHelper.getItemStack(is, true, true)
                     .isEmpty()) {
-                    String satName = NBTItemHelper.getItemInfo(is, NBTItemHelper.ItemInfo.DESTINATION);
+                    String satName = PackageHelper.getItemInfo(is, PackageHelper.ItemInfo.DESTINATION);
                     if (!satName.isEmpty()) this.addToSatList(satName);
                     else return this.cleanCrafting();
                 } else {
@@ -597,8 +594,8 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
                         final ItemStack is = table.getStackInSlot(x);
                         if (!is.isEmpty()) {
                             if (is.getItem() == TB_ItemHandlers.itemPackage) {
-                                String name = NBTItemHelper.getItemInfo(is, NBTItemHelper.ItemInfo.DESTINATION);
-                                ItemStack holder = NBTItemHelper.getItemStack(is, true, false);
+                                String name = PackageHelper.getItemInfo(is, PackageHelper.ItemInfo.DESTINATION);
+                                ItemStack holder = PackageHelper.getItemStack(is, true, false);
                                 if (satName.equals(name) && !holder.isEmpty()) {
                                     this.addToSendListOnSat(satName, holder);
                                     table.removeStackFromSlot(x);
@@ -785,7 +782,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
             for (final ItemStack is : this.createPkgList) {
                 if (!is.isEmpty()) {
                     // Return items instead of not useful placeholder
-                    drops.add(NBTItemHelper.getItemStack(is, true, false));
+                    drops.add(PackageHelper.getItemStack(is, true, false));
                 }
             }
         }
@@ -905,14 +902,14 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
     }
 
     public PartSatelliteBus findSatellite(String name) {
-        if (!name.equals("")) {
+        if (!name.isEmpty()) {
             for (final IGridNode node : this.gridProxy.getNode()
                 .getGrid()
                 .getMachines(PartSatelliteBus.class)) {
                 IGridHost h = node.getMachine();
                 if (h instanceof PartSatelliteBus) {
                     PartSatelliteBus part = (PartSatelliteBus) h;
-                    if (part.getSatellitePipeName()
+                    if (part.getSatelliteName()
                         .equals(name)) {
                         return part;
                     }

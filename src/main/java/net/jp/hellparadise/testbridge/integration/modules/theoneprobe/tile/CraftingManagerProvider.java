@@ -1,10 +1,10 @@
 package net.jp.hellparadise.testbridge.integration.modules.theoneprobe.tile;
 
+import appeng.tile.AEBaseTile;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
 import mcjty.theoneprobe.config.Config;
-
 import net.jp.hellparadise.testbridge.block.tile.TileEntityCraftingManager;
 import net.jp.hellparadise.testbridge.helpers.TextHelper;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
@@ -12,8 +12,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
-
-import appeng.tile.AEBaseTile;
 
 public class CraftingManagerProvider implements ITileProbInfoProvider, ITranslationKey {
 

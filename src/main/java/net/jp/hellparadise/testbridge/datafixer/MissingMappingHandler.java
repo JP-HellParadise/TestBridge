@@ -1,11 +1,11 @@
 package net.jp.hellparadise.testbridge.datafixer;
 
+import appeng.core.AppEng;
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import logisticspipes.LPConstants;
-
 import net.jp.hellparadise.testbridge.core.Reference;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -13,10 +13,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-
-import appeng.core.AppEng;
-
-import com.google.common.collect.ImmutableMap;
 
 public class MissingMappingHandler {
 

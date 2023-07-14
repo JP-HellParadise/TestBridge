@@ -2,7 +2,6 @@ package net.jp.hellparadise.testbridge.helpers;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class IISHelper {

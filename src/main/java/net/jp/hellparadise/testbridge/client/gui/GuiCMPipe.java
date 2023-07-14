@@ -1,7 +1,6 @@
 package net.jp.hellparadise.testbridge.client.gui;
 
 import java.io.IOException;
-
 import logisticspipes.LPItems;
 import logisticspipes.gui.popup.GuiSelectSatellitePopup;
 import logisticspipes.items.ItemUpgrade;
@@ -17,7 +16,6 @@ import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.gui.extension.GuiExtension;
-
 import net.jp.hellparadise.testbridge.client.popup.GuiSelectResultPopup;
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
@@ -42,9 +40,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import network.rs485.logisticspipes.property.EnumProperty;
-import network.rs485.logisticspipes.property.PropertyLayer;
+import network.rs485.logisticspipes.property.layer.PropertyLayer;
+import network.rs485.logisticspipes.property.layer.ValuePropertyOverlay;
 import network.rs485.logisticspipes.util.TextUtil;
-
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
