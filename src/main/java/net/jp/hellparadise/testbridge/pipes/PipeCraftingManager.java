@@ -107,26 +107,26 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
 
     @Override
     public TextureType getCenterTexture() {
-        return TB_Textures.TESTBRIDGE_CMPIPE_TEXTURE;
+        return LP_Textures.TESTBRIDGE_CMPIPE_TEXTURE;
     }
 
     @Override
     public TextureType getRoutedTexture(EnumFacing connection) {
         if (getRouter().isSubPoweredExit(connection)) {
-            return TB_Textures.LOGISTICSPIPE_SUBPOWER_TEXTURE;
+            return LP_Textures.LOGISTICSPIPE_SUBPOWER_TEXTURE;
         }
-        return TB_Textures.LOGISTICSPIPE_CHASSI_ROUTED_TEXTURE;
+        return LP_Textures.LOGISTICSPIPE_CHASSI_ROUTED_TEXTURE;
     }
 
     @Override
     public TextureType getNonRoutedTexture(EnumFacing connection) {
         if (pointedAdjacent != null && connection.equals(pointedAdjacent.getDir())) {
-            return TB_Textures.LOGISTICSPIPE_CHASSI_DIRECTION_TEXTURE;
+            return LP_Textures.LOGISTICSPIPE_CHASSI_DIRECTION_TEXTURE;
         }
         if (isPowerProvider(connection)) {
-            return TB_Textures.LOGISTICSPIPE_POWERED_TEXTURE;
+            return LP_Textures.LOGISTICSPIPE_POWERED_TEXTURE;
         }
-        return TB_Textures.LOGISTICSPIPE_CHASSI_NOTROUTED_TEXTURE;
+        return LP_Textures.LOGISTICSPIPE_CHASSI_NOTROUTED_TEXTURE;
     }
 
     @Override

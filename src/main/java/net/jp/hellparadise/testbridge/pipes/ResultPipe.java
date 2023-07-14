@@ -1,5 +1,6 @@
 package net.jp.hellparadise.testbridge.pipes;
 
+import com.cleanroommc.modularui.screen.ModularScreen;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,14 +23,13 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.EnumFacingUtil;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-
-import net.jp.hellparadise.testbridge.client.TB_Textures;
-import net.jp.hellparadise.testbridge.core.TestBridge;
-import net.jp.hellparadise.testbridge.network.guis.GuiEnum;
-import net.jp.hellparadise.testbridge.network.packets.implementation.TB_SyncNamePacket;
+import net.jp.hellparadise.testbridge.client.LP_Textures;
+import net.jp.hellparadise.testbridge.client.gui.SatelliteGuiHolder;
+import net.jp.hellparadise.testbridge.helpers.interfaces.SatelliteInfo;
 import net.jp.hellparadise.testbridge.network.packets.pipe.OrientationPacket;
 import net.jp.hellparadise.testbridge.network.packets.pipe.RequestOrientationPacket;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
@@ -49,18 +49,18 @@ public class ResultPipe extends CoreRoutedPipe implements IChangeListener, Satel
 
     @Override
     public TextureType getCenterTexture() {
-        return TB_Textures.TESTBRIDGE_RESULT_TEXTURE;
+        return LP_Textures.TESTBRIDGE_RESULT_TEXTURE;
     }
 
     @Override
     public TextureType getNonRoutedTexture(EnumFacing connection) {
         if (pointedAdjacent != null && connection.equals(pointedAdjacent.getDir())) {
-            return TB_Textures.LOGISTICSPIPE_CHASSI_DIRECTION_TEXTURE;
+            return LP_Textures.LOGISTICSPIPE_CHASSI_DIRECTION_TEXTURE;
         }
         if (isPowerProvider(connection)) {
-            return TB_Textures.LOGISTICSPIPE_POWERED_TEXTURE;
+            return LP_Textures.LOGISTICSPIPE_POWERED_TEXTURE;
         }
-        return TB_Textures.LOGISTICSPIPE_CHASSI_NOTROUTED_TEXTURE;
+        return LP_Textures.LOGISTICSPIPE_CHASSI_NOTROUTED_TEXTURE;
     }
 
     public ResultPipe(Item item) {
@@ -69,12 +69,15 @@ public class ResultPipe extends CoreRoutedPipe implements IChangeListener, Satel
         _orderItemManager = new LogisticsItemOrderManager(this, this); // null by default when not needed
     }
 
+    @Nonnull
     @Override
-    public String getSatellitePipeName() {
+    public String getSatelliteName() {
         return resultPipeName;
     }
 
-    public void setSatellitePipeName(@Nonnull String resultPipeName) {
+    @Override
+    public void setSatelliteName(@Nonnull String resultPipeName) {
+        if (this.resultPipeName.equals(resultPipeName)) return;
         this.resultPipeName = resultPipeName;
     }
 
@@ -309,18 +312,13 @@ public class ResultPipe extends CoreRoutedPipe implements IChangeListener, Satel
 
     @Override
     public void onWrenchClicked(EntityPlayer entityplayer) {
-        // Send the result id when opening gui
-        final ModernPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class)
-            .setString(resultPipeName)
-            .setPosX(getX())
-            .setPosY(getY())
-            .setPosZ(getZ());
-        MainProxy.sendPacketToPlayer(packet, entityplayer);
-        entityplayer.openGui(TestBridge.INSTANCE, GuiEnum.RESULT_PIPE.ordinal(), getWorld(), getX(), getY(), getZ());
+        if (!getWorld().isRemote) {
+            openUI((EntityPlayerMP) entityplayer);
+        }
     }
 
     @Nonnull
-    public Set<SatellitePipe> getSatellitesOfType() {
+    public Set<SatelliteInfo> getSatellitesOfType() {
         return Collections.unmodifiableSet(AllResults);
     }
 
@@ -338,4 +336,9 @@ public class ResultPipe extends CoreRoutedPipe implements IChangeListener, Satel
 
     @Override
     public void listenedChanged() {}
+
+    @Override
+    public ModularScreen createClientGui(EntityPlayer player) {
+        return ModularScreen.simple("result", this::createPanel);
+    }
 }

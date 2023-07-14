@@ -115,6 +115,7 @@ dependencies {
 
   // non deobf component
   api "${project.hei_dep}"
+  api "${project.mui_dep}"
   implementation "${project.rf_dep}"
   implementation "${project.ccl_dep}"
   implementation "${project.top_dep}"

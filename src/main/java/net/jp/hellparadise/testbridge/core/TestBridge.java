@@ -153,7 +153,9 @@ public class TestBridge {
 
     @Mod.EventHandler
     public void cleanup(FMLServerStoppingEvent event) {
-        ResultPipe.cleanup();
+        if (IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.LOGISTICS_PIPES)) {
+            ResultPipe.cleanup();
+        }
         if (IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.APPLIED_ENERGISTICS_2)) {
             PartSatelliteBus.cleanup();
         }

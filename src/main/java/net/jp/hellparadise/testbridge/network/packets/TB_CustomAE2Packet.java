@@ -47,44 +47,6 @@ public class TB_CustomAE2Packet<T> extends CoordinatesPacket {
     @Optional.Method(modid = "appliedenergistics2")
     public void processPacket(EntityPlayer player) {
         final Container c = player.openContainer;
-        if (this.key.startsWith("Package.Opening") && ((!player.getHeldItem(EnumHand.MAIN_HAND)
-            .isEmpty()
-            && player.getHeldItem(EnumHand.MAIN_HAND)
-                .getItem() instanceof FakeItem)
-            || (!player.getHeldItem(EnumHand.OFF_HAND)
-                .isEmpty()
-                && player.getHeldItem(EnumHand.OFF_HAND)
-                    .getItem() instanceof FakeItem))
-            && c instanceof ContainerPackage) {
-            final EnumHand hand;
-            if (!player.getHeldItem(EnumHand.MAIN_HAND)
-                .isEmpty()
-                && player.getHeldItem(EnumHand.MAIN_HAND)
-                    .getItem() instanceof FakeItem) {
-                hand = EnumHand.MAIN_HAND;
-            } else if (!player.getHeldItem(EnumHand.OFF_HAND)
-                .isEmpty()
-                && player.getHeldItem(EnumHand.OFF_HAND)
-                    .getItem() instanceof FakeItem) {
-                        hand = EnumHand.OFF_HAND;
-                    } else {
-                        return;
-                    }
-
-            final ItemStack pkg = player.getHeldItem(hand);
-
-            if (pkg.getItem() instanceof FakeItem) {
-                NBTTagCompound newNBT = new NBTTagCompound();
-                newNBT.setBoolean("__actContainer", false);
-                if (!value.isEmpty()) newNBT.setString("__pkgDest", value);
-                if (is != null && !is.isEmpty()) newNBT.setTag("__itemHold", is.writeToNBT(new NBTTagCompound()));
-                pkg.setTagCompound(newNBT);
-            }
-            if (setting) {
-                player.setHeldItem(hand, pkg);
-                player.closeScreen();
-            }
-        }
         if (this.key.startsWith("CMSatellite.") && c instanceof ContainerSatelliteSelect) {
             final ContainerSatelliteSelect qk = (ContainerSatelliteSelect) c;
             if (this.key.equals("CMSatellite.Opening")) {
@@ -118,9 +80,9 @@ public class TB_CustomAE2Packet<T> extends CoordinatesPacket {
                         IGridHost h = node.getMachine();
                         if (h instanceof PartSatelliteBus) {
                             PartSatelliteBus part = (PartSatelliteBus) h;
-                            if (!part.getSatellitePipeName()
-                                .equals("")) {
-                                list.add(part.getSatellitePipeName());
+                            if (!part.getSatelliteName()
+                                    .isEmpty()) {
+                                list.add(part.getSatelliteName());
                             }
                         }
                     }

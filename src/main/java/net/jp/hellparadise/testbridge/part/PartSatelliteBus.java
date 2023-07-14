@@ -1,32 +1,5 @@
 package net.jp.hellparadise.testbridge.part;
 
-import java.util.*;
-
-import javax.annotation.Nonnull;
-
-import logisticspipes.network.PacketHandler;
-import logisticspipes.network.abstractpackets.ModernPacket;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.item.ItemIdentifierStack;
-
-import net.jp.hellparadise.testbridge.core.Reference;
-import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
-import net.jp.hellparadise.testbridge.core.TestBridge;
-import net.jp.hellparadise.testbridge.network.guis.GuiEnum;
-import net.jp.hellparadise.testbridge.network.packets.implementation.TB_SyncNamePacket;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentString;
-import network.rs485.logisticspipes.SatellitePipe;
-import network.rs485.logisticspipes.util.TextUtil;
-
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
@@ -41,8 +14,27 @@ import appeng.parts.automation.PartSharedItemBus;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 import appeng.util.SettingsFrom;
+import com.cleanroommc.modularui.screen.ModularScreen;
+import java.util.*;
+import javax.annotation.Nonnull;
+import net.jp.hellparadise.testbridge.client.gui.SatelliteGuiHolder;
+import net.jp.hellparadise.testbridge.core.Reference;
+import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
+import net.jp.hellparadise.testbridge.helpers.PackageHelper;
+import net.jp.hellparadise.testbridge.helpers.interfaces.SatelliteInfo;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
+import network.rs485.logisticspipes.util.TextUtil;
 
-public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe {
+public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiHolder {
 
     public static final ResourceLocation MODEL_BASE = new ResourceLocation(Reference.MODID, "part/satellite_bus_base");
     @PartModels
@@ -137,33 +129,11 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
     @Override
     public boolean onPartActivate(final EntityPlayer player, final EnumHand hand, final Vec3d posIn) {
         if (Platform.isServer()) {
-            ItemStack is = player.getHeldItem(hand);
-            if (is.getItem() == TB_ItemHandlers.itemPackage) {
-                if (!is.hasTagCompound()) {
-                    is.setTagCompound(new NBTTagCompound());
-                }
-                assert is.getTagCompound() != null; // Remove NPE warning
-                is.getTagCompound()
-                    .setString("__pkgDest", satPartName);
+            ItemStack itemStack = player.getHeldItem(hand);
+            if (itemStack.getItem() == TB_ItemHandlers.itemPackage) {
+                PackageHelper.setDestination(itemStack, satPartName);
             } else {
-                BlockPos pos = getTile().getPos();
-                // Send the result id when opening gui
-                final ModernPacket packet = PacketHandler.getPacket(TB_SyncNamePacket.class)
-                    .setSide(
-                        this.getSide()
-                            .ordinal())
-                    .setString(this.satPartName)
-                    .setTilePos(this.getTile());
-                MainProxy.sendPacketToPlayer(packet, player);
-                player.openGui(
-                    TestBridge.INSTANCE,
-                    GuiEnum.SATELLITE_BUS.begin() + this.getSide()
-                        .ordinal(),
-                    this.getTile()
-                        .getWorld(),
-                    pos.getX(),
-                    pos.getY(),
-                    pos.getZ());
+                openUI((EntityPlayerMP) player);
             }
         }
         return true;
@@ -277,5 +247,15 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatellitePipe
                     true);
                 break;
         }
+    }
+
+    @Override
+    public boolean isAE2Part() {
+        return true;
+    }
+
+    @Override
+    public ModularScreen createClientGui(EntityPlayer player) {
+        return ModularScreen.simple("result", this::createPanel);
     }
 }
