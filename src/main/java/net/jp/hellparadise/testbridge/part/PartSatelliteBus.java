@@ -32,7 +32,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
-import network.rs485.logisticspipes.util.TextUtil;
+import net.minecraft.util.text.TextComponentTranslation;
 
 public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiHolder {
 
@@ -63,6 +63,18 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
         PartSatelliteBus.AllSatellites.clear();
     }
 
+    @Nonnull
+    @Override
+    public IPartModel getStaticModels() {
+        if (this.isActive() && this.isPowered()) {
+            return MODELS_HAS_CHANNEL;
+        } else if (this.isPowered()) {
+            return MODELS_ON;
+        } else {
+            return MODELS_OFF;
+        }
+    }
+
     @Override
     public void writeToNBT(final NBTTagCompound extra) {
         super.writeToNBT(extra);
@@ -76,9 +88,15 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
         if (extra.hasKey("satName")) this.satPartName = extra.getString("satName");
         else this.satPartName = extra.getString("__satName");
 
-        if (MainProxy.isServer(getTile().getWorld())) {
+        if (Platform.isServer()) {
             ensureAllSatelliteStatus();
         }
+    }
+
+    @Override
+    public void removeFromWorld() {
+        super.removeFromWorld();
+        PartSatelliteBus.AllSatellites.remove(this);
     }
 
     @Nonnull
@@ -114,17 +132,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
         return 1;
     }
 
-    @Nonnull
-    @Override
-    public IPartModel getStaticModels() {
-        if (this.isActive() && this.isPowered()) {
-            return MODELS_HAS_CHANNEL;
-        } else if (this.isPowered()) {
-            return MODELS_ON;
-        } else {
-            return MODELS_OFF;
-        }
-    }
+
 
     @Override
     public boolean onPartActivate(final EntityPlayer player, final EnumHand hand, final Vec3d posIn) {
@@ -139,6 +147,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
         return true;
     }
 
+    @Nonnull
     @Override
     public TileEntity getContainer() {
         return this.getTile();
@@ -149,35 +158,31 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
             .getFacing();
     }
 
+    @Nonnull
     @Override
-    public List<ItemIdentifierStack> getItemList() {
-        return new LinkedList<>();
+    public Set<SatelliteInfo> getSatellitesOfType() {
+        return Collections.unmodifiableSet(PartSatelliteBus.AllSatellites);
     }
 
+    @Nonnull
     @Override
-    public Set<SatellitePipe> getSatellitesOfType() {
-        return Collections.unmodifiableSet(AllSatellites);
-    }
-
-    @Override
-    public String getSatellitePipeName() {
+    public String getSatelliteName() {
         return this.satPartName;
     }
 
     @Override
-    public void setSatellitePipeName(String __satName) {
+    public void setSatelliteName(@Nonnull String __satName) {
+        if (satPartName.equals(__satName)) return;
         this.satPartName = __satName;
+        ensureAllSatelliteStatus();
+        this.getTile().markDirty();
     }
-
-    @Override
-    public void updateWatchers() {}
 
     @Override
     public void ensureAllSatelliteStatus() {
         if (this.satPartName.isEmpty()) {
             PartSatelliteBus.AllSatellites.remove(this);
-        }
-        if (!this.satPartName.isEmpty()) {
+        } else {
             PartSatelliteBus.AllSatellites.add(this);
         }
     }
@@ -202,7 +207,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
     @Override
     public NBTTagCompound downloadSettings(SettingsFrom from) {
         NBTTagCompound output = new NBTTagCompound();
-        if (!satPartName.isEmpty()) output.setString("_satName", getSatellitePipeName());
+        if (!satPartName.isEmpty()) output.setString("_satName", getSatelliteName());
         return output;
     }
 
@@ -213,32 +218,30 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
             if (this.getSatellitesOfType()
                 .stream()
                 .anyMatch(
-                    it -> it.getSatellitePipeName()
+                    it -> it.getSatelliteName()
                         .equals(newName))) {
-                sendStatus(player, "Duplicated");
+                sendStatus(player, Status.DUPLICATED);
             } else {
-                sendStatus(player, "Success");
-                this.setSatellitePipeName(newName);
-                this.getTile()
-                    .markDirty();
+                sendStatus(player, Status.SUCCESS);
+                this.setSatelliteName(newName);
             }
         }
     }
 
-    private void sendStatus(EntityPlayer player, String result) {
+    private void sendStatus(@Nonnull EntityPlayer player, @Nonnull Status status) {
         if (Platform.isClient()) {
             return;
         }
 
-        switch (result) {
-            case "Duplicated":
+        switch (status) {
+            case SUCCESS:
                 player.sendStatusMessage(
-                    new TextComponentString(TextUtil.translate("chat.testbridge.satellite_bus.duplicated")),
+                    new TextComponentTranslation("chat.testbridge.satellite_bus.duplicated"),
                     true);
                 break;
-            case "Success":
+            case DUPLICATED:
                 player.sendStatusMessage(
-                    new TextComponentString(TextUtil.translate("chat.testbridge.satellite_bus.success")),
+                    new TextComponentTranslation("chat.testbridge.satellite_bus.success"),
                     true);
                 break;
             default:
@@ -257,5 +260,11 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
     @Override
     public ModularScreen createClientGui(EntityPlayer player) {
         return ModularScreen.simple("result", this::createPanel);
+    }
+
+    private enum Status {
+        SUCCESS,
+        DUPLICATED,
+        FAILED
     }
 }
