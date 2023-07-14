@@ -132,11 +132,13 @@ public class TestBridge {
             registry.register(TB_ItemHandlers.itemPackage);
             registry.register(TB_ItemHandlers.virtualPattern);
         }
-        // Pipe
-        LogisticsBlockGenericPipe.registerPipe(registry, "result", ResultPipe::new);
-        LogisticsBlockGenericPipe.registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
-        // Upgrade
-        ItemUpgrade.registerUpgrade(registry, BufferCMUpgrade.getName(), BufferCMUpgrade::new);
+        if (IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.LOGISTICS_PIPES)) {
+            // Pipe
+            LogisticsBlockGenericPipe.registerPipe(registry, "result", ResultPipe::new);
+            LogisticsBlockGenericPipe.registerPipe(registry, "crafting_manager", PipeCraftingManager::new);
+            // Upgrade
+            ItemUpgrade.registerUpgrade(registry, BufferCMUpgrade.getName(), BufferCMUpgrade::new);
+        }
     }
 
     @SubscribeEvent

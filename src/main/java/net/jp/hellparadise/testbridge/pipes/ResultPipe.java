@@ -72,6 +72,8 @@ public class ResultPipe extends CoreRoutedPipe implements SatelliteGuiHolder, IC
     public void setSatelliteName(@Nonnull String resultPipeName) {
         if (this.resultPipeName.equals(resultPipeName)) return;
         this.resultPipeName = resultPipeName;
+        this.ensureAllSatelliteStatus();
+        this.markTileDirty();
     }
 
     // called only on server shutdown
@@ -98,9 +100,9 @@ public class ResultPipe extends CoreRoutedPipe implements SatelliteGuiHolder, IC
     @Override
     public void readFromNBT(@Nonnull NBTTagCompound nbttagcompound) {
         super.readFromNBT(nbttagcompound);
-        int tmp = nbttagcompound.getInteger("Orientation");
-        if (tmp != -1) {
-            setPointedOrientation(EnumFacingUtil.getOrientation(tmp % 6));
+        int orientationID = nbttagcompound.getInteger("Orientation");
+        if (orientationID != -1) {
+            setPointedOrientation(EnumFacingUtil.getOrientation(orientationID % 6));
         }
         if (nbttagcompound.hasKey("resultid")) {
             int resultId = nbttagcompound.getInteger("resultid");
@@ -304,14 +306,7 @@ public class ResultPipe extends CoreRoutedPipe implements SatelliteGuiHolder, IC
         return Collections.unmodifiableSet(AllResults);
     }
 
-    @Nonnull
-    @Override
-    public List<ItemIdentifierStack> getItemList() {
-        return new LinkedList<>();
-    }
-
-    @Nullable
-    @Override
+    @Nullable @Override
     public LogisticsModule getLogisticsModule() {
         return null;
     }

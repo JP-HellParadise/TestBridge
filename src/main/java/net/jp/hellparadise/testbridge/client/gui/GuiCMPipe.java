@@ -55,7 +55,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
     private final Slot[] upgradeSlot;
     private final int[] excludedSlotIDs;
     private final PropertyLayer propertyLayer;
-    private final PropertyLayer.ValuePropertyOverlay<BlockingMode, EnumProperty<BlockingMode>> blockingModeOverlay;
+    private final ValuePropertyOverlay<BlockingMode, EnumProperty<BlockingMode>> blockingModeOverlay;
     private GuiButton blockingButton;
     private GuiButton extendedButton;
     private int extendedSlot = -1;

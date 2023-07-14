@@ -66,19 +66,8 @@ public class GuiCraftingManager extends GuiUpgradeable {
     }
 
     @Override
-    public void drawBG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
-        this.handleButtonVisibility();
-
-        GuiGraphics
-            .drawGuiBackGround(mc, guiLeft, guiTop + ySize - 200, guiLeft + 177, guiTop + ySize - 16, zLevel, true);
-
-        for (int i = 0; i < 3; i++) {
-            for (int column = 0; column < 9; ++column) {
-                GuiGraphics.drawSlotBackground(mc, guiLeft + 8 + column * 18 - 1, guiTop + 36 + i * 18 - 1);
-            }
-        }
-
-        GuiGraphics.drawPlayerInventoryBackground(mc, guiLeft + 8, guiTop + ySize - 98);
+    protected String getBackground() {
+        return "guis/crafting_manager.png";
     }
 
     @Override
@@ -94,17 +83,12 @@ public class GuiCraftingManager extends GuiUpgradeable {
 
         if (btn == this.satellite) {
             NetworkHandler.instance()
-                .sendToServer(new PacketSwitchGuis(AE2Module.GUI_SATELLITESELECT));
+                .sendToServer(new PacketSwitchGuis(AE2Module.GUI_SATSELECT));
         }
 
         if (btn == this.BlockMode) {
             NetworkHandler.instance()
                 .sendToServer(new PacketConfigButton(this.BlockMode.getSetting(), backwards));
         }
-    }
-
-    @Override
-    public List<Rectangle> getJEIExclusionArea() {
-        return new ArrayList<>();
     }
 }
