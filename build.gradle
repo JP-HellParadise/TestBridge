@@ -20,7 +20,7 @@ java {
   toolchain {
     languageVersion.set(JavaLanguageVersion.of(8))
     // Azul covers the most platforms for Java 8 toolchains, crucially including MacOS arm64
-    vendor.set(org.gradle.jvm.toolchain.JvmVendorSpec.ADOPTIUM)
+    vendor.set(JvmVendorSpec.ADOPTIUM)
   }
   // Generate sources and javadocs jars when building and publishing
   //withSourcesJar()
@@ -159,7 +159,7 @@ dependencies {
   compileOnly group: 'pl.asie.charset', name: 'Charset', version: '0.5.6.6', classifier: 'api', transitive: false
 
   if (project.use_mixins.toBoolean()) {
-    String mixinDep = modUtils.enableMixins('lib/mixinbooter-8.3.jar')
+    String mixinDep = modUtils.enableMixins('libs/mixinbooter-8.3.jar')
     api (files(mixinDep))
 //            {transitive = false}
     annotationProcessor('org.ow2.asm:asm-debug-all:5.2')
