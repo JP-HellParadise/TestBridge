@@ -14,6 +14,8 @@ import com.cleanroommc.modularui.widget.Widget;
 import com.cleanroommc.modularui.widgets.layout.Column;
 import com.cleanroommc.modularui.widgets.layout.Row;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.jp.hellparadise.testbridge.client.TB_Textures;
 import net.jp.hellparadise.testbridge.helpers.interfaces.SatelliteInfo;
 import net.jp.hellparadise.testbridge.network.guis.GuiHandler;
@@ -21,9 +23,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Specific for Satellite Bus/Result Pipe
