@@ -35,7 +35,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '17'
-        distribution: 'azul'
+        distribution: 'zulu'
         cache: gradle # Only cache stuff since test build action happen mostly
 
     - name: Setup Gradle
