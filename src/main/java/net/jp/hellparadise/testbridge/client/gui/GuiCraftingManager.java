@@ -1,5 +1,6 @@
 package net.jp.hellparadise.testbridge.client.gui;
 
+import appeng.api.AEApi;
 import appeng.api.config.Settings;
 import appeng.api.config.YesNo;
 import appeng.client.gui.implementations.GuiUpgradeable;
@@ -12,14 +13,20 @@ import appeng.core.sync.packets.PacketConfigButton;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import java.io.IOException;
 import net.jp.hellparadise.testbridge.container.ContainerCraftingManager;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
-import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
+import net.jp.hellparadise.testbridge.core.TestBridge;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ae2.AccessorApiParts;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ae2.ICraftingManagerHost;
+import net.jp.hellparadise.testbridge.network.packets.implementation.CManagerMenuSwitch;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Mouse;
 
-@SuppressWarnings("unused") // Handle by AE2
+/**
+ * Handled by AE2
+ */
+@SuppressWarnings("unused")
 public class GuiCraftingManager extends GuiUpgradeable {
 
     private GuiTabButton priority;
@@ -44,7 +51,11 @@ public class GuiCraftingManager extends GuiUpgradeable {
         this.satellite = new GuiTabButton(
             this.guiLeft + 133,
             this.guiTop,
-            AE2Module.SATELLITE_BUS_SRC.stack(1),
+                ((AccessorApiParts) AEApi.instance()
+                        .definitions()
+                        .parts()).satelliteBus()
+                        .maybeStack(1)
+                        .orElse(ItemStack.EMPTY),
             I18n.format("gui.crafting_manager.satellite"),
             this.itemRender);
         this.buttonList.add(this.satellite);
@@ -60,7 +71,7 @@ public class GuiCraftingManager extends GuiUpgradeable {
         }
 
         this.fontRenderer
-            .drawString(I18n.format("item.appliedenergistics2.multi_part.craftingmanager_part.name"), 8, 6, 4210752);
+            .drawString(I18n.format("item.appliedenergistics2.multi_part.crafting_manager.name"), 8, 6, 4210752);
 
         this.fontRenderer.drawString(GuiText.Patterns.getLocal(), 8, 6 + 18, 4210752);
     }
@@ -82,8 +93,11 @@ public class GuiCraftingManager extends GuiUpgradeable {
         }
 
         if (btn == this.satellite) {
-            NetworkHandler.instance()
-                .sendToServer(new PacketSwitchGuis(AE2Module.GUI_SATSELECT));
+            TestBridge.getNetwork().sendToServer(
+                    new CManagerMenuSwitch()
+                            .setPos(((ContainerCraftingManager) cvb).getHost().getBlockPos())
+                            .setSide(((ContainerCraftingManager) cvb).getHost().sideOrdinal())
+                            .isSatSwitchMenu(true));
         }
 
         if (btn == this.BlockMode) {

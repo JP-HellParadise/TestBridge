@@ -11,18 +11,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import javax.annotation.Nonnull;
+import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.helpers.VirtualPatternHelper;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Optional.Interface(iface = "appeng.api.implementations.ICraftingPatternItem", modid = "appliedenergistics2")
 public class VirtualPatternAE extends Item implements ICraftingPatternItem {
+    public static final Item VIRTUAL_PATTERN = TB_ItemHandlers.createItem(new VirtualPatternAE(), "virtualpattern", "", null);
 
     // rather simple client side caching.
     private static final Map<ItemStack, ItemStack> SIMPLE_CACHE = new WeakHashMap<>();
@@ -33,7 +33,6 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
 
     @Override
     @SideOnly(Side.CLIENT)
-    @Optional.Method(modid = "appliedenergistics2")
     public void addInformation(@Nonnull final ItemStack stack, final World world, @Nonnull final List<String> lines,
                                @Nonnull final ITooltipFlag advancedTooltips) {
         final ICraftingPatternDetails details = this.getPatternForItem(stack, world);
@@ -117,7 +116,6 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
     }
 
     @Override
-    @Optional.Method(modid = "appliedenergistics2")
     public ICraftingPatternDetails getPatternForItem(final ItemStack is, final World w) {
         try {
             return new VirtualPatternHelper(is);
@@ -135,17 +133,14 @@ public class VirtualPatternAE extends Item implements ICraftingPatternItem {
      * @param out Output
      * @return {@link VirtualPatternHelper}
      */
-    @Optional.Method(modid = "appliedenergistics2")
     public static ICraftingPatternDetails newPattern(final ItemStack in, final ItemStack out) {
         return new VirtualPatternHelper(in, out);
     }
 
-    @Optional.Method(modid = "appliedenergistics2")
     public static ICraftingPatternDetails newPattern(final ItemStack is) {
         return new VirtualPatternHelper(is);
     }
 
-    @Optional.Method(modid = "appliedenergistics2")
     public ItemStack getOutput(final ItemStack item) {
         ItemStack out = SIMPLE_CACHE.get(item);
 

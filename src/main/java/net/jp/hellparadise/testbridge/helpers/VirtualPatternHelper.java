@@ -8,7 +8,7 @@ import appeng.container.ContainerNull;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import java.util.*;
-import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
+import net.jp.hellparadise.testbridge.items.VirtualPatternAE;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -166,7 +166,7 @@ public class VirtualPatternHelper implements ICraftingPatternDetails, Comparable
 
     public VirtualPatternHelper(final ItemStack input, final ItemStack output) {
         // Create new pattern and generate TagCompound
-        ItemStack pattern = new ItemStack(TB_ItemHandlers.virtualPattern);
+        ItemStack pattern = new ItemStack(VirtualPatternAE.VIRTUAL_PATTERN);
         pattern.setTagCompound(new NBTTagCompound());
         NBTTagCompound patternData = pattern.getTagCompound();
 

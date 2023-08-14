@@ -1,8 +1,15 @@
 {
       "server": [],
-      "mixins": ["TB_APIBlocks"],
+      "mixins": [
+            "TB_APIBlocks",
+            "TB_APIParts",
+            "TB_DefineGui",
+            "TB_DefinePart",
+            "accessor.TB_ItemRepo",
+            "accessor.TB_MergedPriorityList"
+      ],
       "minVersion": "0.8",
       "package": "net.jp.hellparadise.testbridge.mixins.appliedenergistics2",
       "compatibilityLevel": "JAVA_8",
-      "client": []
+      "client": ["accessor.TB_GuiMEMonitorable"]
 }

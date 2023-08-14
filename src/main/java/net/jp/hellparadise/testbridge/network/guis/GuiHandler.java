@@ -2,9 +2,9 @@ package net.jp.hellparadise.testbridge.network.guis;
 
 import appeng.api.parts.IPart;
 import appeng.api.parts.IPartHost;
+import com.cleanroommc.modularui.api.IGuiHolder;
 import com.cleanroommc.modularui.manager.GuiInfo;
 import java.util.EnumMap;
-import net.jp.hellparadise.testbridge.client.gui.SatelliteGuiHolder;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 
@@ -24,19 +24,23 @@ public class GuiHandler {
 
     private static GuiInfo makeCoverUiInfo(EnumFacing facing) {
         return GuiInfo.builder()
-            .clientGui(context -> {
-                TileEntity te = context.getTileEntity();
-                if (!(te instanceof IPartHost)) throw new IllegalStateException();
-                IPart part = ((IPartHost) te).getPart(facing);
-                if (!(part instanceof SatelliteGuiHolder)) throw new IllegalStateException();
-                return ((SatelliteGuiHolder) part).createClientGui(context.getPlayer());
+            .clientGui((context, panel) -> {
+                TileEntity tile = context.getTileEntity();
+                if (!(tile instanceof IPartHost)) throw new IllegalStateException("Are you sure this is AE2 part?");
+                IPart part = ((IPartHost) tile).getPart(facing);
+                if (part instanceof IGuiHolder) {
+                    return ((IGuiHolder) part).createScreen(context, panel);
+                }
+                throw new UnsupportedOperationException();
             })
-            .serverGui((context, syncHandler) -> {
-                TileEntity te = context.getTileEntity();
-                if (!(te instanceof IPartHost)) throw new IllegalStateException();
-                IPart part = ((IPartHost) te).getPart(facing);
-                if (!(part instanceof SatelliteGuiHolder)) throw new IllegalStateException();
-                ((SatelliteGuiHolder) part).buildSyncHandler(syncHandler, context.getPlayer());
+            .commonGui((context, guiSyncHandler) -> {
+                TileEntity tile = context.getTileEntity();
+                if (!(tile instanceof IPartHost)) throw new IllegalStateException("Are you sure this is AE2 part?");
+                IPart part = ((IPartHost) tile).getPart(facing);
+                if (part instanceof IGuiHolder) {
+                    return ((IGuiHolder) part).buildUI(context, guiSyncHandler, context.getWorld().isRemote);
+                }
+                throw new UnsupportedOperationException();
             })
             .build();
     }

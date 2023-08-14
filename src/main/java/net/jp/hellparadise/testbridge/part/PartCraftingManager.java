@@ -39,10 +39,12 @@ import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.InvOperation;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
+import javax.annotation.Nonnull;
+import net.jp.hellparadise.testbridge.client.gui.GuiSatelliteSelect;
 import net.jp.hellparadise.testbridge.core.Reference;
 import net.jp.hellparadise.testbridge.helpers.DualityCraftingManager;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
-import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ae2.AccessorApiParts;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ae2.ICraftingManagerHost;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -56,7 +58,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class PartCraftingManager extends PartBasicState implements IGridTickable, IStorageMonitorable,
-    IInventoryDestination, ICraftingManagerHost, IAEAppEngInventory, IPriorityHost {
+    IInventoryDestination, ICraftingManagerHost, IAEAppEngInventory, IPriorityHost, GuiSatelliteSelect {
 
     public static final ResourceLocation MODEL_BASE = new ResourceLocation(
         Reference.MODID,
@@ -148,7 +150,7 @@ public class PartCraftingManager extends PartBasicState implements IGridTickable
     @Override
     public boolean onPartActivate(final EntityPlayer p, final EnumHand hand, final Vec3d posIn) {
         if (Platform.isServer()) {
-            Platform.openGUI(p, getTile(), getSide(), AE2Module.GUI_CRAFTINGMANAGER);
+            Platform.openGUI(p, this.getTile(), this.getSide(), this.getGuiBridge());
         }
         return true;
     }
@@ -158,13 +160,15 @@ public class PartCraftingManager extends PartBasicState implements IGridTickable
         return this.duality.getInventory(channel);
     }
 
+    @Nonnull
     @Override
-    public TickingRequest getTickingRequest(final IGridNode node) {
+    public TickingRequest getTickingRequest(@Nonnull final IGridNode node) {
         return this.duality.getTickingRequest(node);
     }
 
+    @Nonnull
     @Override
-    public TickRateModulation tickingRequest(final IGridNode node, final int ticksSinceLastCall) {
+    public TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
         return this.duality.tickingRequest(node, ticksSinceLastCall);
     }
 
@@ -224,6 +228,7 @@ public class PartCraftingManager extends PartBasicState implements IGridTickable
         this.duality.setPriority(newValue);
     }
 
+    @Nonnull
     @Override
     public IPartModel getStaticModels() {
         if (this.isActive() && this.isPowered()) {
@@ -246,18 +251,22 @@ public class PartCraftingManager extends PartBasicState implements IGridTickable
     }
 
     @Override
-    public void setSatellite(String satName) {
-        this.duality.setSatellite(satName);
+    public void setSatelliteName(String satName) {
+        this.duality.setSatelliteName(satName);
     }
 
     @Override
     public ItemStack getItemStackRepresentation() {
-        return AE2Module.CRAFTINGMANAGER_PART_SRC.stack(1);
+        return ((AccessorApiParts) AEApi.instance()
+                .definitions()
+                .parts()).craftingManager()
+                .maybeStack(1)
+                .orElse(ItemStack.EMPTY);
     }
 
     @Override
     public GuiBridge getGuiBridge() {
-        return AE2Module.GUI_CRAFTINGMANAGER;
+        return GuiBridge.valueOf("GUI_CRAFTING_MANAGER");
     }
 
     @Override
@@ -331,11 +340,16 @@ public class PartCraftingManager extends PartBasicState implements IGridTickable
                 player.sendMessage(PlayerMessages.MissingPatternsToEncode.get());
             }
         }
-        if (compound.hasKey("__satSelect")) setSatellite(compound.getString("__satSelect"));
+        if (compound.hasKey("__satSelect")) setSatelliteName(compound.getString("__satSelect"));
     }
 
     @Override
     public boolean canInsert(ItemStack itemStack) {
         return this.duality.canInsert(itemStack);
+    }
+
+    @Override
+    public int sideOrdinal() {
+        return this.getSide().ordinal();
     }
 }

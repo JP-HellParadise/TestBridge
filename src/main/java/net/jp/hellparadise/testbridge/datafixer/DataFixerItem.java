@@ -1,8 +1,10 @@
 package net.jp.hellparadise.testbridge.datafixer;
 
 import javax.annotation.Nonnull;
+import net.jp.hellparadise.testbridge.helpers.PackageHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.datafix.IFixableData;
 
@@ -26,8 +28,14 @@ public class DataFixerItem implements IFixableData {
             NBTTagCompound newNBT = new NBTTagCompound();
             newNBT.setBoolean("__actContainer", oldNBT.getBoolean("__actStack"));
             newNBT.setString("__pkgDest", oldNBT.getString("__pkgDest"));
-            if (!new ItemStack(oldNBT).isEmpty())
-                newNBT.setTag("__itemHold", new ItemStack(oldNBT).writeToNBT(new NBTTagCompound()));
+            if (!new ItemStack(oldNBT).isEmpty()) {
+                NBTTagList list = new NBTTagList();
+                NBTTagCompound itemTag = new NBTTagCompound();
+                itemTag.setInteger("Slot", 0);
+                new ItemStack(oldNBT).writeToNBT(itemTag);
+                list.appendTag(itemTag);
+                newNBT.setTag(PackageHelper.KEY_ITEMS, list);
+            }
             compound.setTag("tag", newNBT);
         }
         return compound;

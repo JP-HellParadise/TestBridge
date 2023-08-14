@@ -1,4 +1,4 @@
-package net.jp.hellparadise.testbridge.network.packets;
+package net.jp.hellparadise.testbridge.network.packets.implementation;
 
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;

@@ -31,10 +31,11 @@ import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.InvOperation;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
+import javax.annotation.Nonnull;
+import net.jp.hellparadise.testbridge.client.gui.GuiSatelliteSelect;
 import net.jp.hellparadise.testbridge.helpers.DualityCraftingManager;
-import net.jp.hellparadise.testbridge.helpers.interfaces.IBlocks_TB;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
-import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ae2.AccessorApiBlocks;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ae2.ICraftingManagerHost;
 import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
@@ -47,7 +48,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 public class TileEntityCraftingManager extends AENetworkInvTile
-    implements IGridTickable, IInventoryDestination, ICraftingManagerHost, IPriorityHost {
+    implements IGridTickable, IInventoryDestination, ICraftingManagerHost, IPriorityHost, GuiSatelliteSelect {
 
     private final DualityCraftingManager duality = new DualityCraftingManager(this.getProxy(), this);
 
@@ -94,6 +95,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile
         this.duality.readFromNBT(data);
     }
 
+    @Nonnull
     @Override
     public AECableType getCableConnectionType(final AEPartLocation dir) {
         return this.duality.getCableConnectionType(dir);
@@ -114,16 +116,19 @@ public class TileEntityCraftingManager extends AENetworkInvTile
         return this.duality.getInventoryByName(name);
     }
 
+    @Nonnull
     @Override
-    public TickingRequest getTickingRequest(final IGridNode node) {
+    public TickingRequest getTickingRequest(@Nonnull final IGridNode node) {
         return this.duality.getTickingRequest(node);
     }
 
+    @Nonnull
     @Override
-    public TickRateModulation tickingRequest(final IGridNode node, final int ticksSinceLastCall) {
+    public TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
         return this.duality.tickingRequest(node, ticksSinceLastCall);
     }
 
+    @Nonnull
     @Override
     public IItemHandler getInternalInventory() {
         return this.duality.getInternalInventory();
@@ -206,13 +211,13 @@ public class TileEntityCraftingManager extends AENetworkInvTile
     }
 
     @Override
-    public void setSatellite(String satName) {
-        this.duality.setSatellite(satName);
+    public void setSatelliteName(String satName) {
+        this.duality.setSatelliteName(satName);
     }
 
     @Override
     public ItemStack getItemStackRepresentation() {
-        return ((IBlocks_TB) AEApi.instance()
+        return ((AccessorApiBlocks) AEApi.instance()
             .definitions()
             .blocks()).cmBlock()
                 .maybeStack(1)
@@ -221,7 +226,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile
 
     @Override
     public GuiBridge getGuiBridge() {
-        return AE2Module.GUI_CRAFTINGMANAGER;
+        return GuiBridge.valueOf("GUI_CRAFTING_MANAGER");
     }
 
     @Override
@@ -234,9 +239,7 @@ public class TileEntityCraftingManager extends AENetworkInvTile
         NBTTagCompound output = super.downloadSettings(from);
         if (from == SettingsFrom.MEMORY_CARD) {
             final IItemHandler inv = this.getInventoryByName("patterns");
-            if (inv instanceof AppEngInternalInventory) {
-                ((AppEngInternalInventory) inv).writeToNBT(output, "patterns");
-            }
+            ((AppEngInternalInventory) inv).writeToNBT(output, "patterns");
         }
         if (!getSatelliteName().isEmpty()) output.setString("__satSelect", getSatelliteName());
         return output;
@@ -246,55 +249,53 @@ public class TileEntityCraftingManager extends AENetworkInvTile
     public void uploadSettings(SettingsFrom from, NBTTagCompound compound, EntityPlayer player) {
         super.uploadSettings(from, compound, player);
         final IItemHandler inv = this.getInventoryByName("patterns");
-        if (inv instanceof AppEngInternalInventory) {
-            final AppEngInternalInventory target = (AppEngInternalInventory) inv;
-            AppEngInternalInventory tmp = new AppEngInternalInventory(null, target.getSlots());
-            tmp.readFromNBT(compound, "patterns");
-            PlayerMainInvWrapper playerInv = new PlayerMainInvWrapper(player.inventory);
-            final IMaterials materials = AEApi.instance()
-                .definitions()
-                .materials();
-            int missingPatternsToEncode = 0;
+        final AppEngInternalInventory target = (AppEngInternalInventory) inv;
+        AppEngInternalInventory tmp = new AppEngInternalInventory(null, target.getSlots());
+        tmp.readFromNBT(compound, "patterns");
+        PlayerMainInvWrapper playerInv = new PlayerMainInvWrapper(player.inventory);
+        final IMaterials materials = AEApi.instance()
+            .definitions()
+            .materials();
+        int missingPatternsToEncode = 0;
 
-            for (int i = 0; i < inv.getSlots(); i++) {
-                if (target.getStackInSlot(i)
-                    .getItem() instanceof ItemEncodedPattern) {
-                    ItemStack blank = materials.blankPattern()
-                        .maybeStack(
-                            target.getStackInSlot(i)
-                                .getCount())
-                        .orElse(ItemStack.EMPTY);
-                    if (!player.addItemStackToInventory(blank)) {
-                        player.dropItem(blank, true);
-                    }
-                    target.setStackInSlot(i, ItemStack.EMPTY);
+        for (int i = 0; i < inv.getSlots(); i++) {
+            if (target.getStackInSlot(i)
+                .getItem() instanceof ItemEncodedPattern) {
+                ItemStack blank = materials.blankPattern()
+                    .maybeStack(
+                        target.getStackInSlot(i)
+                            .getCount())
+                    .orElse(ItemStack.EMPTY);
+                if (!player.addItemStackToInventory(blank)) {
+                    player.dropItem(blank, true);
                 }
-            }
-
-            for (int x = 0; x < tmp.getSlots(); x++) {
-                if (!tmp.getStackInSlot(x)
-                    .isEmpty()) {
-                    boolean found = false;
-                    for (int i = 0; i < playerInv.getSlots(); i++) {
-                        if (materials.blankPattern()
-                            .isSameAs(playerInv.getStackInSlot(i))) {
-                            target.setStackInSlot(x, tmp.getStackInSlot(x));
-                            playerInv.getStackInSlot(i)
-                                .shrink(1);
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        missingPatternsToEncode++;
-                    }
-                }
-            }
-            if (Platform.isServer() && missingPatternsToEncode > 0) {
-                player.sendMessage(PlayerMessages.MissingPatternsToEncode.get());
+                target.setStackInSlot(i, ItemStack.EMPTY);
             }
         }
 
-        if (compound.hasKey("__satSelect")) setSatellite(compound.getString("__satSelect"));
+        for (int x = 0; x < tmp.getSlots(); x++) {
+            if (!tmp.getStackInSlot(x)
+                .isEmpty()) {
+                boolean found = false;
+                for (int i = 0; i < playerInv.getSlots(); i++) {
+                    if (materials.blankPattern()
+                        .isSameAs(playerInv.getStackInSlot(i))) {
+                        target.setStackInSlot(x, tmp.getStackInSlot(x));
+                        playerInv.getStackInSlot(i)
+                            .shrink(1);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    missingPatternsToEncode++;
+                }
+            }
+        }
+        if (Platform.isServer() && missingPatternsToEncode > 0) {
+            player.sendMessage(PlayerMessages.MissingPatternsToEncode.get());
+        }
+
+        if (compound.hasKey("__satSelect")) setSatelliteName(compound.getString("__satSelect"));
     }
 }

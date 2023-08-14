@@ -4,6 +4,9 @@ import logisticspipes.proxy.MainProxy;
 import logisticspipes.textures.Textures;
 import net.jp.hellparadise.testbridge.core.TB_Config;
 
+/**
+ * Inherit from LP Textures class for new pipes
+ */
 public class LP_Textures extends Textures {
 
     public static TextureType TESTBRIDGE_RESULT_TEXTURE = empty;

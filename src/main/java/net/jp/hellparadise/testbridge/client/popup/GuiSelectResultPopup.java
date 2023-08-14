@@ -13,14 +13,14 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.TextListDisplay;
 import logisticspipes.utils.tuples.Pair;
-import net.jp.hellparadise.testbridge.network.packets.gui.RequestResultPipeListPacket;
+import net.jp.hellparadise.testbridge.helpers.TranslationKey;
+import net.jp.hellparadise.testbridge.network.packets.logisticspipe.RequestResultPipeListPacket;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.math.BlockPos;
 import network.rs485.logisticspipes.util.TextUtil;
 
 public class GuiSelectResultPopup extends SubGuiScreen {
 
-    private final String GUI_LANG_KEY = "gui.popup.selectresult.";
     private final Consumer<UUID> handleResult;
     private List<Pair<String, UUID>> pipeList = ObjectLists.emptyList();
     private final TextListDisplay textList;
@@ -54,8 +54,9 @@ public class GuiSelectResultPopup extends SubGuiScreen {
 
     protected void drawTitle() {
         mc.fontRenderer.drawStringWithShadow(
-            TextUtil.translate(GUI_LANG_KEY + "title"),
-            xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(GUI_LANG_KEY + "title")) / 2f),
+            TextUtil.translate(TranslationKey.gui$resultsel_prefix + "title"),
+            xCenter - (mc.fontRenderer.getStringWidth(
+                    TextUtil.translate(TranslationKey.gui$resultsel_prefix + "title")) / 2f),
             guiTop + 6,
             0xFFFFFF);
     }
@@ -71,7 +72,7 @@ public class GuiSelectResultPopup extends SubGuiScreen {
                 bottom - 27,
                 50,
                 10,
-                TextUtil.translate("gui.popup.selectsatellite.select")));
+                TextUtil.translate(TranslationKey.gui$satselect_prefix + "select")));
         buttonList.add(
             new SmallGuiButton(
                 1,
@@ -79,7 +80,7 @@ public class GuiSelectResultPopup extends SubGuiScreen {
                 bottom - 15,
                 50,
                 10,
-                TextUtil.translate("gui.popup.selectsatellite.exit")));
+                TextUtil.translate(TranslationKey.gui$satselect_prefix + "exit")));
         buttonList.add(
             new SmallGuiButton(
                 2,
@@ -87,7 +88,7 @@ public class GuiSelectResultPopup extends SubGuiScreen {
                 bottom - 27,
                 50,
                 10,
-                TextUtil.translate("gui.popup.selectsatellite.unset")));
+                TextUtil.translate(TranslationKey.gui$satselect_prefix + "unset")));
         buttonList.add(new SmallGuiButton(4, xCenter - 12, bottom - 27, 25, 10, "/\\"));
         buttonList.add(new SmallGuiButton(5, xCenter - 12, bottom - 15, 25, 10, "\\/"));
     }

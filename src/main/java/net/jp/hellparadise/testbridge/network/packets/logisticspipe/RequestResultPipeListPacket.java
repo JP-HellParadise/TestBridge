@@ -1,4 +1,4 @@
-package net.jp.hellparadise.testbridge.network.packets.gui;
+package net.jp.hellparadise.testbridge.network.packets.logisticspipe;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,18 +24,17 @@ public class RequestResultPipeListPacket extends BooleanCoordinatesPacket {
     @Override
     public void processPacket(EntityPlayer player) {
         LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.PIPE);
-        if (pipe == null || !(pipe.pipe instanceof CoreRoutedPipe)) {
+
+        if (!(pipe.pipe instanceof CoreRoutedPipe))
             return;
-        }
+
         CoreRoutedPipe cmPipe = (CoreRoutedPipe) pipe.pipe;
-        List<Pair<String, UUID>> list;
-        if (cmPipe.getRouter() == null || cmPipe.getRouter()
-            .getRouteTable() == null) {
+
+        if (cmPipe.getRouter().getRouteTable() == null)
             return;
-        }
-        list = ResultPipe.AllResults.stream()
+
+        List<Pair<String, UUID>> list = ResultPipe.AllResults.stream()
             .filter(Objects::nonNull)
-            .filter(it -> it.getRouter() != null)
             .filter(it -> {
                 List<List<ExitRoute>> routingTable = cmPipe.getRouter()
                     .getRouteTable();

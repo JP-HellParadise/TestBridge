@@ -1,4 +1,4 @@
-package net.jp.hellparadise.testbridge.network.packets.gui;
+package net.jp.hellparadise.testbridge.network.packets.logisticspipe;
 
 import java.util.List;
 import java.util.UUID;
@@ -7,9 +7,7 @@ import logisticspipes.utils.StaticResolve;
 import logisticspipes.utils.gui.LogisticsBaseGuiScreen;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.tuples.Pair;
-import net.jp.hellparadise.testbridge.client.gui.GuiSatelliteSelect;
 import net.jp.hellparadise.testbridge.client.popup.GuiSelectResultPopup;
-import net.jp.hellparadise.testbridge.helpers.AECustomGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import network.rs485.logisticspipes.util.LPDataInput;
@@ -19,7 +17,6 @@ import network.rs485.logisticspipes.util.LPDataOutput;
 public class ProvideSatResultListPacket extends ModernPacket {
 
     private List<Pair<String, UUID>> uuidList;
-    private List<String> stringList;
 
     public ProvideSatResultListPacket(int id) {
         super(id);
@@ -29,7 +26,6 @@ public class ProvideSatResultListPacket extends ModernPacket {
     public void readData(LPDataInput input) {
         super.readData(input);
         uuidList = input.readArrayList(input1 -> new Pair<>(input1.readUTF(), input1.readUUID()));
-        stringList = input.readArrayList(LPDataInput::readUTF);
     }
 
     @Override
@@ -39,7 +35,6 @@ public class ProvideSatResultListPacket extends ModernPacket {
             output1.writeUTF(object.getValue1());
             output1.writeUUID(object.getValue2());
         });
-        output.writeCollection(stringList, LPDataOutput::writeUTF);
     }
 
     @Override
@@ -48,11 +43,6 @@ public class ProvideSatResultListPacket extends ModernPacket {
             SubGuiScreen subGUI = ((LogisticsBaseGuiScreen) Minecraft.getMinecraft().currentScreen).getSubGui();
             if (subGUI instanceof GuiSelectResultPopup) {
                 ((GuiSelectResultPopup) subGUI).handleResultList(uuidList);
-            }
-        } else if (Minecraft.getMinecraft().currentScreen instanceof AECustomGui) {
-            AECustomGui thisGUI = ((AECustomGui) Minecraft.getMinecraft().currentScreen);
-            if (thisGUI instanceof GuiSatelliteSelect) {
-                ((GuiSatelliteSelect) thisGUI).handleSatList(stringList);
             }
         }
     }
@@ -64,11 +54,6 @@ public class ProvideSatResultListPacket extends ModernPacket {
 
     public ProvideSatResultListPacket setUuidList(List<Pair<String, UUID>> uuidList) {
         this.uuidList = uuidList;
-        return this;
-    }
-
-    public ProvideSatResultListPacket setStringList(List<String> stringList) {
-        this.stringList = stringList;
         return this;
     }
 }

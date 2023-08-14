@@ -1,6 +1,5 @@
 package net.jp.hellparadise.testbridge.pipes;
 
-import com.cleanroommc.modularui.screen.ModularScreen;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,7 +18,7 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.EnumFacingUtil;
 import logisticspipes.utils.tuples.Pair;
 import net.jp.hellparadise.testbridge.client.LP_Textures;
-import net.jp.hellparadise.testbridge.client.gui.SatelliteGuiHolder;
+import net.jp.hellparadise.testbridge.client.gui.GuiSatelliteHolder;
 import net.jp.hellparadise.testbridge.helpers.interfaces.SatelliteInfo;
 import net.jp.hellparadise.testbridge.network.packets.pipe.OrientationPacket;
 import net.jp.hellparadise.testbridge.network.packets.pipe.RequestOrientationPacket;
@@ -33,7 +32,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.TextComponentTranslation;
 import network.rs485.logisticspipes.connection.*;
 
-public class ResultPipe extends CoreRoutedPipe implements SatelliteGuiHolder, IChangeListener, ISendRoutedItem {
+public class ResultPipe extends CoreRoutedPipe implements GuiSatelliteHolder, IChangeListener, ISendRoutedItem {
 
     public static final Set<ResultPipe> AllResults = Collections.newSetFromMap(new WeakHashMap<>());
     private String resultPipeName = "";
@@ -313,9 +312,4 @@ public class ResultPipe extends CoreRoutedPipe implements SatelliteGuiHolder, IC
 
     @Override
     public void listenedChanged() {}
-
-    @Override
-    public ModularScreen createClientGui(EntityPlayer player) {
-        return ModularScreen.simple("result", this::createPanel);
-    }
 }

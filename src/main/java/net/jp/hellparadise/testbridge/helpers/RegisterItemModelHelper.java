@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
 
-public class RegisterHelper {
+public class RegisterItemModelHelper {
 
     /**
      * The {@link Item}s that have had models registered so far.
@@ -23,7 +23,7 @@ public class RegisterHelper {
      *
      * @param item The Item
      */
-    private static void registerItemModel(final Item item) {
+    public static void registerItemModel(final Item item) {
         registerItemModel(
             item,
             item.getRegistryName()

@@ -1,181 +1,89 @@
 package net.jp.hellparadise.testbridge.client.gui;
 
-import appeng.core.sync.GuiBridge;
-import appeng.core.sync.network.NetworkHandler;
-import appeng.core.sync.packets.PacketSwitchGuis;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import logisticspipes.network.PacketHandler;
-import logisticspipes.proxy.MainProxy;
-import logisticspipes.utils.gui.GuiGraphics;
-import logisticspipes.utils.gui.IGuiAccess;
-import logisticspipes.utils.gui.TextListDisplay;
-import net.jp.hellparadise.testbridge.container.ContainerSatelliteSelect;
-import net.jp.hellparadise.testbridge.helpers.AECustomGui;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
-import net.jp.hellparadise.testbridge.network.packets.TB_CustomAE2Packet;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.InventoryPlayer;
-import network.rs485.logisticspipes.util.TextUtil;
+import com.cleanroommc.modularui.api.IGuiHolder;
+import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.api.widget.IWidget;
+import com.cleanroommc.modularui.manager.GuiCreationContext;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.utils.Alignment;
+import com.cleanroommc.modularui.value.sync.GuiSyncManager;
+import com.cleanroommc.modularui.value.sync.StringSyncValue;
+import com.cleanroommc.modularui.value.sync.SyncHandlers;
+import com.cleanroommc.modularui.widget.WidgetTree;
+import com.cleanroommc.modularui.widgets.ButtonWidget;
+import com.cleanroommc.modularui.widgets.ListWidget;
+import com.cleanroommc.modularui.widgets.layout.Column;
+import com.cleanroommc.modularui.widgets.layout.Row;
+import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import net.jp.hellparadise.testbridge.core.TestBridge;
+import net.jp.hellparadise.testbridge.helpers.ListSyncHandler;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ae2.ICraftingManagerHost;
+import net.jp.hellparadise.testbridge.network.packets.implementation.CManagerMenuSwitch;
+import net.minecraft.client.entity.EntityPlayerSP;
 
-public class GuiSatelliteSelect extends AECustomGui implements IGuiAccess, ITranslationKey {
+/**
+ * Specific for ME Crafting Manager
+ */
+public interface GuiSatelliteSelect extends IGuiHolder, ICraftingManagerHost {
 
-    private final Consumer<String> handleResult;
-    private List<String> satList = new ArrayList<>();
-    private final TextListDisplay textList;
-    private GuiButton select;
-    private GuiButton exit;
-    private GuiButton unset;
-    private GuiButton up;
-    private GuiButton down;
-    private GuiBridge OriginalGui;
+    @Override
+    default ModularPanel buildUI(GuiCreationContext creationContext, GuiSyncManager syncManager, boolean isClient) {
+        // Initial sync
+        syncManager.syncValue("satName", SyncHandlers.string(this::getSatelliteName, this::setSatelliteName))
+                .syncValue("satList", new ListSyncHandler<>(
+                        this::getAvailableSat,
+                        ((buffer, value) -> buffer.writeByteArray(value.getBytes(StandardCharsets.UTF_8))),
+                        buffer -> new String(buffer.readByteArray(Integer.MAX_VALUE), StandardCharsets.UTF_8)));
 
-    public GuiSatelliteSelect(final InventoryPlayer inventoryPlayer, final ICraftingManagerHost te) {
-        super(new ContainerSatelliteSelect(inventoryPlayer, te), 0, 0);
-        this.handleResult = satName -> MainProxy.sendPacketToServer(
-            PacketHandler.getPacket(TB_CustomAE2Packet.class)
-                .setKey("CMSatellite.Setting")
-                .setValue(satName)
-                .setSetting(true)
-                .setBlockPos(te.getBlockPos()));
-        this.textList = new TextListDisplay(this, 6, 28, 6, 30, 14, new TextListDisplay.List() {
+        ListSyncHandler<String> satListSync = (ListSyncHandler<String>) syncManager.getSyncHandler("satList");
+        StringSyncValue satNameSync = (StringSyncValue) syncManager.getSyncHandler("satName");
 
-            @Override
-            public int getSize() {
-                return satList.size();
-            }
+        // Initialize stuff
+        Map<String, ? extends IWidget> map = new Object2ObjectOpenHashMap<>();
+        Map<? extends IWidget, String> map_reverse = new Object2ObjectOpenHashMap<>();
+        ListWidget<String, ?, ?> listWidget = new ListWidget<>(map::get, map_reverse::get).coverChildrenWidth()
+                .flex(flex -> flex.startDefaultMode().width(80).height(140).endDefaultMode());
 
-            @Override
-            public String getTextAt(int index) {
-                return satList.get(index);
-            }
+        // Initial panel
+        ModularPanel panel = ModularPanel.defaultPanel("satellite_select")
+                .child(new Column().height(20).padding(7)
+                .child(IKey.lang("item.testbridge.item_package.name").asWidget())
+                .child(new Row().topRel(1.F)
+                    .child(new Column().widthRel(0.5F)
+                        .child(IKey.str("Current select:").asWidget())
+                        .child(new TextFieldWidget().align(Alignment.Center).width(80).height(18).topRel(1.5F)
+                            .value(SyncHandlers.string(this::getSatelliteName, null))))
+                    .child(new Column().widthRel(0.5F).child(listWidget))));
 
-            @Override
-            public int getTextColor(int index) {
-                return 0xFFFFFF;
-            }
+        // Register everything that needed
+        syncManager.addCloseListener(entityPlayer -> { // Switch back to old gui in a complicated way ever :trolled:
+            if (entityPlayer instanceof EntityPlayerSP)
+                TestBridge.getNetwork().sendToServer(new CManagerMenuSwitch()
+                        .setPos(creationContext.getBlockPos())
+                        .setSide(sideOrdinal()));
         });
-        MainProxy.sendPacketToServer(
-            PacketHandler.getPacket(TB_CustomAE2Packet.class)
-                .setKey("CMSatellite.Opening")
-                .setBlockPos(te.getBlockPos()));
-    }
 
-    @Override
-    public void initGui() {
-        super.initGui();
-        this.buttonList.add(
-            this.select = new GuiButton(
-                0,
-                xCenter + 16,
-                bottom - 27,
-                50,
-                10,
-                TextUtil.translate(gui$satselect_prefix + "select")));
-        this.buttonList.add(
-            this.exit = new GuiButton(
-                1,
-                xCenter + 16,
-                bottom - 15,
-                50,
-                10,
-                TextUtil.translate(gui$satselect_prefix + "exit")));
-        this.buttonList.add(
-            this.unset = new GuiButton(
-                2,
-                xCenter - 66,
-                bottom - 27,
-                50,
-                10,
-                TextUtil.translate(gui$satselect_prefix + "unset")));
-        this.buttonList.add(this.up = new GuiButton(3, xCenter - 12, bottom - 27, 25, 10, "/\\"));
-        this.buttonList.add(this.down = new GuiButton(4, xCenter - 12, bottom - 15, 25, 10, "\\/"));
+        listWidget.child(new ButtonWidget<>().size(80, 18)
+                .overlay(IKey.str("<None>"))
+                .onMousePressed(mouseButton1 -> {
+                    satNameSync.setValue("");
+                    return true;
+                }));
 
-        this.OriginalGui = ((ContainerSatelliteSelect) this.inventorySlots).getCMHost()
-            .getGuiBridge();
-    }
+        satListSync.setChangeListener(() -> {
+            satListSync.getValue().forEach(value -> listWidget.addChild(
+                    new ButtonWidget<>().size(80, 18)
+                            .overlay(IKey.str(value))
+                            .onMousePressed(mouseButton1 -> {
+                                satNameSync.setValue(value);
+                                return true;
+                            }), -1));
+            WidgetTree.resize(panel);
+        });
 
-    protected void mouseClicked(int xCoord, int yCoord, int btn) throws IOException {
-        textList.mouseClicked(xCoord, yCoord, btn);
-        super.mouseClicked(xCoord, yCoord, btn);
-    }
-
-    @Override
-    public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {}
-
-    @Override
-    public void drawBG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
-        GuiGraphics.drawGuiBackGround(mc, guiLeft, guiTop, right, bottom, zLevel, true);
-        mc.fontRenderer.drawStringWithShadow(
-            TextUtil.translate(gui$satselect_prefix + "title"),
-            xCenter - (mc.fontRenderer.getStringWidth(TextUtil.translate(gui$satselect_prefix + "title")) / 2f),
-            guiTop + 6,
-            0xFFFFFF);
-        String name = TextUtil.getTrimmedString(
-            ((ContainerSatelliteSelect) inventorySlots).getCMHost()
-                .getSatelliteName(),
-            100,
-            fontRenderer,
-            "...");
-        mc.fontRenderer.drawStringWithShadow(
-            TextUtil.translate(gui$satselect_prefix + "selected", name),
-            xCenter
-                - (mc.fontRenderer.getStringWidth(TextUtil.translate(gui$satselect_prefix + "selected", name)) / 2f),
-            guiTop + 18,
-            0xFFFFFF);
-
-        textList.renderGuiBackground(mouseX, mouseY);
-    }
-
-    public final void handleMouseInput() throws IOException {
-        int wheel = org.lwjgl.input.Mouse.getDWheel() / 120;
-        if (wheel == 0) {
-            super.handleMouseInput();
-        }
-        if (wheel < 0) {
-            textList.scrollUp();
-        } else if (wheel > 0) {
-            textList.scrollDown();
-        }
-    }
-
-    @Override
-    protected void actionPerformed(final GuiButton btn) throws IOException {
-        super.actionPerformed(btn);
-
-        if (btn == this.select) {
-            int selected = textList.getSelected();
-            if (selected >= 0) {
-                handleResult.accept(satList.get(selected));
-                NetworkHandler.instance()
-                    .sendToServer(new PacketSwitchGuis(this.OriginalGui));
-            }
-        }
-
-        if (btn == this.up) {
-            textList.scrollUp();
-        }
-
-        if (btn == this.down) {
-            textList.scrollDown();
-        }
-
-        if (btn == this.exit) {
-            NetworkHandler.instance()
-                .sendToServer(new PacketSwitchGuis(this.OriginalGui));
-        }
-
-        if (btn == this.unset) {
-            handleResult.accept("");
-            NetworkHandler.instance()
-                .sendToServer(new PacketSwitchGuis(this.OriginalGui));
-        }
-    }
-
-    public void handleSatList(List<String> list) {
-        satList = list;
+        return panel;
     }
 }

@@ -1,6 +1,5 @@
 package net.jp.hellparadise.testbridge.network.packets.pipe;
 
-import javax.annotation.Nullable;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
@@ -13,7 +12,7 @@ import net.minecraft.util.EnumFacing;
 @StaticResolve
 public class OrientationPacket extends CoordinatesPacket {
 
-    @Nullable private EnumFacing dir;
+    private EnumFacing dir;
 
     public OrientationPacket(int id) {
         super(id);
@@ -34,7 +33,7 @@ public class OrientationPacket extends CoordinatesPacket {
         return new OrientationPacket(getId());
     }
 
-    public OrientationPacket setDir(@Nullable EnumFacing dir) {
+    public OrientationPacket setDir(EnumFacing dir) {
         this.dir = dir;
         return this;
     }

@@ -18,7 +18,7 @@ import logisticspipes.utils.gui.UpgradeSlot;
 import logisticspipes.utils.gui.extension.GuiExtension;
 import net.jp.hellparadise.testbridge.client.popup.GuiSelectResultPopup;
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
+import net.jp.hellparadise.testbridge.helpers.TranslationKey;
 import net.jp.hellparadise.testbridge.helpers.inventory.CrafterSlot;
 import net.jp.hellparadise.testbridge.helpers.inventory.DummyContainer;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM;
@@ -46,7 +46,7 @@ import network.rs485.logisticspipes.util.TextUtil;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey {
+public class GuiCMPipe extends LogisticsBaseGuiScreen {
 
     private final String PREFIX = "gui.crafting_manager.";
     private final boolean hasBufferUpgrade;
@@ -392,7 +392,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen implements ITranslationKey
                 int maxWidth = 70;
                 if (pipeID.isEmpty()) {
                     drawCenteredString(
-                        TextUtil.translate(top$cm_prefix + "none"),
+                        TextUtil.translate(TranslationKey.top$cm_prefix + "none"),
                         left + maxWidth / 2 + 7,
                         top + 23,
                         0x404040);

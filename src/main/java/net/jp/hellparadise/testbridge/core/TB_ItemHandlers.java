@@ -3,8 +3,6 @@ package net.jp.hellparadise.testbridge.core;
 import javax.annotation.Nonnull;
 import logisticspipes.LPItems;
 import logisticspipes.modules.ModuleCrafter;
-import net.jp.hellparadise.testbridge.items.FakeItem;
-import net.jp.hellparadise.testbridge.items.VirtualPatternAE;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
@@ -29,13 +27,6 @@ public class TB_ItemHandlers {
     // Upgrades
     @ObjectHolder("logisticspipes:upgrade_buffer_cm")
     public static Item upgradeBuffer;
-
-    // Blocks
-
-    // Items
-    public static Item itemHolder = TB_ItemHandlers.createItem(new FakeItem(false), "placeholder", "", null);
-    public static Item itemPackage = TB_ItemHandlers.createItem(new FakeItem(true), "package", "", CreativeTabs.MISC);
-    public static Item virtualPattern = TB_ItemHandlers.createItem(new VirtualPatternAE(), "virtualpattern", "", null);
 
     public static ItemStack getCrafterModule() {
         Item item = Item.REGISTRY.getObject(LPItems.modules.get(ModuleCrafter.getName()));

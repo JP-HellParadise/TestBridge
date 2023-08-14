@@ -9,7 +9,10 @@ import logisticspipes.pipes.basic.LogisticsBlockGenericPipe;
 import net.jp.hellparadise.testbridge.datafixer.TBDataFixer;
 import net.jp.hellparadise.testbridge.integration.IntegrationRegistry;
 import net.jp.hellparadise.testbridge.integration.IntegrationType;
-import net.jp.hellparadise.testbridge.network.packets.MessagePlayer;
+import net.jp.hellparadise.testbridge.items.FakeItem;
+import net.jp.hellparadise.testbridge.items.VirtualPatternAE;
+import net.jp.hellparadise.testbridge.network.packets.implementation.CManagerMenuSwitch;
+import net.jp.hellparadise.testbridge.network.packets.implementation.MessagePlayer;
 import net.jp.hellparadise.testbridge.part.PartSatelliteBus;
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.jp.hellparadise.testbridge.pipes.ResultPipe;
@@ -39,7 +42,9 @@ import org.apache.logging.log4j.Logger;
     acceptedMinecraftVersions = "1.12.2")
 public class TestBridge {
 
-    public static final String DEPS = "after:appliedenergistics2;after:refinedstorage@[1.6.15,);required-after:mixinbooter@[8.2,);required-after:logisticspipes@[0.10.4.44,);";
+    public static final String DEPS =
+            "after:logisticspipes@[0.10.4.44,);after:appliedenergistics2;after:refinedstorage@[1.6.15,);" +
+                    "required-after:mixinbooter@[8.2,);required-after:modularui@[2.1,);";
 
     public static final boolean isVMOpenJ9 = SystemUtils.JAVA_VM_NAME.toLowerCase(Locale.ROOT)
         .contains("openj9");
@@ -128,9 +133,9 @@ public class TestBridge {
         IForgeRegistry<Item> registry = event.getRegistry();
         // Items
         if (IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.APPLIED_ENERGISTICS_2)) {
-            registry.register(TB_ItemHandlers.itemHolder);
-            registry.register(TB_ItemHandlers.itemPackage);
-            registry.register(TB_ItemHandlers.virtualPattern);
+            registry.register(FakeItem.ITEM_HOLDER);
+            registry.register(FakeItem.ITEM_PACKAGE);
+            registry.register(VirtualPatternAE.VIRTUAL_PATTERN);
         }
         if (IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.LOGISTICS_PIPES)) {
             // Pipe
@@ -161,7 +166,10 @@ public class TestBridge {
         network = NetworkRegistry.INSTANCE.newSimpleChannel(Reference.MODID);
         int id = 0;
 
-        // Register network stuff from now on
-        network.registerMessage(MessagePlayer.Handler.class, MessagePlayer.class, id, Side.CLIENT);
+        // Client packet
+        network.registerMessage(MessagePlayer.Handler.class, MessagePlayer.class, id++, Side.CLIENT);
+
+        // Server packet
+        network.registerMessage(CManagerMenuSwitch.Handler.class, CManagerMenuSwitch.class, id++, Side.SERVER);
     }
 }

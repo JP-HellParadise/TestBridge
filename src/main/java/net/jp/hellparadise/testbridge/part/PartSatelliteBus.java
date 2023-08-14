@@ -14,14 +14,13 @@ import appeng.parts.automation.PartSharedItemBus;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 import appeng.util.SettingsFrom;
-import com.cleanroommc.modularui.screen.ModularScreen;
 import java.util.*;
 import javax.annotation.Nonnull;
-import net.jp.hellparadise.testbridge.client.gui.SatelliteGuiHolder;
+import net.jp.hellparadise.testbridge.client.gui.GuiSatelliteHolder;
 import net.jp.hellparadise.testbridge.core.Reference;
-import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.helpers.PackageHelper;
 import net.jp.hellparadise.testbridge.helpers.interfaces.SatelliteInfo;
+import net.jp.hellparadise.testbridge.items.FakeItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -34,7 +33,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 
-public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiHolder {
+public class PartSatelliteBus extends PartSharedItemBus implements GuiSatelliteHolder {
 
     public static final ResourceLocation MODEL_BASE = new ResourceLocation(Reference.MODID, "part/satellite_bus_base");
     @PartModels
@@ -138,7 +137,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
     public boolean onPartActivate(final EntityPlayer player, final EnumHand hand, final Vec3d posIn) {
         if (Platform.isServer()) {
             ItemStack itemStack = player.getHeldItem(hand);
-            if (itemStack.getItem() == TB_ItemHandlers.itemPackage) {
+            if (itemStack.getItem() == FakeItem.ITEM_PACKAGE) {
                 PackageHelper.setDestination(itemStack, satPartName);
             } else {
                 openUI((EntityPlayerMP) player);
@@ -147,7 +146,6 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
         return true;
     }
 
-    @Nonnull
     @Override
     public TileEntity getContainer() {
         return this.getTile();
@@ -205,6 +203,11 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
     }
 
     @Override
+    public boolean isAE2Part() {
+        return true;
+    }
+
+    @Override
     public NBTTagCompound downloadSettings(SettingsFrom from) {
         NBTTagCompound output = new NBTTagCompound();
         if (!satPartName.isEmpty()) output.setString("_satName", getSatelliteName());
@@ -215,11 +218,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
     public void uploadSettings(SettingsFrom from, NBTTagCompound compound, EntityPlayer player) {
         if (compound.hasKey("_satName")) {
             String newName = compound.getString("_satName");
-            if (this.getSatellitesOfType()
-                .stream()
-                .anyMatch(
-                    it -> it.getSatelliteName()
-                        .equals(newName))) {
+            if (this.isExist(newName)) {
                 sendStatus(player, Status.DUPLICATED);
             } else {
                 sendStatus(player, Status.SUCCESS);
@@ -250,16 +249,6 @@ public class PartSatelliteBus extends PartSharedItemBus implements SatelliteGuiH
                     true);
                 break;
         }
-    }
-
-    @Override
-    public boolean isAE2Part() {
-        return true;
-    }
-
-    @Override
-    public ModularScreen createClientGui(EntityPlayer player) {
-        return ModularScreen.simple("result", this::createPanel);
     }
 
     private enum Status {

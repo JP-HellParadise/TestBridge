@@ -21,10 +21,6 @@ public class LateMixin implements ILateMixinLoader {
     @Override
     public boolean shouldMixinConfigQueue(String mixinConfig) {
         String[] parts = mixinConfig.split("\\.");
-        return parts.length != 4 || shouldEnableModMixin(parts[2]);
-    }
-
-    public boolean shouldEnableModMixin(String mod) {
-        return Loader.isModLoaded(mod);
+        return parts.length != 4 || Loader.isModLoaded(parts[2]);
     }
 }

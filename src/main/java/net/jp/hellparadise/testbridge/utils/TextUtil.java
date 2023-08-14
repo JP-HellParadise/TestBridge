@@ -3,9 +3,10 @@ package net.jp.hellparadise.testbridge.utils;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicReference;
-import logisticspipes.kotlin.text.MatchResult;
-import logisticspipes.kotlin.text.Regex;
-import logisticspipes.kotlin.text.StringsKt;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 
@@ -13,13 +14,12 @@ public final class TextUtil {
 
     private static final EnumSet<TextFormatting> formattingState = EnumSet.noneOf(TextFormatting.class);
     private static final EnumSet<TextFormatting> baseFormattingState = EnumSet.noneOf(TextFormatting.class);
-    private static final Regex regexPattern = new Regex(
-        "(\\$)(" + String.join(
+    private static final Pattern regexPattern = Pattern.compile("(\\$)(" + String.join(
             "|",
             Arrays.stream(TextFormatting.values())
-                .map(TextFormatting::getFriendlyName)
-                .map(String::toUpperCase)
-                .toArray(String[]::new))
+                    .map(TextFormatting::getFriendlyName)
+                    .map(String::toUpperCase)
+                    .toArray(String[]::new))
             + ")");
 
     public static String translate(String key, String... args) {
@@ -36,10 +36,9 @@ public final class TextUtil {
         baseFormattingState.clear();
         baseFormattingState.addAll(baseFormatting);
         formattingState.clear();
-        String result = StringsKt
-            .prependIndent(text, getColorTag(baseFormattingState) + getFormattingTags(baseFormattingState));
-        while (regexPattern.containsMatchIn(result)) {
-            result = regexPattern.replace(result, matchResult -> getReplacementString(getTextFormatting(matchResult)));
+        String result = TextUtil.prependIndent(text, getColorTag(baseFormattingState) + getFormattingTags(baseFormattingState));
+        while (regexPattern.matcher(result).find()) {
+            result = TextUtil.replace(result, matchResult -> getReplacementString(getTextFormatting(matchResult)));
         }
         return result;
     }
@@ -58,10 +57,8 @@ public final class TextUtil {
         return getColorTag(formattingState) + getFormattingTags(formattingState);
     }
 
-    private static TextFormatting getTextFormatting(MatchResult matchResult) {
-        return TextFormatting.getValueByName(
-            matchResult.getValue()
-                .toLowerCase());
+    private static TextFormatting getTextFormatting(String matchResult) {
+        return TextFormatting.getValueByName(matchResult);
     }
 
     private static String getColorTag(EnumSet<TextFormatting> baseFormatting) {
@@ -88,5 +85,36 @@ public final class TextUtil {
                 .filter(TextFormatting::isFancyStyling)
                 .map(TextFormatting::toString)
                 .toArray(String[]::new));
+    }
+
+    private static String replace(@Nonnull String input, @Nonnull Function<String, String> transform) {
+        Matcher match = regexPattern.matcher(input);
+        int lastStart = 0;
+        int length = input.length();
+        StringBuilder sb = new StringBuilder();
+
+        while (lastStart < length && match.find()) {
+            sb.append(input, lastStart, match.start());
+            sb.append(transform.apply(match.group()));
+            lastStart = match.end();
+        }
+
+        if (lastStart < length) {
+            sb.append(input, lastStart, length);
+        }
+
+        return sb.toString();
+    }
+
+    private static String prependIndent(@Nonnull String prependIndent, @Nonnull final String indent) {
+        StringBuilder result = new StringBuilder();
+        String[] lines = prependIndent.split("\n");
+
+        for (int i = 0 ; i < lines.length ; i++) {
+            result.append(indent).append(lines[i]);
+            if (i>0) result.append("\n");
+        }
+
+        return result.toString();
     }
 }

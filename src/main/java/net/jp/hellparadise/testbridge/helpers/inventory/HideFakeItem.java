@@ -6,8 +6,8 @@ import appeng.util.prioritylist.IPartitionList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
 import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
+import net.jp.hellparadise.testbridge.items.FakeItem;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.item.ItemStack;
 
@@ -16,12 +16,12 @@ public class HideFakeItem implements IPartitionList<IAEItemStack> {
     private final List<IAEItemStack> ITEMS = Collections.singletonList(
         AE2Module.INSTANCE.api.storage()
             .getStorageChannel(IItemStorageChannel.class)
-            .createStack(new ItemStack(TB_ItemHandlers.itemPackage, 1)));
+            .createStack(new ItemStack(FakeItem.ITEM_PACKAGE)).setStackSize(0));
 
     @Override
     public boolean isListed(IAEItemStack input) {
-        return !GuiScreen.isCtrlKeyDown() && (input.getItem() == TB_ItemHandlers.itemHolder
-            || (input.getItem() == TB_ItemHandlers.itemPackage && input.getStackSize() == 0));
+        return !GuiScreen.isCtrlKeyDown() && (input.getItem() == FakeItem.ITEM_HOLDER
+            || (input.getItem() == FakeItem.ITEM_PACKAGE && input.getStackSize() == 0));
     }
 
     @Override

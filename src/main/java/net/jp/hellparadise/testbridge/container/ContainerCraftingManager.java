@@ -8,26 +8,33 @@ import appeng.container.guisync.GuiSync;
 import appeng.container.implementations.ContainerUpgradeable;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.util.Platform;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ICraftingManagerHost;
+import net.jp.hellparadise.testbridge.helpers.interfaces.ae2.ICraftingManagerHost;
 import net.minecraft.entity.player.InventoryPlayer;
 
+/**
+ * Handled by AE2
+ */
 public class ContainerCraftingManager extends ContainerUpgradeable {
 
     @GuiSync(2)
     public YesNo bMode = YesNo.NO;
 
-    public ContainerCraftingManager(final InventoryPlayer ip, final ICraftingManagerHost te) {
+    private final ICraftingManagerHost host;
+
+    public ContainerCraftingManager(final InventoryPlayer ip, final ICraftingManagerHost host) {
         super(
             ip,
-            te.getCMDuality()
+            host.getCMDuality()
                 .getHost());
+
+        this.host = host;
 
         for (int row = 0; row < 3; ++row) {
             for (int x = 0; x < 9; x++) {
                 this.addSlotToContainer(
                     new SlotRestrictedInput(
                         SlotRestrictedInput.PlacableItemType.ENCODED_PATTERN,
-                        te.getCMDuality()
+                        host.getCMDuality()
                             .getPatterns(),
                         x + row * 9,
                         8 + 18 * x,
@@ -65,6 +72,10 @@ public class ContainerCraftingManager extends ContainerUpgradeable {
 
     public YesNo getBlockingMode() {
         return this.bMode;
+    }
+
+    public ICraftingManagerHost getHost() {
+        return host;
     }
 
     private void setBlockingMode(final YesNo bMode) {

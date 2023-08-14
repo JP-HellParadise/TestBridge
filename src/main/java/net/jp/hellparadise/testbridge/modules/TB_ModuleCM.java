@@ -31,13 +31,13 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import net.jp.hellparadise.testbridge.helpers.TextHelper;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
+import net.jp.hellparadise.testbridge.helpers.TranslationKey;
 import net.jp.hellparadise.testbridge.helpers.interfaces.TB_IInventoryUtil;
 import net.jp.hellparadise.testbridge.network.guis.pipe.CMGuiProvider;
 import net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe.UpdatePacket;
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.jp.hellparadise.testbridge.pipes.ResultPipe;
+import net.jp.hellparadise.testbridge.utils.TextUtil;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -47,7 +47,7 @@ import network.rs485.logisticspipes.connection.NeighborTileEntity;
 import network.rs485.logisticspipes.module.Gui;
 import network.rs485.logisticspipes.property.*;
 
-public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey, IGuiOpenControler {
+public class TB_ModuleCM extends LogisticsModule implements Gui, IGuiOpenControler {
 
     public final ItemIdentifierInventoryProperty excludedInventory = new ItemIdentifierInventoryProperty(
         new ItemIdentifierInventory(3, "Excluded Filter Item", 1),
@@ -278,7 +278,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
 
     public String getNameByUUID(UUID uuid, boolean isResult) {
         if (UUIDPropertyKt.isZero(uuid)) {
-            return new TextHelper(top$cm_prefix + "none").getTranslated();
+            return TextUtil.translate(TranslationKey.top$cm_prefix + "none");
         }
         int routerId = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
         try {
@@ -295,13 +295,12 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, ITranslationKey
                     } else if (isResult && pipe instanceof ResultPipe) {
                         name = ((ResultPipe) pipe).getSatelliteName();
                     }
-                    return new TextHelper(top$cm_prefix + "valid")
-                        .addArgument(name.isEmpty() ? new TextHelper(top$cm_prefix + "none").getTranslated() : name)
-                        .getTranslated();
+                    return TextUtil.translate(TranslationKey.top$cm_prefix + "valid", name.isEmpty() ?
+                            TextUtil.translate(TranslationKey.top$cm_prefix + "none"): name);
                 }
             }
         } catch (IndexOutOfBoundsException ignore) {}
-        return new TextHelper(top$cm_prefix + "router_error").getTranslated();
+        return TextUtil.translate(TranslationKey.top$cm_prefix + "router_error");
     }
 
     public void handleCMUpdatePacket(UpdatePacket packet) {

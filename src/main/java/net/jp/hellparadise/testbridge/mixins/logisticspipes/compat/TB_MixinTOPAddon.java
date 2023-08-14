@@ -2,19 +2,16 @@ package net.jp.hellparadise.testbridge.mixins.logisticspipes.compat;
 
 import java.util.*;
 import javax.annotation.Nonnull;
-import logisticspipes.jetbrains.annotations.NotNull;
-import logisticspipes.kotlin.jvm.internal.Intrinsics;
-import logisticspipes.kotlin.text.StringsKt;
 import logisticspipes.modules.*;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import mcjty.theoneprobe.api.*;
 import mcjty.theoneprobe.config.Config;
 import net.jp.hellparadise.testbridge.core.TB_ItemHandlers;
-import net.jp.hellparadise.testbridge.helpers.TextHelper;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
+import net.jp.hellparadise.testbridge.helpers.TranslationKey;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM;
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
 import net.jp.hellparadise.testbridge.pipes.ResultPipe;
+import net.jp.hellparadise.testbridge.utils.TextUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -29,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(targets = "network/rs485/logisticspipes/compat/TheOneProbeIntegration$PipeInfoProvider", remap = false)
-public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslationKey {
+public abstract class TB_MixinTOPAddon implements IProbeInfoProvider {
 
     @Shadow(remap = false)
     @Final
@@ -37,8 +34,8 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslati
 
     @Shadow(remap = false)
     @Final
-    public abstract IProbeInfo addItemWithText(@NotNull IProbeInfo $this$addItemWithText, @NotNull ItemStack itemStack,
-        @NotNull String text);
+    public abstract IProbeInfo addItemWithText(@Nonnull IProbeInfo $this$addItemWithText, @Nonnull ItemStack itemStack,
+        @Nonnull String text);
 
     @Shadow(remap = false)
     @Final
@@ -58,12 +55,10 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslati
     private void preAddProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world,
         IBlockState blockState, IProbeHitData data, CallbackInfo ci, boolean isModule, CoreUnroutedPipe pipe) {
         if (pipe instanceof ResultPipe) {
-            Intrinsics.checkNotNullExpressionValue(pipe, "pipe");
             this.addResultPipeInfo((ResultPipe) pipe, probeInfo);
             this.defaultInfo(pipe, probeInfo, mode);
             ci.cancel();
         } else if (pipe instanceof PipeCraftingManager) {
-            Intrinsics.checkNotNullExpressionValue(pipe, "pipe");
             this.addCMPipeInfo((PipeCraftingManager) pipe, probeInfo, mode);
             this.defaultInfo(pipe, probeInfo, mode);
             ci.cancel();
@@ -72,13 +67,8 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslati
 
     @Unique private void addResultPipeInfo(@Nonnull ResultPipe pipe, IProbeInfo probeInfo) {
         String resultPipeName = pipe.getSatelliteName();
-        if (!StringsKt.isBlank(resultPipeName)) {
-            probeInfo.text(
-                new TextHelper(top$result_prefix + "name").addArgument(resultPipeName)
-                    .getTranslated());
-        } else {
-            probeInfo.text(new TextHelper(top$result_prefix + "no_name").getTranslated());
-        }
+        probeInfo.text(TextUtil.translate(
+                TranslationKey.top$result_prefix + (resultPipeName.isEmpty() ? "no_name" : "name"), resultPipeName));
     }
 
     @Unique private void addCMPipeInfo(PipeCraftingManager pipe, IProbeInfo probeInfo, ProbeMode mode) {
@@ -118,7 +108,7 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslati
                 }
             }
         } else {
-            chassisColumn.text(new TextHelper(top$cm_prefix + "no_modules").getTranslated());
+            chassisColumn.text(TextUtil.translate(TranslationKey.top$cm_prefix + "no_modules"));
         }
     }
 
@@ -126,19 +116,15 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider, ITranslati
         for (int i = 0; i < 2; i++) {
             String result = module
                 .getNameByUUID(i == 0 ? module.satelliteUUID.getValue() : module.resultUUID.getValue(), i != 0);
-            probeInfo.text(
-                new TextHelper(top$cm_prefix + (i == 0 ? "select_sat" : "select_result")).addArgument(result)
-                    .getTranslated());
+            probeInfo.text(TextUtil.translate(TranslationKey.top$cm_prefix + (i == 0 ? "select_sat" : "select_result"), result));
         }
     }
 
     @Unique private void addBlockModeInfo(PipeCraftingManager pipe, IProbeInfo probeInfo) {
-        String mode = new TextHelper(
-            pipe.getAvailableAdjacent()
-                .inventories()
-                .isEmpty() ? gui$cm_prefix + "NoContainer" : pipe.getKeyBlockMode()).getTranslated();
-        probeInfo.text(
-            new TextHelper(top$cm_prefix + "blocking").addArgument(mode)
-                .getTranslated());
+        String mode = TextUtil.translate(
+                pipe.getAvailableAdjacent()
+                        .inventories()
+                        .isEmpty() ? TranslationKey.gui$cm_prefix + "NoContainer" : pipe.getKeyBlockMode());
+        probeInfo.text(TextUtil.translate(TranslationKey.top$cm_prefix + "blocking", mode));
     }
 }

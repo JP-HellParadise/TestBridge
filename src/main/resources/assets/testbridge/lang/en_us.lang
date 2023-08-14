@@ -52,11 +52,9 @@ tile.appliedenergistics2.crafting_manager.name=ME Crafting Manager
 # Part
 
 item.appliedenergistics2.multi_part.satellite_bus.name=Satellite Bus
-item.appliedenergistics2.multi_part.craftingmanager_part.name=ME Crafting Manager
+item.appliedenergistics2.multi_part.crafting_manager.name=ME Crafting Manager
 
 # GUI
-
-
 
 gui.satellite.GuiName=Satellite Name
 gui.result.GuiName=Result Name
@@ -76,13 +74,21 @@ gui.crafting_manager.blocking.redstone_low=$GRAYRedstone Active Low
 gui.crafting_manager.blocking.redstone_pulse=On Redstone Pulse
 gui.crafting_manager.blocking.wait_for_result=Wait For Result
 
-gui.popup.selectresult.title=Select Result Pipe
-gui.popup.selectsatellite.selected=Current: %s
+gui.popup.select.satellite.title=Select Satellite Pipe
+gui.popup.select.result.title=Select Result Pipe
+
+gui.popup.select.selected=Current: %s
+
+gui.popup.select.success=Success
+gui.popup.select.failed=Failed
 
 # TOP
 
+top.testbridge.pipe.satellite.name=Satellite name: $AQUA%s$RESET.
+top.testbridge.pipe.satellite.no_name=Satellite name: $REDnot set$RESET.
+
 top.testbridge.pipe.result.name=Result name: $AQUA%s$RESET.
-top.testbridge.pipe.result.no_name=Result name $REDnot set$RESET.
+top.testbridge.pipe.result.no_name=Result name: $REDnot set$RESET.
 
 top.testbridge.crafting_manager.no_modules=$REDNo modules installed.
 top.testbridge.crafting_manager.no_patterns=$REDNo patterns installed.

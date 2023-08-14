@@ -12,7 +12,7 @@ public interface TB_IInventoryUtil {
      *
      * @return spaces found. If this is less than max, then there are no
      *         spaces for that amount.
-     * @param list ItemStack list, what you expect?
+     * @param list Contains ItemStack, what you expect?
      */
     boolean roomForItem(@Nonnull List<ItemStack> list);
 }

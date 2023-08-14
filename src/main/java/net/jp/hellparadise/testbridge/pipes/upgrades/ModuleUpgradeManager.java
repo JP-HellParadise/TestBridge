@@ -11,7 +11,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.world.IBlockAccess;
 import network.rs485.logisticspipes.world.DoubleCoordinates;
 
 public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlotUpgradeManager {
@@ -63,7 +62,7 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
     }
 
     public boolean hasSneakyUpgrade() {
-        return this.sneakyOrientation != null ? true : this.parent.hasSneakyUpgrade();
+        return this.sneakyOrientation != null || this.parent.hasSneakyUpgrade();
     }
 
     public EnumFacing getSneakyOrientation() {
@@ -149,14 +148,11 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
         this.itemExtractionUpgrade = Math.min(this.itemExtractionUpgrade, 8);
         this.itemStackExtractionUpgrade = Math.min(this.itemStackExtractionUpgrade, 8);
         if (needUpdate) {
-            MainProxy.runOnServer((IBlockAccess) null, () -> {
-                return () -> {
-                    this.pipe.connectionUpdate();
-                    if (this.pipe.container != null) {
-                        this.pipe.container.sendUpdateToClient();
-                    }
-
-                };
+            MainProxy.runOnServer(null, () -> () -> {
+                this.pipe.connectionUpdate();
+                if (this.pipe.container != null) {
+                    this.pipe.container.sendUpdateToClient();
+                }
             });
         }
 
@@ -192,10 +188,6 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
         boolean needUpdate = upgrades[slot].needsUpdate();
         upgrades[slot] = null;
         return needUpdate;
-    }
-
-    public boolean hasGuiUpgrade(int i) {
-        return this.guiUpgrades[i];
     }
 
     public int getActionSpeedUpgrade() {

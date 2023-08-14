@@ -45,10 +45,10 @@ import net.jp.hellparadise.testbridge.client.gui.GuiCMPipe;
 import net.jp.hellparadise.testbridge.core.TB_Config;
 import net.jp.hellparadise.testbridge.core.TestBridge;
 import net.jp.hellparadise.testbridge.helpers.CMTransportLayer;
-import net.jp.hellparadise.testbridge.helpers.interfaces.ITranslationKey;
+import net.jp.hellparadise.testbridge.helpers.TranslationKey;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCrafter;
-import net.jp.hellparadise.testbridge.network.packets.MessagePlayer;
+import net.jp.hellparadise.testbridge.network.packets.implementation.MessagePlayer;
 import net.jp.hellparadise.testbridge.network.packets.pipe.OrientationPacket;
 import net.jp.hellparadise.testbridge.network.packets.pipe.RequestOrientationPacket;
 import net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe.ModuleContent;
@@ -74,7 +74,7 @@ import network.rs485.logisticspipes.property.SlottedModule;
 
 @CCType(name = "TestBridge:CraftingManager")
 public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, ISimpleInventoryEventHandler,
-    ISendRoutedItem, IChassisPipe, IChangeListener, ISendQueueContentRecieiver, ITranslationKey {
+    ISendRoutedItem, IChassisPipe, IChangeListener, ISendQueueContentRecieiver {
 
     private boolean initial = false;
     private final TB_ModuleCM moduleCM;
@@ -177,7 +177,6 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
             .filter(slottedModule -> !slottedModule.isEmpty())
             .forEach(slottedModule -> {
                 LogisticsModule logisticsModule = Objects.requireNonNull(slottedModule.getModule());
-                // FIXME: rely on getModuleForItem instead
                 logisticsModule.registerHandler(this, this);
                 slottedModule.registerPosition();
             });
@@ -614,7 +613,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
     }
 
     public String getKeyBlockMode() {
-        return gui$cm_prefix + "blocking."
+        return TranslationKey.gui$cm_prefix + "blocking."
             + this.moduleCM.blockingMode.getValue()
                 .toString()
                 .toLowerCase();

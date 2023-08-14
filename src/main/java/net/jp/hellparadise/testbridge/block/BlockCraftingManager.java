@@ -5,7 +5,6 @@ import appeng.block.AEBaseTileBlock;
 import appeng.util.Platform;
 import javax.annotation.Nullable;
 import net.jp.hellparadise.testbridge.block.tile.TileEntityCraftingManager;
-import net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2.AE2Module;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -31,7 +30,7 @@ public class BlockCraftingManager extends AEBaseTileBlock {
         final TileEntityCraftingManager tg = this.getTileEntity(w, pos);
         if (tg != null) {
             if (Platform.isServer()) {
-                Platform.openGUI(p, tg, AEPartLocation.fromFacing(side), AE2Module.GUI_CRAFTINGMANAGER);
+                Platform.openGUI(p, tg, AEPartLocation.fromFacing(side), tg.getGuiBridge());
             }
             return true;
         }
