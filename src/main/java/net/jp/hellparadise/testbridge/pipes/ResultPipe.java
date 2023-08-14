@@ -210,7 +210,7 @@ public class ResultPipe extends CoreRoutedPipe implements GuiSatelliteHolder, IC
         } else {
             final List<NeighborTileEntity<TileEntity>> sortedNeighbors = sortedNeighborsStream
                 .collect(Collectors.toList());
-            if (sortedNeighbors.size() == 0) return null;
+            if (sortedNeighbors.isEmpty()) return null;
             final Optional<NeighborTileEntity<TileEntity>> nextNeighbor = sortedNeighbors.stream()
                 .filter(
                     neighbor -> neighbor.getDirection()
@@ -243,7 +243,8 @@ public class ResultPipe extends CoreRoutedPipe implements GuiSatelliteHolder, IC
                 newNeighbor.getValue1()
                     .getDirection());
         }
-        MainProxy.sendPacketToAllWatchingChunk(container, packet.setTilePos(container));
+        if (container != null)
+            MainProxy.sendPacketToAllWatchingChunk(container, packet.setTilePos(container));
         refreshRender(true);
     }
 
@@ -279,7 +280,7 @@ public class ResultPipe extends CoreRoutedPipe implements GuiSatelliteHolder, IC
         if (entityplayer.isSneaking() && SimpleServiceLocator.configToolHandler
             .canWrench(entityplayer, entityplayer.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND), container)) {
             if (MainProxy.isServer(getWorld())) {
-                if (settings == null || settings.openGui) {
+                if ((settings == null || settings.openGui) && container != null) {
                     ((ResultPipe) container.pipe).nextOrientation();
                 } else {
                     entityplayer.sendMessage(new TextComponentTranslation("lp.chat.permissiondenied"));
@@ -296,7 +297,7 @@ public class ResultPipe extends CoreRoutedPipe implements GuiSatelliteHolder, IC
     @Override
     public void onWrenchClicked(EntityPlayer entityplayer) {
         if (!getWorld().isRemote) {
-            openUI((EntityPlayerMP) entityplayer);
+            openUI((EntityPlayerMP) entityplayer, getWorld(), getPos(), null);
         }
     }
 

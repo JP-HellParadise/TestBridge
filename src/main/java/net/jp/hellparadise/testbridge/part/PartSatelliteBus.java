@@ -140,7 +140,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements GuiSatelliteH
             if (itemStack.getItem() == FakeItem.ITEM_PACKAGE) {
                 PackageHelper.setDestination(itemStack, satPartName);
             } else {
-                openUI((EntityPlayerMP) player);
+                openUI((EntityPlayerMP) player, getTile().getWorld(), getTile().getPos(), getSide().getFacing());
             }
         }
         return true;
@@ -200,11 +200,6 @@ public class PartSatelliteBus extends PartSharedItemBus implements GuiSatelliteH
             this.getNeighborTE(),
             this.getTargets()
                 .getOpposite());
-    }
-
-    @Override
-    public boolean isAE2Part() {
-        return true;
     }
 
     @Override

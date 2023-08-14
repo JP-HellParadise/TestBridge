@@ -1,6 +1,5 @@
 package net.jp.hellparadise.testbridge.client.gui;
 
-import appeng.parts.AEBasePart;
 import com.cleanroommc.modularui.api.IGuiHolder;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.layout.CrossAxisAlignment;
@@ -19,15 +18,17 @@ import net.jp.hellparadise.testbridge.client.TB_Textures;
 import net.jp.hellparadise.testbridge.helpers.interfaces.SatelliteInfo;
 import net.jp.hellparadise.testbridge.network.guis.GuiHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Specific for Satellite Bus/Result Pipe
  */
 public interface GuiSatelliteHolder extends IGuiHolder, SatelliteInfo {
-
-    default boolean isAE2Part() {
-        return false;
-    }
 
     @Override
     default ModularPanel buildUI(GuiCreationContext creationContext, GuiSyncManager syncManager, boolean isClient) {
@@ -66,25 +67,16 @@ public interface GuiSatelliteHolder extends IGuiHolder, SatelliteInfo {
         return panel;
     }
 
-    default void openUI(EntityPlayerMP player) {
-        if (isAE2Part()) {
-            AEBasePart part = (AEBasePart) this;
-            GuiHandler.getCoverUiInfo(
-                part.getSide()
-                    .getFacing())
-                .open(
-                    player,
-                    part.getTile()
-                        .getWorld(),
-                    part.getTile()
-                        .getPos());
+    default void openUI(
+            @Nonnull EntityPlayerMP player,
+            @Nonnull World world,
+            @Nonnull BlockPos blockPos,
+            @Nullable EnumFacing facing) {
+        if (facing != null) {
+            GuiHandler.getCoverUiInfo(facing)
+                .open(player, world, blockPos);
         } else {
-            GuiInfos.TILE_ENTITY.open(
-                player,
-                this.getContainer()
-                    .getWorld(),
-                this.getContainer()
-                    .getPos());
+            GuiInfos.TILE_ENTITY.open(player, world, blockPos);
         }
     }
 }
