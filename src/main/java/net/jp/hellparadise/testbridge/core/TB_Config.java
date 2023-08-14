@@ -8,6 +8,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
 public class TB_Config extends Configuration {
+    // TODO: Generate config before Mixin start
 
     private static TB_Config instance;
     private final EnumSet<TBFeature> loggingFlags = EnumSet.noneOf(TBFeature.class);
