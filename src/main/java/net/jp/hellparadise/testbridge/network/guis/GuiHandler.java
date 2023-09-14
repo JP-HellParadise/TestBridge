@@ -1,6 +1,5 @@
 package net.jp.hellparadise.testbridge.network.guis;
 
-import appeng.api.parts.IPart;
 import appeng.api.parts.IPartHost;
 import com.cleanroommc.modularui.api.IGuiHolder;
 import com.cleanroommc.modularui.manager.GuiInfo;

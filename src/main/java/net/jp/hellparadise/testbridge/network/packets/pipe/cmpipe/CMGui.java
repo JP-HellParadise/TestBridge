@@ -1,6 +1,5 @@
 package net.jp.hellparadise.testbridge.network.packets.pipe.cmpipe;
 
-import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.abstractpackets.CoordinatesPacket;
 import logisticspipes.network.abstractpackets.ModernPacket;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;

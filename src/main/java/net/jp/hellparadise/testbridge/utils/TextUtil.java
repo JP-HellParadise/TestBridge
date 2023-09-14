@@ -62,18 +62,17 @@ public final class TextUtil {
     }
 
     private static String getColorTag(EnumSet<TextFormatting> baseFormatting) {
-        AtomicReference<String> result = new AtomicReference<>("");
+        String[] result = new String[1];
         baseFormatting.stream()
             .filter(TextFormatting::isColor)
             .findFirst()
-            .ifPresent(it -> result.set(it.toString()));
-        if (result.get()
-            .isEmpty())
+            .ifPresent(it -> result[0] = it.toString());
+        if (result[0].isEmpty())
             baseFormattingState.stream()
                 .filter(TextFormatting::isColor)
                 .findFirst()
-                .ifPresent(it -> result.set(it.toString()));
-        return result.get();
+                .ifPresent(it -> result[0] = it.toString());
+        return result[0];
     }
 
     private static String getFormattingTags(EnumSet<TextFormatting> baseFormatting) {
