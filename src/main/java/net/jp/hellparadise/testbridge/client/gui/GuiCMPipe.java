@@ -162,7 +162,6 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
                         MainProxy.sendPacketToServer(packet);
                     }
                     return;
-                case 2:
                 }
                 case 2 -> {
                     showUpgrade(currentSlot.getSlotIndex());
