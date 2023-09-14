@@ -27,7 +27,7 @@ public final class TileInfoProvider implements IProbeInfoProvider {
 
     @Override
     public String getID() {
-        return Reference.MODID + ":TileInfoProvider";
+        return Reference.MOD_ID + ":TileInfoProvider";
     }
 
     @Override

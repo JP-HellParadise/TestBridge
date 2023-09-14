@@ -35,19 +35,19 @@ import net.minecraft.util.text.TextComponentTranslation;
 
 public class PartSatelliteBus extends PartSharedItemBus implements GuiSatelliteHolder {
 
-    public static final ResourceLocation MODEL_BASE = new ResourceLocation(Reference.MODID, "part/satellite_bus_base");
+    public static final ResourceLocation MODEL_BASE = new ResourceLocation(Reference.MOD_ID, "part/satellite_bus_base");
     @PartModels
     public static final IPartModel MODELS_OFF = new PartModel(
         MODEL_BASE,
-        new ResourceLocation(Reference.MODID, "part/satellite_bus_off"));
+        new ResourceLocation(Reference.MOD_ID, "part/satellite_bus_off"));
     @PartModels
     public static final IPartModel MODELS_ON = new PartModel(
         MODEL_BASE,
-        new ResourceLocation(Reference.MODID, "part/satellite_bus_on"));
+        new ResourceLocation(Reference.MOD_ID, "part/satellite_bus_on"));
     @PartModels
     public static final IPartModel MODELS_HAS_CHANNEL = new PartModel(
         MODEL_BASE,
-        new ResourceLocation(Reference.MODID, "part/satellite_bus_has_channel"));
+        new ResourceLocation(Reference.MOD_ID, "part/satellite_bus_has_channel"));
 
     public static final Set<PartSatelliteBus> AllSatellites = Collections.newSetFromMap(new WeakHashMap<>());
     private String satPartName = "";
@@ -228,21 +228,15 @@ public class PartSatelliteBus extends PartSharedItemBus implements GuiSatelliteH
         }
 
         switch (status) {
-            case SUCCESS:
-                player.sendStatusMessage(
+            case SUCCESS -> player.sendStatusMessage(
                     new TextComponentTranslation("chat.testbridge.satellite_bus.duplicated"),
                     true);
-                break;
-            case DUPLICATED:
-                player.sendStatusMessage(
+            case DUPLICATED -> player.sendStatusMessage(
                     new TextComponentTranslation("chat.testbridge.satellite_bus.success"),
                     true);
-                break;
-            default:
-                player.sendStatusMessage(
+            default -> player.sendStatusMessage(
                     new TextComponentString("Something weird happen!! Report this to Korewa_Li"),
                     true);
-                break;
         }
     }
 

@@ -49,10 +49,10 @@ public class TB_ItemHandlers {
             itemName = "randomItem_" + RandomStringUtils.randomAlphabetic(10);
         }
         if (key.isEmpty()) {
-            translationKey = Reference.MODID + "." + itemName;
+            translationKey = Reference.MOD_ID + "." + itemName;
         } else translationKey = key;
         final Item result = item.setTranslationKey(translationKey)
-            .setRegistryName(Reference.MODID, itemName);
+            .setRegistryName(Reference.MOD_ID, itemName);
         if (creativeTabs != null) {
             return result.setCreativeTab(creativeTabs);
         }
@@ -75,10 +75,10 @@ public class TB_ItemHandlers {
             itemName = "randomBlock_" + RandomStringUtils.randomAlphabetic(10);
         }
         if (key.isEmpty()) {
-            translationKey = Reference.MODID + "." + itemName;
+            translationKey = Reference.MOD_ID + "." + itemName;
         } else translationKey = key;
         final Block result = block.setTranslationKey(translationKey)
-            .setRegistryName(Reference.MODID, itemName);
+            .setRegistryName(Reference.MOD_ID, itemName);
         if (creativeTabs != null) {
             return result.setCreativeTab(creativeTabs);
         }

@@ -9,7 +9,7 @@ import net.minecraft.util.ResourceLocation;
  */
 public class TB_Textures {
 
-    public static final ResourceLocation ICONS_LOCATION = new ResourceLocation(Reference.MODID, "textures/guis/icons.png");
+    public static final ResourceLocation ICONS_LOCATION = new ResourceLocation(Reference.MOD_ID, "textures/guis/icons.png");
 
     public static final UITexture UI_TICK = icon("tick", 0, 0, 32, 32);
 

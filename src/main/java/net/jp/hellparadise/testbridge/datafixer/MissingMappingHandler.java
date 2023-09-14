@@ -72,16 +72,11 @@ public class MissingMappingHandler {
             String modID;
             String[] entry = itemIDMap.get(old)
                 .split(":");
-            switch (entry[0]) {
-                case "lp":
-                    modID = LPConstants.LP_MOD_ID;
-                    break;
-                case "ae2":
-                    modID = AppEng.MOD_ID;
-                    break;
-                default:
-                    modID = Reference.MODID;
-            }
+            modID = switch (entry[0]) {
+                case "lp" -> LPConstants.LP_MOD_ID;
+                case "ae2" -> AppEng.MOD_ID;
+                default -> Reference.MOD_ID;
+            };
             Item value = ForgeRegistries.ITEMS.getValue(new ResourceLocation(modID, entry[1]));
             if (value == null) continue;
             m.remap(value);

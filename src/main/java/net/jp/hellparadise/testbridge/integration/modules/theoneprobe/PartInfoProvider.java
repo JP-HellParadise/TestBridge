@@ -33,7 +33,7 @@ public class PartInfoProvider implements IProbeInfoProvider {
 
     @Override
     public String getID() {
-        return Reference.MODID + ":PartInfoProvider";
+        return Reference.MOD_ID + ":PartInfoProvider";
     }
 
     @Override

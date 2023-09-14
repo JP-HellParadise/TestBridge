@@ -61,7 +61,7 @@ public class PartCraftingManager extends PartBasicState implements IGridTickable
     IInventoryDestination, ICraftingManagerHost, IAEAppEngInventory, IPriorityHost, GuiSatelliteSelect {
 
     public static final ResourceLocation MODEL_BASE = new ResourceLocation(
-        Reference.MODID,
+        Reference.MOD_ID,
         "part/crafting_manager_base");
 
     @PartModels

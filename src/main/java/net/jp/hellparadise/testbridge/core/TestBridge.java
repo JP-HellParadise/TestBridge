@@ -35,11 +35,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Mod(
-    modid = Reference.MODID,
-    name = Reference.MODNAME,
+    modid = Reference.MOD_ID,
+    name = Reference.MOD_NAME,
     version = Reference.VERSION,
-    dependencies = TestBridge.DEPS,
-    acceptedMinecraftVersions = "1.12.2")
+    dependencies = TestBridge.DEPS)
 public class TestBridge {
 
     public static final String DEPS =
@@ -50,7 +49,7 @@ public class TestBridge {
         .contains("openj9");
 
     @SidedProxy(
-        modId = Reference.MODID,
+        modId = Reference.MOD_ID,
         clientSide = "net.jp.hellparadise.testbridge.proxy.ClientProxy",
         serverSide = "net.jp.hellparadise.testbridge.proxy.ServerProxy")
     private static Proxy PROXY = null;
@@ -59,14 +58,14 @@ public class TestBridge {
         return PROXY;
     }
 
-    @Mod.Instance(Reference.MODID)
+    @Mod.Instance(Reference.MOD_ID)
     public static TestBridge INSTANCE;
 
     public TestBridge() {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    public static final Logger log = LogManager.getLogger(Reference.MODNAME);
+    public static final Logger log = LogManager.getLogger(Reference.MOD_NAME);
     private SimpleNetworkWrapper network;
 
     public static SimpleNetworkWrapper getNetwork() {
@@ -163,7 +162,7 @@ public class TestBridge {
     }
 
     private void initialNetwork() {
-        network = NetworkRegistry.INSTANCE.newSimpleChannel(Reference.MODID);
+        network = NetworkRegistry.INSTANCE.newSimpleChannel(Reference.MOD_ID);
         int id = 0;
 
         // Client packet

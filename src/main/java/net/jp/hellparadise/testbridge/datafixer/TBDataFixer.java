@@ -16,7 +16,7 @@ public class TBDataFixer {
     public void init() {
         ModFixs mf = FMLCommonHandler.instance()
             .getDataFixer()
-            .init(Reference.MODID, VERSION);
+            .init(Reference.MOD_ID, VERSION);
         mf.registerFix(DataFixerTE.TYPE, new DataFixerTE());
         mf.registerFix(DataFixerItem.TYPE, new DataFixerItem());
         MinecraftForge.EVENT_BUS.register(new MissingMappingHandler());

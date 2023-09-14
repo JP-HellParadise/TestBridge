@@ -47,7 +47,7 @@ public class AE2Module implements IIntegrationModule {
     // Register recipe
     private static void loadRecipes() {
         // Recipe group
-        ResourceLocation group = new ResourceLocation(Reference.MODID, "recipes");
+        ResourceLocation group = new ResourceLocation(Reference.MOD_ID, "recipes");
         // AE2 API definitions
         IMaterials materials = AE2Module.INSTANCE.api.definitions()
             .materials();
@@ -77,7 +77,7 @@ public class AE2Module implements IIntegrationModule {
                 materials.calcProcessor()
                     .maybeStack(1)
                     .orElse(ItemStack.EMPTY))
-                        .setRegistryName(new ResourceLocation(Reference.MODID, "recipes/satellite_bus")));
+                        .setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/satellite_bus")));
 
         // ME Crafting Manager part
         ForgeRegistries.RECIPES.register(
@@ -85,14 +85,14 @@ public class AE2Module implements IIntegrationModule {
                     .maybeStack(1)
                     .orElse(ItemStack.EMPTY), /* Input */ ((AccessorApiBlocks) blocks).cmBlock().maybeStack(1)
                     .orElse(ItemStack.EMPTY))
-                .setRegistryName(new ResourceLocation(Reference.MODID, "recipes/cm_block_to_part")));
+                .setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/cm_block_to_part")));
 
         ForgeRegistries.RECIPES.register(
             new ShapelessOreRecipe(group, ((AccessorApiBlocks) blocks).cmBlock().maybeStack(1)
                     .orElse(ItemStack.EMPTY), /* Input */ ((AccessorApiParts) parts).craftingManager()
                 .maybeStack(1)
                 .orElse(ItemStack.EMPTY))
-                .setRegistryName(new ResourceLocation(Reference.MODID, "recipes/cm_part_to_block")));
+                .setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/cm_part_to_block")));
 
         // ME Crafting Manager block
         ForgeRegistries.RECIPES.register(
@@ -131,7 +131,7 @@ public class AE2Module implements IIntegrationModule {
                 materials.logicProcessor()
                     .maybeStack(1)
                     .orElse(ItemStack.EMPTY))
-                        .setRegistryName(new ResourceLocation(Reference.MODID, "recipes/craftingmanager_part")));
+                        .setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/craftingmanager_part")));
 
         // Item Package
         ForgeRegistries.RECIPES.register(
@@ -142,6 +142,6 @@ public class AE2Module implements IIntegrationModule {
                 'p',
                 Items.PAPER,
                 'w',
-                "plankWood").setRegistryName(new ResourceLocation(Reference.MODID, "recipes/item_package")));
+                "plankWood").setRegistryName(new ResourceLocation(Reference.MOD_ID, "recipes/item_package")));
     }
 }
