@@ -1,0 +1,68 @@
+repositories {
+  // Other repositories described by default:
+  // CleanroomMC: https://maven.cleanroommc.com
+  exclusiveContent {
+    forRepository {
+      maven {
+        name 'CurseMaven'
+        url 'https://cursemaven.com'
+      }
+    }
+    filter {
+      includeGroup 'curse.maven'
+    }
+  }
+  exclusiveContent {
+    forRepository {
+      maven {
+        name 'Modrinth'
+        url 'https://api.modrinth.com/maven'
+      }
+    }
+    filter {
+      includeGroup 'maven.modrinth'
+    }
+  }
+  maven {
+    url = "https://maven.removeco.de/"
+  }
+  maven {
+    name "Ellpeck"
+    url "https://maven.ellpeck.de"
+  }
+  mavenLocal() // Must be last for caching to work
+}
+
+dependencies {
+  // Example - CurseMaven dependencies:
+  // 'curse.maven:had-enough-items-557549:4543375' << had-enough-items = project slug, 557549 = project id, 4543375 = file id
+  // Full documentation: https://cursemaven.com/
+
+  // Example - Modrinth dependencies:
+  // 'maven.modrinth:jei:4.16.1.1000' << jei = project name, 4.16.1.1000 = file version
+  // Full documentation: https://docs.modrinth.com/docs/tutorials/maven/
+
+  api rfg.deobf('curse.maven:MCMultiPart-239431:2615930') // 2.5.3
+  api rfg.deobf('curse.maven:ThermalDynamic-227443:2920505') // 2.5.6.1
+  api rfg.deobf('curse.maven:LogisticsPipes-232838:4600751') // 0.10.4.44
+  api rfg.deobf('curse.maven:AE2Unofficial-570458:4632516') // v0.53.4
+
+  api 'curse.maven:HadEnoughItems-557549:4442402' // 4.24.0
+  api 'curse.maven:ModularUI-624243:4692436' //
+  implementation 'curse.maven:RedstoneFlux-270789:2920436' // 2.1.1.1
+  implementation 'curse.maven:CodeChickenLib-242818:2779848' // 3.2.3.358-universal
+  implementation 'curse.maven:TheOneProbe-245211:2667280' //
+
+  runtimeOnly 'curse.maven:RefinedStorage-243076:2940914' // 1.6.16
+  runtimeOnly 'curse.maven:ThermalExpansion-69163:2926431' // 5.5.7.1
+  runtimeOnly 'curse.maven:ThermalFoundation-222880:2926428' // 2.6.7.1
+  runtimeOnly 'curse.maven:CoFHCore-69162:2920433' // 4.6.6.1
+  runtimeOnly 'curse.maven:CoFHWorld-271384:2920434' // 1.4.0.1
+
+  compileOnly group: 'codechicken', name: 'NotEnoughItems', version: '1.12.2-2.4.3.245', classifier: 'deobf', transitive: false
+  compileOnly group: 'li.cil.oc', name: 'OpenComputers', version: 'MC1.12.2-1.7.5.205', classifier: 'api' // "haha you cant compiling without me"
+  compileOnly group: 'de.ellpeck.actuallyadditions', name : 'ActuallyAdditions', version: '1.12.2-r152.16', classifier: 'api'
+  compileOnly group: 'com.mod-buildcraft', name: 'buildcraft-all', version: '7.99.24.6', transitive: false
+  compileOnly group: 'com.jaquadro.minecraft.storagedrawers', name: 'StorageDrawers', version: '1.12.2-5.4.2', transitive: false
+  compileOnly group: 'pl.asie.charset', name: 'Charset', version: '0.5.6.6', classifier: 'api', transitive: false
+}
