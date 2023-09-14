@@ -25,8 +25,7 @@ public abstract class TB_MixinGuiOpenChassis extends CoordinatesPacket {
     public void isCraftingManager(EntityPlayer player, CallbackInfo ci) {
         LogisticsTileGenericPipe pipe = this
             .getPipe(player.getEntityWorld(), CoordinatesPacket.LTGPCompletionCheck.PIPE);
-        if (pipe.pipe instanceof PipeCraftingManager) {
-            PipeCraftingManager cm = (PipeCraftingManager) pipe.pipe;
+        if (pipe.pipe instanceof PipeCraftingManager cm) {
             NewGuiHandler.getGui(CMGuiProvider.class)
                 .setBufferUpgrade(cm.hasBufferUpgrade())
                 .setBlockingMode(cm.getBlockingByInt())

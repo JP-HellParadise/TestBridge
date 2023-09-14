@@ -77,7 +77,7 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
         DummyContainer dummy = new DummyContainer(_player, _moduleInventory, module);
         dummy.addNormalSlotsForPlayerInventory(8, 16 + 18 * 3 + 15);
         for (int i = 0; i < 3; i++) for (int j = 0; j < 9; j++)
-            dummy.addCMModuleSlot(9 * i + j, _moduleInventory, 8 + 18 * j, 16 + 18 * i, this.pipeCM);
+            ((ExtendedDummyContainer) dummy).addCMModuleSlot(9 * i + j, _moduleInventory, 8 + 18 * j, 16 + 18 * i, this.pipeCM);
 
         xSize = 177;
         ySize = 167;
@@ -150,21 +150,24 @@ public class GuiCMPipe extends LogisticsBaseGuiScreen {
         Slot currentSlot = getSlotUnderMouse();
         if (currentSlot instanceof CrafterSlot) {
             switch (mouseButton) {
-                case 1:
+                case 1 -> {
                     int slotID = currentSlot.getSlotIndex();
                     LogisticsModule module = pipeCM.getSubModule(slotID);
                     if (module instanceof ModuleCrafter) {
                         ModernPacket packet = PacketHandler.getPacket(CMGui.class)
-                            .setModulePos(slotID)
-                            .setPosX(pipeCM.getX())
-                            .setPosY(pipeCM.getY())
-                            .setPosZ(pipeCM.getZ());
+                                .setModulePos(slotID)
+                                .setPosX(pipeCM.getX())
+                                .setPosY(pipeCM.getY())
+                                .setPosZ(pipeCM.getZ());
                         MainProxy.sendPacketToServer(packet);
                     }
                     return;
                 case 2:
+                }
+                case 2 -> {
                     showUpgrade(currentSlot.getSlotIndex());
                     return;
+                }
             }
         } else if (GuiScreen.isShiftKeyDown() && !(currentSlot instanceof UpgradeSlot)
             && currentSlot != null

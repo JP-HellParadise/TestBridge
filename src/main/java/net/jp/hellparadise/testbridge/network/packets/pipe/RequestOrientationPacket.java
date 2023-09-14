@@ -21,26 +21,26 @@ public class RequestOrientationPacket extends CoordinatesPacket {
     @Override
     public void processPacket(EntityPlayer player) {
         LogisticsTileGenericPipe pipe = this.getPipe(player.world, LTGPCompletionCheck.PIPE);
-        if (pipe.pipe instanceof PipeCraftingManager) {
+        if (pipe.pipe instanceof PipeCraftingManager cm_pipe) {
             MainProxy.sendPacketToPlayer(
                 PacketHandler.getPacket(OrientationPacket.class)
-                    .setDir(((PipeCraftingManager) pipe.pipe).getPointedOrientation())
+                    .setDir(cm_pipe.getPointedOrientation())
                     .setPosX(getPosX())
                     .setPosY(getPosY())
                     .setPosZ(getPosZ()),
                 player);
-        } else if (pipe.pipe instanceof ResultPipe) {
+        } else if (pipe.pipe instanceof ResultPipe resultPipe) {
             MainProxy.sendPacketToPlayer(
                 PacketHandler.getPacket(OrientationPacket.class)
-                    .setDir(((ResultPipe) pipe.pipe).getPointedOrientation())
+                    .setDir(resultPipe.getPointedOrientation())
                     .setPosX(getPosX())
                     .setPosY(getPosY())
                     .setPosZ(getPosZ()),
                 player);
-        } else if (pipe.pipe instanceof PipeItemsSatelliteLogistics) {
+        } else if (pipe.pipe instanceof PipeItemsSatelliteLogistics satPipe) {
             MainProxy.sendPacketToPlayer(
                 PacketHandler.getPacket(OrientationPacket.class)
-                    .setDir(((PipeItemsSatelliteLogistics) pipe.pipe).getPointedOrientation())
+                    .setDir(satPipe.getPointedOrientation())
                     .setPosX(getPosX())
                     .setPosY(getPosY())
                     .setPosZ(getPosZ()),

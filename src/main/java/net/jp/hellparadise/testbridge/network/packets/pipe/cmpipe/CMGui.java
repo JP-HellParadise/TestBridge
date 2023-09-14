@@ -35,15 +35,13 @@ public class CMGui extends CoordinatesPacket {
     @Override
     public void processPacket(EntityPlayer player) {
         final LogisticsTileGenericPipe pipe = getPipe(player.world, LTGPCompletionCheck.PIPE);
-        if (pipe.pipe instanceof PipeCraftingManager) {
-            LogisticsModule subModule = ((PipeCraftingManager) pipe.pipe).getSubModule(modulePos);
-            if (subModule instanceof Gui) {
-                Gui.getPipeGuiProvider((Gui) subModule)
-                    .setPosX(getPosX())
-                    .setPosY(getPosY())
-                    .setPosZ(getPosZ())
-                    .open(player);
-            }
+        if (pipe.pipe instanceof PipeCraftingManager cm_pipe
+                && cm_pipe.getSubModule(modulePos) instanceof Gui subModule) {
+            Gui.getPipeGuiProvider(subModule)
+                .setPosX(getPosX())
+                .setPosY(getPosY())
+                .setPosZ(getPosZ())
+                .open(player);
         }
     }
 

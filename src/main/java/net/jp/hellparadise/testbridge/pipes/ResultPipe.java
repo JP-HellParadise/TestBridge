@@ -166,8 +166,8 @@ public class ResultPipe extends CoreRoutedPipe implements GuiSatelliteHolder, IC
     protected void updateAdjacentCache() {
         super.updateAdjacentCache();
         final Adjacent adjacent = getAdjacent();
-        if (adjacent instanceof SingleAdjacent) {
-            pointedAdjacent = ((SingleAdjacent) adjacent);
+        if (adjacent instanceof SingleAdjacent singleAdjacent) {
+            pointedAdjacent = singleAdjacent;
         } else {
             final SingleAdjacent oldPointedAdjacent = pointedAdjacent;
             SingleAdjacent newPointedAdjacent = null;

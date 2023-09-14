@@ -22,8 +22,7 @@ public class ModuleContent extends InventoryModuleCoordinatesPacket {
     @Override
     public void processPacket(EntityPlayer player) {
         final LogisticsTileGenericPipe pipe = this.getPipe(player.world, LTGPCompletionCheck.PIPE);
-        if (pipe.pipe instanceof PipeCraftingManager) {
-            PipeCraftingManager chassis = (PipeCraftingManager) pipe.pipe;
+        if (pipe.pipe instanceof PipeCraftingManager chassis) {
             chassis.handleModuleItemIdentifierList(getIdentList());
         }
     }

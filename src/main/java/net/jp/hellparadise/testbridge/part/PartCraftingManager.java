@@ -280,8 +280,8 @@ public class PartCraftingManager extends PartBasicState implements IGridTickable
         NBTTagCompound output = super.downloadSettings(from);
         if (from == SettingsFrom.MEMORY_CARD) {
             final IItemHandler inv = this.getInventoryByName("patterns");
-            if (inv instanceof AppEngInternalInventory) {
-                ((AppEngInternalInventory) inv).writeToNBT(output, "patterns");
+            if (inv instanceof AppEngInternalInventory internalInventory) {
+                internalInventory.writeToNBT(output, "patterns");
             }
         }
         if (!getSatelliteName().isEmpty()) output.setString("__satSelect", getSatelliteName());
@@ -292,8 +292,7 @@ public class PartCraftingManager extends PartBasicState implements IGridTickable
     public void uploadSettings(SettingsFrom from, NBTTagCompound compound, EntityPlayer player) {
         super.uploadSettings(from, compound, player);
         final IItemHandler inv = this.getInventoryByName("patterns");
-        if (inv instanceof AppEngInternalInventory) {
-            final AppEngInternalInventory target = (AppEngInternalInventory) inv;
+        if (inv instanceof AppEngInternalInventory target) {
             AppEngInternalInventory tmp = new AppEngInternalInventory(null, target.getSlots());
             tmp.readFromNBT(compound, "patterns");
             PlayerMainInvWrapper playerInv = new PlayerMainInvWrapper(player.inventory);

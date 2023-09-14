@@ -29,11 +29,7 @@ public abstract class TB_MixinModuleCoordinatesPacket {
         remap = false)
     public <T> boolean skipChassisChecker(Object original, Operation<Boolean> operator, EntityPlayer player,
         Class<T> clazz) {
-        if (original instanceof PipeCraftingManager) {
-            return true;
-        } else {
-            return operator.call(original);
-        }
+        return original instanceof PipeCraftingManager || operator.call(original);
     }
 
     @Inject(
@@ -47,8 +43,8 @@ public abstract class TB_MixinModuleCoordinatesPacket {
         remap = false)
     public <T> void redirectCmModule(EntityPlayer player, Class<T> clazz, CallbackInfoReturnable<T> cir,
         @Local LogisticsTileGenericPipe pipe) {
-        if (pipe.pipe instanceof PipeCraftingManager) {
-            LogisticsModule module = ((PipeCraftingManager) pipe.pipe).getSubModule(this.positionInt);
+        if (pipe.pipe instanceof PipeCraftingManager cmPipe) {
+            LogisticsModule module = cmPipe.getSubModule(this.positionInt);
             if (module != null) {
                 if (!clazz.isAssignableFrom(module.getClass())) {
                     throw new TargetNotFoundException(

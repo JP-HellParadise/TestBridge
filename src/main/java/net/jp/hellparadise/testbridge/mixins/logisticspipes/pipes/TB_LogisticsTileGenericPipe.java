@@ -17,6 +17,6 @@ public abstract class TB_LogisticsTileGenericPipe implements IGuiHolder {
 
     @Override
     public ModularPanel buildUI(GuiCreationContext creationContext, GuiSyncManager syncManager, boolean isClient) {
-        return pipe instanceof IGuiHolder ? ((IGuiHolder) pipe).buildUI(creationContext, syncManager, isClient) : null;
+        return pipe instanceof IGuiHolder guiHolder ? guiHolder.buildUI(creationContext, syncManager, isClient) : null;
     }
 }

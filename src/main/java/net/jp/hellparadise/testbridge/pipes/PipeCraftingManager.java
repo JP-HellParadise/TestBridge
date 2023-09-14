@@ -157,8 +157,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
             final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(i);
             if (idStack != null && !moduleCM.hasModule(i)) {
                 final Item stackItem = idStack.getItem().item;
-                if (stackItem instanceof ItemModule) {
-                    final ItemModule moduleItem = (ItemModule) stackItem;
+                if (stackItem instanceof ItemModule moduleItem) {
                     LogisticsModule module = moduleItem.getModule(null, this, this);
                     if (module != null) {
                         moduleCM.installModule(i, module);
@@ -284,9 +283,8 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         if (reInitGui) {
             if (MainProxy.isClient(getWorld())) {
                 if (FMLClientHandler.instance()
-                    .getClient().currentScreen instanceof GuiCMPipe) {
-                    FMLClientHandler.instance()
-                        .getClient().currentScreen.initGui();
+                    .getClient().currentScreen instanceof GuiCMPipe currentScreen) {
+                    currentScreen.initGui();
                 }
             }
         }
@@ -450,7 +448,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
             if (Configs.MULTI_THREAD_NUMBER > 0 && !force) {
                 HudUpdateTick.add(getRouter());
             } else {
-                if (localModeWatchers.size() > 0) {
+                if (!localModeWatchers.isEmpty()) {
                     LinkedList<ItemIdentifierStack> items = ItemIdentifierStack.getListSendQueue(_sendQueue);
                     MainProxy.sendToPlayerList(
                         PacketHandler.getPacket(SendQueueContent.class)
@@ -524,10 +522,8 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         for (int i = 0; i < getChassisSize(); i++) {
             LogisticsModule x = getSubModule(i);
 
-            if (x instanceof ICraftItems) {
-                if (((ICraftItems) x).canCraft(toCraft)) {
-                    return true;
-                }
+            if (x instanceof ICraftItems crafterModule && crafterModule.canCraft(toCraft)) {
+                return true;
             }
         }
         return false;
@@ -538,10 +534,8 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         for (int i = 0; i < getChassisSize(); i++) {
             LogisticsModule x = getSubModule(i);
 
-            if (x instanceof ICraftItems) {
-                if (((ICraftItems) x).canCraft(toCraft)) {
-                    return ((ICraftItems) x).addCrafting(toCraft);
-                }
+            if (x instanceof ICraftItems crafterModule && crafterModule.canCraft(toCraft)) {
+                return crafterModule.addCrafting(toCraft);
             }
         }
         return null;
@@ -555,11 +549,11 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         for (int i = 0; i < getChassisSize(); i++) {
             LogisticsModule x = getSubModule(i);
 
-            if (x instanceof ICraftItems) {
+            if (x instanceof ICraftItems crafterModule) {
                 if (craftables == null) {
                     craftables = new LinkedList<>();
                 }
-                craftables.addAll(((ICraftItems) x).getCraftedItems());
+                craftables.addAll(crafterModule.getCraftedItems());
             }
         }
         return craftables;
@@ -631,11 +625,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
     @Nonnull
     protected Adjacent getPointedAdjacentOrNoAdjacent() {
         // for public access, use getAvailableAdjacent()
-        if (pointedAdjacent == null) {
-            return NoAdjacent.INSTANCE;
-        } else {
-            return pointedAdjacent;
-        }
+        return pointedAdjacent == null ? NoAdjacent.INSTANCE : pointedAdjacent;
     }
 
     /**
@@ -654,8 +644,8 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
     protected void updateAdjacentCache() {
         super.updateAdjacentCache();
         final Adjacent adjacent = getAdjacent();
-        if (adjacent instanceof SingleAdjacent) {
-            pointedAdjacent = ((SingleAdjacent) adjacent);
+        if (adjacent instanceof SingleAdjacent singleAdjacent) {
+            pointedAdjacent = singleAdjacent;
         } else {
             final SingleAdjacent oldPointedAdjacent = pointedAdjacent;
             SingleAdjacent newPointedAdjacent = null;
@@ -698,7 +688,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         } else {
             final List<NeighborTileEntity<TileEntity>> sortedNeighbors = sortedNeighborsStream
                 .collect(Collectors.toList());
-            if (sortedNeighbors.size() == 0) return null;
+            if (sortedNeighbors.isEmpty()) return null;
             final Optional<NeighborTileEntity<TileEntity>> nextNeighbor = sortedNeighbors.stream()
                 .filter(
                     neighbor -> neighbor.getDirection()

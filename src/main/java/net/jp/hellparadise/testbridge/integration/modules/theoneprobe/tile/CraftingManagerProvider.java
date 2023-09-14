@@ -15,8 +15,8 @@ public class CraftingManagerProvider implements ITileProbInfoProvider, ReadInvCr
     @Override
     public void addProbeInfo(AEBaseTile tile, ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world,
         IBlockState blockState, IProbeHitData data) {
-        if (tile instanceof ICraftingManagerHost) {
-            addConnectInfo((ICraftingManagerHost) tile, probeInfo);
+        if (tile instanceof ICraftingManagerHost cmHost) {
+            addConnectInfo(cmHost, probeInfo);
             addInfo(tile, probeInfo);
         }
     }

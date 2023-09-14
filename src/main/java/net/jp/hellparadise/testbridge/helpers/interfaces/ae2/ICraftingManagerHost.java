@@ -38,8 +38,7 @@ public interface ICraftingManagerHost extends ICraftingProvider, IUpgradeableHos
             for (final IGridNode node : getCMDuality().gridProxy.getGrid()
                     .getMachines(PartSatelliteBus.class)) {
                 IGridHost h = node.getMachine();
-                if (h instanceof PartSatelliteBus) {
-                    PartSatelliteBus part = (PartSatelliteBus) h;
+                if (h instanceof PartSatelliteBus part) {
                     if (!part.getSatelliteName()
                             .isEmpty()) {
                         retrieveList.add(part.getSatelliteName());

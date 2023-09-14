@@ -76,7 +76,7 @@ public class CMGuiProvider extends ModuleCoordinatesGuiProvider {
         DummyContainer dummy = new DummyContainer(player, _moduleInventory, moduleCM);
         dummy.addNormalSlotsForPlayerInventory(8, 85);
         for (int i = 0; i < 3; i++) for (int j = 0; j < 9; j++)
-            dummy.addCMModuleSlot(9 * i + j, _moduleInventory, 8 + 18 * j, 16 + 18 * i, _cmPipe);
+            ((ExtendedDummyContainer) dummy).addCMModuleSlot(9 * i + j, _moduleInventory, 8 + 18 * j, 16 + 18 * i, _cmPipe);
 
         for (int i = 0; i < _cmPipe.getChassisSize(); i++) {
             final int fI = i;

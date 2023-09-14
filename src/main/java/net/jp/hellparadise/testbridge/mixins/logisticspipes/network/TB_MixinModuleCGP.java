@@ -29,13 +29,9 @@ public abstract class TB_MixinModuleCGP extends CoordinatesGuiProvider {
         method = "getLogisticsModule",
         at = @At(value = "INVOKE", target = "Llogisticspipes/LogisticsPipes;isDEBUG()Z", ordinal = 1),
         remap = false)
-    public <T> boolean disableWrongError(Operation<Boolean> original, World ignoredWorld, Class<T> ignoredClazz,
+    private <T> boolean disableWrongError(Operation<Boolean> original, World ignoredWorld, Class<T> ignoredClazz,
         @Local LogisticsTileGenericPipe pipe) {
-        if (pipe.pipe instanceof PipeCraftingManager) {
-            return false;
-        } else {
-            return original.call();
-        }
+        return !(pipe.pipe instanceof PipeCraftingManager) && original.call();
     }
 
     @Inject(
@@ -43,10 +39,10 @@ public abstract class TB_MixinModuleCGP extends CoordinatesGuiProvider {
         at = @At(value = "RETURN", ordinal = 1, shift = At.Shift.BEFORE),
         cancellable = true,
         remap = false)
-    public <T> void redirectToCmModule(World world, Class<T> clazz, CallbackInfoReturnable<T> cir,
+    private <T> void redirectToCmModule(World world, Class<T> clazz, CallbackInfoReturnable<T> cir,
         @Local LogisticsTileGenericPipe pipe) {
-        if (pipe.pipe instanceof PipeCraftingManager) {
-            cir.setReturnValue((T) ((PipeCraftingManager) pipe.pipe).getSubModule(this.positionInt));
+        if (pipe.pipe instanceof PipeCraftingManager cmPipe) {
+            cir.setReturnValue((T) cmPipe.getSubModule(this.positionInt));
         }
     }
 }

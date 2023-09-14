@@ -26,19 +26,17 @@ public class GuiHandler {
         return GuiInfo.builder()
             .clientGui((context, panel) -> {
                 TileEntity tile = context.getTileEntity();
-                if (!(tile instanceof IPartHost)) throw new IllegalStateException("Are you sure this is AE2 part?");
-                IPart part = ((IPartHost) tile).getPart(facing);
-                if (part instanceof IGuiHolder) {
-                    return ((IGuiHolder) part).createScreen(context, panel);
+                if (tile instanceof IPartHost partHost
+                        && partHost.getPart(facing) instanceof IGuiHolder guiHolder) {
+                    return guiHolder.createScreen(context, panel);
                 }
                 throw new UnsupportedOperationException();
             })
             .commonGui((context, guiSyncHandler) -> {
                 TileEntity tile = context.getTileEntity();
-                if (!(tile instanceof IPartHost)) throw new IllegalStateException("Are you sure this is AE2 part?");
-                IPart part = ((IPartHost) tile).getPart(facing);
-                if (part instanceof IGuiHolder) {
-                    return ((IGuiHolder) part).buildUI(context, guiSyncHandler, context.getWorld().isRemote);
+                if (tile instanceof IPartHost partHost
+                        && partHost.getPart(facing) instanceof IGuiHolder guiHolder) {
+                    return guiHolder.buildUI(context, guiSyncHandler, context.getWorld().isRemote);
                 }
                 throw new UnsupportedOperationException();
             })

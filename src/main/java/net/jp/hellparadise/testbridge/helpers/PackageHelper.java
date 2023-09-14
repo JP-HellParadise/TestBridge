@@ -20,8 +20,8 @@ public class PackageHelper {
      */
     public static ItemStack getItemStack(@Nonnull ItemStack itemStack, boolean isHolder) {
         NBTBase item = getItemsNbt(itemStack).get(0);
-        return (item instanceof NBTTagCompound && !item.isEmpty() && (!isHolder || (itemStack.hasTagCompound() && itemStack.getTagCompound()
-                .getBoolean("__actContainer")))) ? new ItemStack((NBTTagCompound) item) : ItemStack.EMPTY;
+        return (item instanceof NBTTagCompound tagCompound && !item.isEmpty() && (!isHolder || (itemStack.hasTagCompound() && itemStack.getTagCompound()
+                .getBoolean("__actContainer")))) ? new ItemStack(tagCompound) : ItemStack.EMPTY;
     }
 
     public static NBTTagList getItemsNbt(@Nonnull ItemStack itemStack) {

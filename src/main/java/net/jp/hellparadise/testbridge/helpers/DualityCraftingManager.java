@@ -648,10 +648,8 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
             if (ad == null) return true;
             final TileEntity te = sat.getNeighborTE();
             final World w = te.getWorld();
-            IPhantomTile phantomTE;
-            if (Loader.isModLoaded("actuallyadditions") && te instanceof IPhantomTile) {
-                phantomTE = ((IPhantomTile) te);
-                if (phantomTE.hasBoundPosition()) {
+            if (Loader.isModLoaded("actuallyadditions")) {
+                if (te instanceof IPhantomTile phantomTE && phantomTE.hasBoundPosition()) {
                     TileEntity phantom = w.getTileEntity(phantomTE.getBoundPosition());
                     if (NonBlockingItems.INSTANCE.getMap()
                         .containsKey(
@@ -694,10 +692,8 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
                 if (ad == null) return true;
                 final TileEntity te = sat.getNeighborTE();
                 final World w = te.getWorld();
-                IPhantomTile phantomTE;
-                if (Loader.isModLoaded("actuallyadditions") && te instanceof IPhantomTile) {
-                    phantomTE = ((IPhantomTile) te);
-                    if (phantomTE.hasBoundPosition()) {
+                if (Loader.isModLoaded("actuallyadditions")) {
+                    if (te instanceof IPhantomTile phantomTE && phantomTE.hasBoundPosition()) {
                         TileEntity phantom = w.getTileEntity(phantomTE.getBoundPosition());
                         if (NonBlockingItems.INSTANCE.getMap()
                             .containsKey(
@@ -800,17 +796,17 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
 
     @SuppressWarnings("Redundant")
     public IUpgradeableHost getHost() {
-        if (this.getPart() instanceof IUpgradeableHost) {
-            return (IUpgradeableHost) this.getPart();
+        if (this.getPart() instanceof IUpgradeableHost part) {
+            return part;
         }
-        if (this.getTile() instanceof IUpgradeableHost) {
-            return (IUpgradeableHost) this.getTile();
+        if (this.getTile() instanceof IUpgradeableHost tile) {
+            return tile;
         }
         return null;
     }
 
     private IPart getPart() {
-        return (IPart) (this.cmHost instanceof IPart ? this.cmHost : null);
+        return this.cmHost instanceof IPart part ? part : null;
     }
 
     public ImmutableSet<ICraftingLink> getRequestedJobs() {
@@ -911,12 +907,9 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
                 .getGrid()
                 .getMachines(PartSatelliteBus.class)) {
                 IGridHost h = node.getMachine();
-                if (h instanceof PartSatelliteBus) {
-                    PartSatelliteBus part = (PartSatelliteBus) h;
-                    if (part.getSatelliteName()
-                        .equals(name)) {
-                        return part;
-                    }
+                if (h instanceof PartSatelliteBus part
+                        && part.getSatelliteName().equals(name)) {
+                    return part;
                 }
             }
         }

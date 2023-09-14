@@ -15,8 +15,8 @@ public class CraftingManagerProvider implements IPartProbInfoProvider, ReadInvCr
     @Override
     public void addProbeInfo(IPart part, ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world,
         IBlockState blockState, IProbeHitData data) {
-        if (part instanceof ICraftingManagerHost) {
-            addConnectInfo((ICraftingManagerHost) part, probeInfo);
+        if (part instanceof ICraftingManagerHost cmHost) {
+            addConnectInfo(cmHost, probeInfo);
             addInfo(part, probeInfo);
         }
     }

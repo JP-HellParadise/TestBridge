@@ -110,9 +110,9 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
 
         for (i = 0; i < this.upgrades.length; ++i) {
             IPipeUpgrade upgrade = this.upgrades[i];
-            if (upgrade instanceof SneakyUpgradeConfig && this.sneakyOrientation == null) {
+            if (upgrade instanceof SneakyUpgradeConfig sneakyConfig && this.sneakyOrientation == null) {
                 ItemStack stack = this.inv.getStackInSlot(i);
-                this.sneakyOrientation = ((SneakyUpgradeConfig) upgrade).getSide(stack);
+                this.sneakyOrientation = sneakyConfig.getSide(stack);
             } else if (upgrade instanceof AdvancedSatelliteUpgrade) {
                 this.isAdvancedCrafter = true;
             } else if (upgrade instanceof FuzzyUpgrade) {
@@ -170,8 +170,8 @@ public class ModuleUpgradeManager implements ISimpleInventoryEventHandler, ISlot
 
     private boolean updateModule(int slot, IPipeUpgrade[] upgrades, IInventory inv) {
         ItemStack stackInSlot = inv.getStackInSlot(slot);
-        if (!stackInSlot.isEmpty() && stackInSlot.getItem() instanceof ItemUpgrade) {
-            upgrades[slot] = ((ItemUpgrade) stackInSlot.getItem()).getUpgradeForItem(stackInSlot, upgrades[slot]);
+        if (!stackInSlot.isEmpty() && stackInSlot.getItem() instanceof ItemUpgrade upgrade) {
+            upgrades[slot] = upgrade.getUpgradeForItem(stackInSlot, upgrades[slot]);
         } else {
             upgrades[slot] = null;
         }

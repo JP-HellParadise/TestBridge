@@ -16,8 +16,8 @@ public class SatelliteBusProvider implements IPartProbInfoProvider {
     @Override
     public void addProbeInfo(IPart part, ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world,
         IBlockState blockState, IProbeHitData data) {
-        if (part instanceof PartSatelliteBus) {
-            String satName = ((PartSatelliteBus) part).getSatelliteName();
+        if (part instanceof PartSatelliteBus satelliteBus) {
+            String satName = satelliteBus.getSatelliteName();
             probeInfo.text(TextUtil.translate(
                     TranslationKey.top$sat_prefix + (satName.isEmpty() ? "no_name" : "name"), satName));
         }

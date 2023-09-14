@@ -54,13 +54,13 @@ public abstract class TB_MixinTOPAddon implements IProbeInfoProvider {
         remap = false)
     private void preAddProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world,
         IBlockState blockState, IProbeHitData data, CallbackInfo ci, boolean isModule, CoreUnroutedPipe pipe) {
-        if (pipe instanceof ResultPipe) {
-            this.addResultPipeInfo((ResultPipe) pipe, probeInfo);
-            this.defaultInfo(pipe, probeInfo, mode);
+        if (pipe instanceof ResultPipe resultPipe) {
+            this.addResultPipeInfo(resultPipe, probeInfo);
+            this.defaultInfo(resultPipe, probeInfo, mode);
             ci.cancel();
-        } else if (pipe instanceof PipeCraftingManager) {
-            this.addCMPipeInfo((PipeCraftingManager) pipe, probeInfo, mode);
-            this.defaultInfo(pipe, probeInfo, mode);
+        } else if (pipe instanceof PipeCraftingManager cmPipe) {
+            this.addCMPipeInfo(cmPipe, probeInfo, mode);
+            this.defaultInfo(cmPipe, probeInfo, mode);
             ci.cancel();
         }
     }
