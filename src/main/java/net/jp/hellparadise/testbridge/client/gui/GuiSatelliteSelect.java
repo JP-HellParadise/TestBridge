@@ -38,9 +38,6 @@ public interface GuiSatelliteSelect extends IGuiHolder, ICraftingManagerHost {
                         ((buffer, value) -> buffer.writeByteArray(value.getBytes(StandardCharsets.UTF_8))),
                         buffer -> new String(buffer.readByteArray(Integer.MAX_VALUE), StandardCharsets.UTF_8)));
 
-        ListSyncHandler<String> satListSync = (ListSyncHandler<String>) syncManager.getSyncHandler("satList");
-        StringSyncValue satNameSync = (StringSyncValue) syncManager.getSyncHandler("satName");
-
         // Initialize stuff
         Map<String, ? extends IWidget> map = new Object2ObjectOpenHashMap<>();
         Map<? extends IWidget, String> map_reverse = new Object2ObjectOpenHashMap<>();
@@ -50,21 +47,24 @@ public interface GuiSatelliteSelect extends IGuiHolder, ICraftingManagerHost {
         // Initial panel
         ModularPanel panel = ModularPanel.defaultPanel("satellite_select")
                 .child(new Column().height(20).padding(7)
-                .child(IKey.lang("item.testbridge.item_package.name").asWidget())
-                .child(new Row().topRel(1.F)
-                    .child(new Column().widthRel(0.5F)
-                        .child(IKey.str("Current select:").asWidget())
-                        .child(new TextFieldWidget().align(Alignment.Center).width(80).height(18).topRel(1.5F)
-                            .value(SyncHandlers.string(this::getSatelliteName, null))))
-                    .child(new Column().widthRel(0.5F).child(listWidget))));
+                    .child(IKey.lang("item.testbridge.item_package.name").asWidget())
+                    .child(new Row().topRel(1.F)
+                        .child(new Column().widthRel(0.5F)
+                            .child(IKey.str("Current select:").asWidget())
+                            .child(new TextFieldWidget().align(Alignment.Center).width(80).height(18).topRel(1.5F)
+                                .value(SyncHandlers.string(this::getSatelliteName, null))))
+                        .child(new Column().widthRel(0.5F).child(listWidget))));
 
-        // Register everything that needed
-        syncManager.addCloseListener(entityPlayer -> { // Switch back to old gui in a complicated way ever :trolled:
+        // Register switch back to parent menu (Crafting Manager)
+        syncManager.addCloseListener(entityPlayer -> {
             if (entityPlayer instanceof EntityPlayerSP)
                 TestBridge.getNetwork().sendToServer(new CManagerMenuSwitch()
                         .setPos(creationContext.getBlockPos())
                         .setSide(sideOrdinal()));
         });
+
+        // Satellite sync
+        StringSyncValue satNameSync = (StringSyncValue) syncManager.getSyncHandler("satName");
 
         listWidget.child(new ButtonWidget<>().size(80, 18)
                 .overlay(IKey.str("<None>"))
@@ -73,16 +73,18 @@ public interface GuiSatelliteSelect extends IGuiHolder, ICraftingManagerHost {
                     return true;
                 }));
 
-        satListSync.setChangeListener(() -> {
-            satListSync.getValue().forEach(value -> listWidget.addChild(
-                    new ButtonWidget<>().size(80, 18)
-                            .overlay(IKey.str(value))
-                            .onMousePressed(mouseButton1 -> {
-                                satNameSync.setValue(value);
-                                return true;
-                            }), -1));
-            WidgetTree.resize(panel);
-        });
+        if (syncManager.getSyncHandler("satList") instanceof ListSyncHandler<?> satListSync) {
+            satListSync.setChangeListener(() -> {
+                satListSync.getValue().forEach(value -> listWidget.addChild(
+                        new ButtonWidget<>().size(80, 18)
+                                .overlay(IKey.str((String) value))
+                                .onMousePressed(mouseButton1 -> {
+                                    satNameSync.setValue((String) value);
+                                    return true;
+                                }), -1));
+                WidgetTree.resize(panel);
+            });
+        }
 
         return panel;
     }
