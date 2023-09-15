@@ -276,7 +276,7 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, IGuiOpenControl
             .setModulePos(this);
     }
 
-    public String getNameByUUID(UUID uuid, boolean isResult) {
+    public String getNameByUUID(UUID uuid, boolean requestForResult) {
         if (UUIDPropertyKt.isZero(uuid)) {
             return TextUtil.translate(TranslationKey.top$cm_prefix + "none");
         }
@@ -288,16 +288,15 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, IGuiOpenControl
             if (exitRoutes != null && !exitRoutes.isEmpty()) {
                 CoreRoutedPipe pipe = SimpleServiceLocator.routerManager.getRouter(routerId)
                     .getPipe();
-                if (pipe instanceof PipeItemsSatelliteLogistics || pipe instanceof ResultPipe) {
-                    String name = "";
-                    if (!isResult && pipe instanceof PipeItemsSatelliteLogistics) {
-                        name = ((PipeItemsSatelliteLogistics) pipe).getSatellitePipeName();
-                    } else if (isResult && pipe instanceof ResultPipe) {
-                        name = ((ResultPipe) pipe).getSatelliteName();
-                    }
-                    return TextUtil.translate(TranslationKey.top$cm_prefix + "valid", name.isEmpty() ?
-                            TextUtil.translate(TranslationKey.top$cm_prefix + "none"): name);
+                String name = "";
+                if (!requestForResult && pipe instanceof PipeItemsSatelliteLogistics satPipe) {
+                    name = satPipe.getSatellitePipeName();
+                } else if (requestForResult && pipe instanceof ResultPipe resultPipe) {
+                    name = resultPipe.getSatelliteName();
                 }
+
+                return TextUtil.translate(TranslationKey.top$cm_prefix + "valid", name.isEmpty() ?
+                        TextUtil.translate(TranslationKey.top$cm_prefix + "none") : name);
             }
         } catch (IndexOutOfBoundsException ignore) {}
         return TextUtil.translate(TranslationKey.top$cm_prefix + "router_error");
@@ -635,22 +634,25 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, IGuiOpenControl
 
     protected boolean isBlocking() {
         switch (blockingMode.getValue()) {
-            case EMPTY_MAIN_SATELLITE:
+            case EMPTY_MAIN_SATELLITE -> {
                 assert craftingList.peek() != null;
                 return isBlockingBySet(
-                    craftingList.peek()
-                        .keySet());
-
-            case REDSTONE_HIGH:
+                        craftingList.peek()
+                                .keySet());
+            }
+            case REDSTONE_HIGH -> {
                 assert getWorld() != null;
                 return !getWorld().isBlockPowered(parentPipe.getPos());
-
-            case REDSTONE_LOW:
+            }
+            case REDSTONE_LOW -> {
                 assert getWorld() != null;
                 return getWorld().isBlockPowered(parentPipe.getPos());
 
             case REDSTONE_PULSE:
+            }
+            case REDSTONE_PULSE -> {
                 return true;
+            }
 
             // case WAIT_FOR_RESULT: { // TODO check if this work
             // ResultPipe defSat = (ResultPipe) getCMResultRouter().getPipe();
@@ -671,8 +673,9 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, IGuiOpenControl
             // return true;
             // }
 
-            default:
+            default -> {
                 return false;
+            }
         }
     }
 

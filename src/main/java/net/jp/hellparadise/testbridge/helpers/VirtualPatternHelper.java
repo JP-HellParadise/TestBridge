@@ -320,9 +320,7 @@ public class VirtualPatternHelper implements ICraftingPatternDetails, Comparable
         public boolean equals(final Object obj) {
             final boolean equality;
 
-            if (obj instanceof TestLookup) {
-                final TestLookup b = (TestLookup) obj;
-
+            if (obj instanceof TestLookup b) {
                 equality = b.slot == this.slot && b.ref == this.ref;
             } else {
                 equality = false;

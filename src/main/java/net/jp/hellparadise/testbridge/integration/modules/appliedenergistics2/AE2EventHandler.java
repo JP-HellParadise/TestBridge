@@ -1,8 +1,6 @@
 package net.jp.hellparadise.testbridge.integration.modules.appliedenergistics2;
 
 import appeng.api.storage.data.IAEItemStack;
-import appeng.client.gui.implementations.GuiMEMonitorable;
-import appeng.client.me.ItemRepo;
 import appeng.util.prioritylist.IPartitionList;
 import appeng.util.prioritylist.MergedPriorityList;
 import java.util.Collection;
@@ -42,28 +40,26 @@ public class AE2EventHandler {
         }
 
         // Hacking stuff
-        @SuppressWarnings("unchecked")
         @SideOnly(Side.CLIENT)
         static void hideFakeItems() {
             Minecraft mc = Minecraft.getMinecraft();
-            if (mc.currentScreen instanceof GuiMEMonitorable) {
-                GuiMEMonitorable gui = (GuiMEMonitorable) mc.currentScreen;
+            if (mc.currentScreen instanceof AccessorGuiMEMonitorable gui
+                    && gui.getRepo() instanceof AccessorItemRepo itemRepo) {
                 if (AE2Module.HIDE_FAKE_ITEM == null) AE2Module.HIDE_FAKE_ITEM = new HideFakeItem();
                 try {
-                    ItemRepo guiItemRepo = ((AccessorGuiMEMonitorable) gui).getRepo();
-                    IPartitionList<IAEItemStack> partList = ((AccessorItemRepo) guiItemRepo).getMyPartitionList();
-                    if (partList instanceof MergedPriorityList) {
-                        Collection<IPartitionList<?>> negative = ((AccessorMergedPriorityList) partList).getNegative();
+                    IPartitionList<IAEItemStack> partList = itemRepo.getMyPartitionList();
+                    if (partList instanceof AccessorMergedPriorityList mergedPriorityList) {
+                        Collection<IPartitionList<?>> negative = mergedPriorityList.getNegative();
                         if (!negative.contains(AE2Module.HIDE_FAKE_ITEM)) {
                             negative.add(AE2Module.HIDE_FAKE_ITEM);
-                            ((AccessorItemRepo) guiItemRepo).setResort(true);
+                            itemRepo.setResort(true);
                         }
                     } else {
                         MergedPriorityList<IAEItemStack> newMList = new MergedPriorityList<>();
-                        ((AccessorItemRepo) guiItemRepo).setMyPartitionList(newMList);
+                        itemRepo.setMyPartitionList(newMList);
                         if (partList != null) newMList.addNewList(partList, true);
                         newMList.addNewList(AE2Module.HIDE_FAKE_ITEM, false);
-                        ((AccessorItemRepo) guiItemRepo).setResort(true);
+                        itemRepo.setResort(true);
                     }
                 } catch (Throwable ignored) {
                 }
