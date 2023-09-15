@@ -2,7 +2,6 @@ package net.jp.hellparadise.testbridge.utils;
 
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
