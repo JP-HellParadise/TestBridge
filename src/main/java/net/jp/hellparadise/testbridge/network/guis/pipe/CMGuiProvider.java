@@ -8,8 +8,9 @@ import logisticspipes.network.abstractguis.ModuleCoordinatesGuiProvider;
 import logisticspipes.pipes.basic.LogisticsTileGenericPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.utils.StaticResolve;
+import logisticspipes.utils.gui.DummyContainer;
 import net.jp.hellparadise.testbridge.client.gui.GuiCMPipe;
-import net.jp.hellparadise.testbridge.helpers.inventory.DummyContainer;
+import net.jp.hellparadise.testbridge.helpers.interfaces.lp.ExtendedDummyContainer;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM;
 import net.jp.hellparadise.testbridge.modules.TB_ModuleCM.BlockingMode;
 import net.jp.hellparadise.testbridge.pipes.PipeCraftingManager;
@@ -66,12 +67,11 @@ public class CMGuiProvider extends ModuleCoordinatesGuiProvider {
     @Override
     public DummyContainer getContainer(EntityPlayer player) {
         LogisticsTileGenericPipe pipe = getTileAs(player.world, LogisticsTileGenericPipe.class);
-        if (!(pipe.pipe instanceof PipeCraftingManager)) {
+        if (!(pipe.pipe instanceof PipeCraftingManager _cmPipe)) {
             return null;
         }
         TB_ModuleCM moduleCM = ((PipeCraftingManager) pipe.pipe).getModules();
         MainProxy.sendPacketToPlayer(moduleCM.getCMPipePacket(), player);
-        final PipeCraftingManager _cmPipe = (PipeCraftingManager) pipe.pipe;
         IInventory _moduleInventory = _cmPipe.getModuleInventory();
         DummyContainer dummy = new DummyContainer(player, _moduleInventory, moduleCM);
         dummy.addNormalSlotsForPlayerInventory(8, 85);
