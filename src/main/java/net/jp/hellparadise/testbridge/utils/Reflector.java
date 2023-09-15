@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import net.jp.hellparadise.testbridge.core.TestBridge;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
@@ -18,9 +19,9 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 @SuppressWarnings("UnusedDeclaration, deprecation") // Living in 1.12.2 must be like
 public class Reflector {
 
-    public static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 
-    public static MethodHandle resolveCtor(Class<?> clazz, Class<?>... args) {
+    @Nullable public static MethodHandle resolveCtor(Class<?> clazz, Class<?>... args) {
         try {
             Constructor<?> ctor = clazz.getDeclaredConstructor(args);
             ctor.setAccessible(true);
@@ -31,7 +32,7 @@ public class Reflector {
         }
     }
 
-    public static <T> Constructor<T> getCtor(Class<T> clazz, Class<?>... args) {
+    @Nullable public static <T> Constructor<T> getCtor(Class<T> clazz, Class<?>... args) {
         try {
             Constructor<T> ctor = clazz.getDeclaredConstructor(args);
             ctor.setAccessible(true);
@@ -42,7 +43,7 @@ public class Reflector {
         }
     }
 
-    public static MethodHandle resolveMethod(Class<?> clazz, String methodName, Class<?>... args) {
+    @Nullable public static MethodHandle resolveMethod(Class<?> clazz, String methodName, Class<?>... args) {
         try {
             Method method = clazz.getDeclaredMethod(methodName, args);
             method.setAccessible(true);
@@ -53,7 +54,7 @@ public class Reflector {
         }
     }
 
-    public static Method getMethod(Class<?> clazz, String methodName, Class<?>... args) {
+    @Nullable public static Method getMethod(Class<?> clazz, String methodName, Class<?>... args) {
         try {
             Method method = clazz.getDeclaredMethod(methodName, args);
             method.setAccessible(true);
@@ -64,7 +65,7 @@ public class Reflector {
         }
     }
 
-    public static MethodHandle resolveMethod(Class<?> clazz, String methodName, String obfMethodName,
+    @Nullable public static MethodHandle resolveMethod(Class<?> clazz, String methodName, String obfMethodName,
         Class<?>... args) {
         try {
             return LOOKUP.unreflect(ReflectionHelper.findMethod(clazz, methodName, obfMethodName, args));
@@ -78,7 +79,7 @@ public class Reflector {
         return ReflectionHelper.findMethod(clazz, methodName, obfMethodName, args);
     }
 
-    public static MethodHandle resolveFieldGetter(Class<?> clazz, String fieldName) {
+    @Nullable public static MethodHandle resolveFieldGetter(Class<?> clazz, String fieldName) {
         try {
             Field field = clazz.getDeclaredField(fieldName);
             field.setAccessible(true);
@@ -92,7 +93,7 @@ public class Reflector {
         }
     }
 
-    public static MethodHandle resolveFieldSetter(Class<?> clazz, String fieldName) {
+    @Nullable public static MethodHandle resolveFieldSetter(Class<?> clazz, String fieldName) {
         try {
             Field field = clazz.getDeclaredField(fieldName);
             field.setAccessible(true);
@@ -106,7 +107,7 @@ public class Reflector {
         }
     }
 
-    public static MethodHandle resolveFieldGetter(Class<?> clazz, String fieldName, String obfFieldName) {
+    @Nullable public static MethodHandle resolveFieldGetter(Class<?> clazz, String fieldName, String obfFieldName) {
         try {
             return LOOKUP.unreflectGetter(ReflectionHelper.findField(clazz, fieldName, obfFieldName));
         } catch (IllegalAccessException e) {
@@ -115,7 +116,7 @@ public class Reflector {
         }
     }
 
-    public static MethodHandle resolveFieldSetter(Class<?> clazz, String fieldName, String obfFieldName) {
+    @Nullable public static MethodHandle resolveFieldSetter(Class<?> clazz, String fieldName, String obfFieldName) {
         try {
             return LOOKUP.unreflectSetter(ReflectionHelper.findField(clazz, fieldName, obfFieldName));
         } catch (IllegalAccessException e) {
@@ -136,7 +137,7 @@ public class Reflector {
         return false;
     }
 
-    public static Class<?> getNullableClass(String className) {
+    @Nullable public static Class<?> getNullableClass(String className) {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException ignored) {}
