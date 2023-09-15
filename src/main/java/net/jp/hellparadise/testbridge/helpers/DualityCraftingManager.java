@@ -41,6 +41,8 @@ import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.InvOperation;
 import com.google.common.collect.ImmutableSet;
 import de.ellpeck.actuallyadditions.api.tile.IPhantomTile;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.*;
 import javax.annotation.Nonnull;
 import net.jp.hellparadise.testbridge.helpers.interfaces.ae2.ICraftingManagerHost;
@@ -72,10 +74,10 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
     private final AppEngInternalInventory patterns = new AppEngInternalInventory(this, NUMBER_OF_PATTERN_SLOTS);
     private final TBActionSource actionSource;
     private int priority;
-    private List<ICraftingPatternDetails> craftingList = null;
-    private List<ItemStack> createPkgList = null;
-    private HashMap<String, List<ItemStack>> waitingToSend = new HashMap<>();
-    private Set<String> satelliteList = null;
+    private List<ICraftingPatternDetails> craftingList;
+    private List<ItemStack> createPkgList;
+    private Map<String, List<ItemStack>> waitingToSend;
+    private Set<String> satelliteList;
     private String mainSatName = "";
 
     public DualityCraftingManager(final AENetworkProxy networkProxy, final ICraftingManagerHost cmHost) {
@@ -111,12 +113,14 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
         this.patterns.writeToNBT(data, "patterns");
         this.cm.writeToNBT(data);
         this.craftingTracker.writeToNBT(data);
+
         data.setString("mainSatName", this.mainSatName);
         data.setInteger("priority", this.priority);
 
         // Saved list of Items of each satellite for next session
-        NBTTagCompound satItemList = new NBTTagCompound();
         if (this.waitingToSend != null) {
+            NBTTagCompound satItemList = new NBTTagCompound();
+
             for (String satName : this.waitingToSend.keySet()) {
                 // Store list of item to each satellite that is in used
                 NBTTagList waitingList = new NBTTagList();
@@ -130,12 +134,13 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
                 }
                 satItemList.setTag(satName, waitingList);
             }
+
+            data.setTag("satItemList", satItemList);
         }
 
-        data.setTag("satItemList", satItemList);
-
-        NBTTagList pkgList = new NBTTagList();
         if (this.createPkgList != null) {
+            NBTTagList pkgList = new NBTTagList();
+
             for (final ItemStack is : this.createPkgList) {
                 final NBTTagCompound item = new NBTTagCompound();
                 is.writeToNBT(item);
@@ -144,20 +149,23 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
                 }
                 pkgList.appendTag(item);
             }
-        }
 
-        data.setTag("__pkgList", pkgList);
+            data.setTag("__pkgList", pkgList);
+        }
     }
 
     public void readFromNBT(final NBTTagCompound data) {
         // Just to be sure
         this.mainSatName = data.getString("mainSatName");
 
+        NBTTagCompound c;
+        ItemStack is;
+
         // Convert old data to new if player update
         final NBTTagList waitingList = data.getTagList("waitingToSend", 10);
         for (int x = 0; x < waitingList.tagCount(); x++) {
-            final NBTTagCompound c = waitingList.getCompoundTagAt(x);
-            final ItemStack is = new ItemStack(c);
+            c = waitingList.getCompoundTagAt(x);
+            is = new ItemStack(c);
             if (c.hasKey("stackSize")) {
                 is.setCount(c.getInteger("stackSize"));
             }
@@ -165,14 +173,12 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
         }
 
         // Retrieve item list base on sat list
-        this.waitingToSend = null;
-
         final NBTTagCompound satItemList = data.getCompoundTag("satItemList");
         for (String satName : satItemList.getKeySet()) {
             NBTTagList w = satItemList.getTagList(satName, 10);
             for (int x = 0; x < w.tagCount(); x++) {
-                final NBTTagCompound c = w.getCompoundTagAt(x);
-                final ItemStack is = new ItemStack(c);
+                c = w.getCompoundTagAt(x);
+                is = new ItemStack(c);
                 if (c.hasKey("stackSize")) {
                     is.setCount(c.getInteger("stackSize"));
                 }
@@ -181,15 +187,14 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
         }
 
         // Wait list on main sat
-        this.createPkgList = null;
         final NBTTagList pkgList = data.getTagList("__pkgList", 10);
         for (int x = 0; x < pkgList.tagCount(); x++) {
-            final NBTTagCompound c = pkgList.getCompoundTagAt(x);
-            final ItemStack is = new ItemStack(c);
+            c = pkgList.getCompoundTagAt(x);
+            is = new ItemStack(c);
             if (c.hasKey("stackSize")) {
                 is.setCount(c.getInteger("stackSize"));
             }
-            addToCreatePkgList(is);
+            this.addToCreatePkgList(is);
         }
 
         this.craftingTracker.readFromNBT(data);
@@ -205,7 +210,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
         }
 
         if (this.satelliteList == null) {
-            this.satelliteList = new HashSet<>();
+            this.satelliteList = new ObjectOpenHashSet<>();
         }
 
         this.satelliteList.add(satName);
@@ -215,14 +220,14 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
         if (is.isEmpty()) {
             return;
         }
+
         if (this.waitingToSend == null) {
-            this.waitingToSend = new HashMap<>();
+            this.waitingToSend = new Object2ObjectLinkedOpenHashMap<>();
         }
 
         this.waitingToSend.computeIfAbsent(satName, k -> new ArrayList<>());
 
-        this.waitingToSend.get(satName)
-            .add(is);
+        this.waitingToSend.get(satName).add(is);
 
         try {
             this.gridProxy.getTick()
@@ -236,6 +241,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
         if (is.isEmpty()) {
             return;
         }
+
         if (this.createPkgList == null) {
             this.createPkgList = new ArrayList<>();
         }
@@ -263,7 +269,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
             this.craftingList.removeIf(details -> {
                 for (int x = 0; x < accountedFor.length; x++) {
                     final ItemStack is = this.patterns.getStackInSlot(x);
-                    if (details.getPattern() == is) {
+                    if (ItemStack.areItemStacksEqual(details.getPattern(), is)) {
                         accountedFor[x] = true; // Our pattern truly exist!!!
                         return false;
                     }
@@ -278,22 +284,22 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
             }
 
             this.craftingList.removeIf(details -> {
-                for (int x = 0; x < accountedFor.length; x++) {
-                    if (details instanceof VirtualPatternHelper) {
-                        if (!packageList.isEmpty()) {
-                            IAEItemStack[] in = details.getCondensedOutputs();
-                            for (IAEItemStack iaeItemStack : in) {
-                                ItemStack is = iaeItemStack == null ? ItemStack.EMPTY
-                                    : iaeItemStack.asItemStackRepresentation();
-                                if (!is.isEmpty() && is.getItem() == FakeItem.ITEM_PACKAGE
-                                    && packageList.stream()
-                                        .anyMatch(s -> ItemStack.areItemStackTagsEqual(s, is))) {
-                                    return false;
-                                }
-                            }
+                if (!(details instanceof VirtualPatternHelper))
+                    return false;
+
+                if (!packageList.isEmpty()) {
+                    IAEItemStack[] in = details.getCondensedOutputs();
+                    for (IAEItemStack iaeItemStack : in) {
+                        if (iaeItemStack == null) continue;
+                        ItemStack is = iaeItemStack.asItemStackRepresentation();
+                        if (!is.isEmpty() && is.getItem() == FakeItem.ITEM_PACKAGE
+                            && packageList.stream()
+                                .anyMatch(s -> ItemStack.areItemStackTagsEqual(s, is))) {
+                            return false;
                         }
-                    } else return false;
+                    }
                 }
+
                 return true;
             });
         }
@@ -339,8 +345,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
             return;
         }
 
-        if (is.getItem() instanceof ICraftingPatternItem) {
-            final ICraftingPatternItem cpi = (ICraftingPatternItem) is.getItem();
+        if (is.getItem() instanceof ICraftingPatternItem cpi) {
             final ICraftingPatternDetails details = cpi.getPatternForItem(
                 is,
                 this.cmHost.getTileEntity()
@@ -506,10 +511,6 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
 
         this.waitingToSend.values()
             .removeIf(List::isEmpty);
-
-        if (this.waitingToSend.isEmpty()) {
-            this.waitingToSend = null;
-        }
     }
 
     public TileEntity getTile() {
@@ -613,7 +614,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
                 }
             }
             if (isTableEmpty(table)) {
-                this.satelliteList = null;
+                this.satelliteList.clear();
                 this.pushItemsOut();
                 return true;
             }
@@ -871,7 +872,7 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
             IAEItemStack r = i.injectItems(st, Actionable.MODULATE, this.actionSource);
         }
 
-        this.createPkgList = null;
+        this.createPkgList.clear();
     }
 
     private void visitArray(List<ItemStack> output, IAEItemStack[] input, boolean isPlaceholder) {
@@ -896,8 +897,8 @@ public class DualityCraftingManager implements IGridTickable, IStorageMonitorabl
     }
 
     private boolean cleanCrafting() {
-        this.satelliteList = null;
-        this.waitingToSend = null;
+        this.satelliteList.clear();
+        this.waitingToSend.clear();
         return false;
     }
 
