@@ -1,4 +1,4 @@
-package net.jp.hellparadise.testbridge.mixins.logisticspipes.invutil;
+package net.jp.hellparadise.testbridge.mixins.logisticspipes.inventories;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;

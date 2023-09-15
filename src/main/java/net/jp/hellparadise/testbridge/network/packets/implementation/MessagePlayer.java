@@ -2,6 +2,7 @@ package net.jp.hellparadise.testbridge.network.packets.implementation;
 
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
+import java.util.List;
 import net.jp.hellparadise.testbridge.core.TestBridge;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -12,7 +13,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class MessagePlayer implements IMessage {
 
-    private ArrayList<String> message;
+    private List<String> message;
 
     public static final MessagePlayer PACKET = new MessagePlayer();
 
@@ -33,11 +34,11 @@ public class MessagePlayer implements IMessage {
         }
     }
 
-    public final ArrayList<String> getMessage() {
+    public final List<String> getMessage() {
         return message;
     }
 
-    public final MessagePlayer setMessage(ArrayList<String> message) {
+    public final MessagePlayer setMessage(List<String> message) {
         this.message = message;
         return this;
     }
@@ -51,11 +52,9 @@ public class MessagePlayer implements IMessage {
                 .addScheduledTask(() -> {
                     EntityPlayer player = TestBridge.getProxy()
                         .getPlayer(ctx);
-                    if (player != null && packet != null) {
-                        for (String key : packet.message) {
-                            player.sendMessage(new TextComponentTranslation(key));
-                        }
-                    }
+                    if (player != null && packet != null)
+                        packet.message.forEach(message ->
+                                player.sendMessage(new TextComponentTranslation(message)));
                 });
             return null;
         }

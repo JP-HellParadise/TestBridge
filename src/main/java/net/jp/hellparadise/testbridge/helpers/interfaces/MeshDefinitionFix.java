@@ -1,5 +1,6 @@
 package net.jp.hellparadise.testbridge.helpers.interfaces;
 
+import javax.annotation.Nonnull;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
@@ -13,8 +14,9 @@ public interface MeshDefinitionFix extends ItemMeshDefinition {
         return lambda;
     }
 
+    @Nonnull
     @Override
-    default ModelResourceLocation getModelLocation(final ItemStack stack) {
+    default ModelResourceLocation getModelLocation(@Nonnull final ItemStack stack) {
         return getLocation(stack);
     }
 }

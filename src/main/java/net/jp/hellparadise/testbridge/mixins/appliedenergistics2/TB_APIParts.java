@@ -21,25 +21,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class TB_APIParts implements AccessorApiParts {
     @Mutable
     @Final
-    @Unique private IItemDefinition SATELLITE;
+    @Unique private IItemDefinition testBridge$SATELLITE;
 
     @Mutable
     @Final
-    @Unique private IItemDefinition CRAFTING_MANAGER;
+    @Unique private IItemDefinition testBridge$CRAFTING_MANAGER;
 
     @Inject(method = "<init>", at = @At("RETURN"), remap = false)
     private void TB_inject$ApiParts (FeatureFactory registry, PartModels partModels, CallbackInfo ci, @Local ItemPart itemPart) {
-        this.SATELLITE = new DamagedItemDefinition("part.bus.satellite", itemPart.createPart(PartType.valueOf("SATELLITE_BUS")));
-        this.CRAFTING_MANAGER = new DamagedItemDefinition("part.bus.crafting_manager", itemPart.createPart(PartType.valueOf("CRAFTING_MANAGER")));
+        this.testBridge$SATELLITE = new DamagedItemDefinition("part.bus.satellite", itemPart.createPart(PartType.valueOf("SATELLITE_BUS")));
+        this.testBridge$CRAFTING_MANAGER = new DamagedItemDefinition("part.bus.crafting_manager", itemPart.createPart(PartType.valueOf("CRAFTING_MANAGER")));
     }
 
     @Override
     public IItemDefinition satelliteBus() {
-        return this.SATELLITE;
+        return this.testBridge$SATELLITE;
     }
 
     @Override
     public IItemDefinition craftingManager() {
-        return this.CRAFTING_MANAGER;
+        return this.testBridge$CRAFTING_MANAGER;
     }
 }
