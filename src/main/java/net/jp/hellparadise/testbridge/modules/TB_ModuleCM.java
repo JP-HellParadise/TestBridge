@@ -647,8 +647,6 @@ public class TB_ModuleCM extends LogisticsModule implements Gui, IGuiOpenControl
             case REDSTONE_LOW -> {
                 assert getWorld() != null;
                 return getWorld().isBlockPowered(parentPipe.getPos());
-
-            case REDSTONE_PULSE:
             }
             case REDSTONE_PULSE -> {
                 return true;
