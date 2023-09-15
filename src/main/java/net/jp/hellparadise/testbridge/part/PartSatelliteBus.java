@@ -233,15 +233,11 @@ public class PartSatelliteBus extends PartSharedItemBus implements GuiSatelliteH
             case DUPLICATED -> player.sendStatusMessage(
                     new TextComponentTranslation("chat.testbridge.satellite_bus.success"),
                     true);
-            default -> player.sendStatusMessage(
-                    new TextComponentString("Something weird happen!! Report this to Korewa_Li"),
-                    true);
         }
     }
 
     private enum Status {
         SUCCESS,
-        DUPLICATED,
-        FAILED
+        DUPLICATED
     }
 }
