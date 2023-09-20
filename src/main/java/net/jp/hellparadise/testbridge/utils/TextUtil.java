@@ -61,7 +61,7 @@ public final class TextUtil {
     }
 
     private static String getColorTag(EnumSet<TextFormatting> baseFormatting) {
-        String[] result = new String[1];
+        final String[] result = new String[]{""};
         baseFormatting.stream()
             .filter(TextFormatting::isColor)
             .findFirst()
