@@ -25,10 +25,8 @@ public class RequestResultPipeListPacket extends BooleanCoordinatesPacket {
     public void processPacket(EntityPlayer player) {
         LogisticsTileGenericPipe pipe = this.getPipe(player.getEntityWorld(), LTGPCompletionCheck.PIPE);
 
-        if (!(pipe.pipe instanceof CoreRoutedPipe))
+        if (!(pipe.pipe instanceof CoreRoutedPipe cmPipe))
             return;
-
-        CoreRoutedPipe cmPipe = (CoreRoutedPipe) pipe.pipe;
 
         if (cmPipe.getRouter().getRouteTable() == null)
             return;
