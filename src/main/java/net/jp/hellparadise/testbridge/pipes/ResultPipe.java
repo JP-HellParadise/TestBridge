@@ -246,11 +246,8 @@ public class ResultPipe extends CoreRoutedPipe implements GuiSatelliteHolder, IC
     }
 
     public void setPointedOrientation(@Nullable EnumFacing dir) {
-        if (dir == null) {
-            pointedAdjacent = null;
-        } else {
-            pointedAdjacent = new SingleAdjacent(this, dir, ConnectionType.UNDEFINED);
-        }
+        pointedAdjacent =
+                dir == null ? null : new SingleAdjacent(this, dir, ConnectionType.UNDEFINED);
     }
 
     @Override

@@ -64,13 +64,8 @@ public class PartSatelliteBus extends PartSharedItemBus implements GuiSatelliteH
     @Nonnull
     @Override
     public IPartModel getStaticModels() {
-        if (this.isActive() && this.isPowered()) {
-            return MODELS_HAS_CHANNEL;
-        } else if (this.isPowered()) {
-            return MODELS_ON;
-        } else {
-            return MODELS_OFF;
-        }
+        return this.isPowered() ?
+                (this.isActive() ? MODELS_HAS_CHANNEL : MODELS_ON) : MODELS_OFF;
     }
 
     @Override
