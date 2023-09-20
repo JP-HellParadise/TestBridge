@@ -20,8 +20,6 @@ import logisticspipes.network.packets.pipe.SendQueueContent;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.MainProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
-import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.request.*;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
@@ -72,7 +70,6 @@ import network.rs485.logisticspipes.connection.*;
 import network.rs485.logisticspipes.pipes.IChassisPipe;
 import network.rs485.logisticspipes.property.SlottedModule;
 
-@CCType(name = "TestBridge:CraftingManager")
 public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, ISimpleInventoryEventHandler,
     ISendRoutedItem, IChassisPipe, IChangeListener, ISendQueueContentRecieiver {
 
@@ -80,11 +77,10 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
     private final TB_ModuleCM moduleCM;
     private final ItemIdentifierInventory _moduleInventory;
     private final NonNullList<ModuleUpgradeManager> slotUpgradeManagers = NonNullList.create();
-    private boolean isRedstone = false;
+    private boolean isPoweredRedstone = false;
     public final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
     @Nullable private SingleAdjacent pointedAdjacent = null;
 
-    @CCCommand(description = "Returns the size of this container pipe")
     public int getChassisSize() {
         return 27;
     }
@@ -93,7 +89,6 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         super(item);
         _moduleInventory = new ItemIdentifierInventory(getChassisSize(), "Crafting Manager", 1);
         _moduleInventory.addListener(this);
-        assert slotUpgradeManagers.size() == 0; // starting at index 0
         for (int i = 0; i < getChassisSize(); i++) {
             addModuleUpgradeManager();
         }
@@ -136,7 +131,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
             pointedAdjacent == null ? -1
                 : pointedAdjacent.getDir()
                     .ordinal());
-        nbttagcompound.setBoolean("isRedstone", isRedstone);
+        nbttagcompound.setBoolean("isPoweredRedstone", isPoweredRedstone);
         for (int i = 0; i < getChassisSize(); i++) {
             slotUpgradeManagers.get(i)
                 .writeToNBT(nbttagcompound, Integer.toString(i));
@@ -152,7 +147,7 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
         if (tmp != -1) {
             setPointedOrientation(EnumFacingUtil.getOrientation(tmp % 6));
         }
-        isRedstone = nbttagcompound.getBoolean("isRedstone");
+        isPoweredRedstone = nbttagcompound.getBoolean("isPoweredRedstone");
         for (int i = 0; i < getChassisSize(); i++) {
             final ItemIdentifierStack idStack = _moduleInventory.getIDStackInSlot(i);
             if (idStack != null && !moduleCM.hasModule(i)) {
@@ -187,17 +182,18 @@ public class PipeCraftingManager extends CoreRoutedPipe implements ICraftItems, 
 
         boolean isPulse = false;
 
-        // Check if redstone pulse
-        if (!isRedstone) {
-            if (getWorld().isBlockPowered(getPos())) {
-                isPulse = isRedstone = getWorld().isBlockPowered(getPos());
-            }
+        // Check if pulse
+        if (!isPoweredRedstone) {
+            isPulse = isPoweredRedstone != getWorld().isBlockPowered(getPos());
         }
 
-        isRedstone = getWorld().isBlockPowered(getPos());
+        // Reset powered state
+        isPoweredRedstone = getWorld().isBlockPowered(getPos());
 
-        if (!this.getWorld().isRemote && moduleCM.blockingMode.getValue()
-            .equals(TB_ModuleCM.BlockingMode.REDSTONE_PULSE) && moduleCM.hasItemsToCraft() && isPulse) {
+        if (!this.getWorld().isRemote && moduleCM.hasItemsToCraft()
+                && moduleCM.blockingMode
+                    .getValue().equals(TB_ModuleCM.BlockingMode.REDSTONE_PULSE)
+                && isPulse) {
             moduleCM.startCrafting();
         }
     }
