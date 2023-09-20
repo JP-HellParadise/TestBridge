@@ -72,7 +72,7 @@ public interface GuiSatelliteHolder extends IGuiHolder, SatelliteInfo {
             @Nonnull BlockPos blockPos,
             @Nullable EnumFacing facing) {
         if (facing != null) {
-            GuiHandler.getCoverUiInfo(facing)
+            GuiHandler.getAE2PartUiInfo(facing)
                 .open(player, world, blockPos);
         } else {
             GuiInfos.TILE_ENTITY.open(player, world, blockPos);

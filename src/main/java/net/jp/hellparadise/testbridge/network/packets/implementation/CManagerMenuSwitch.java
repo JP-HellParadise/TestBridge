@@ -71,7 +71,7 @@ public class CManagerMenuSwitch implements IMessage {
                                 if (tile instanceof TileEntityCraftingManager) {
                                     GuiInfos.TILE_ENTITY.open(player, world, packet.pos);
                                 } else {
-                                    GuiHandler.getCoverUiInfo(EnumFacing.values()[packet.side])
+                                    GuiHandler.getAE2PartUiInfo(EnumFacing.values()[packet.side])
                                             .open(player, world, packet.pos);
                                 }
                             } else {

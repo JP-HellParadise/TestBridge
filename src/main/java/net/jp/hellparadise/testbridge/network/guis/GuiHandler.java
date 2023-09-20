@@ -9,19 +9,19 @@ import net.minecraft.util.EnumFacing;
 
 public class GuiHandler {
 
-    private static final EnumMap<EnumFacing, GuiInfo> SIDES = new EnumMap<>(EnumFacing.class);
+    private static final EnumMap<EnumFacing, GuiInfo> PART_SIDES = new EnumMap<>(EnumFacing.class);
 
-    public static GuiInfo getCoverUiInfo(EnumFacing facing) {
-        return SIDES.get(facing);
+    public static GuiInfo getAE2PartUiInfo(EnumFacing facing) {
+        return PART_SIDES.get(facing);
     }
 
     static {
         for (EnumFacing facing : EnumFacing.values()) {
-            SIDES.put(facing, makeCoverUiInfo(facing));
+            PART_SIDES.put(facing, makeAE2PartUiInfo(facing));
         }
     }
 
-    private static GuiInfo makeCoverUiInfo(EnumFacing facing) {
+    private static GuiInfo makeAE2PartUiInfo(EnumFacing facing) {
         return GuiInfo.builder()
             .clientGui((context, panel) -> {
                 TileEntity tile = context.getTileEntity();
