@@ -48,7 +48,7 @@ dependencies {
   api rfg.deobf('curse.maven:AE2Unofficial-570458:4632516') // v0.53.4
 
   api 'curse.maven:HadEnoughItems-557549:4442402' // 4.24.0
-  api 'curse.maven:ModularUI-624243:4692436' //
+  api 'curse.maven:ModularUI-624243:4692436-sources-4692438' // 2.1.0
   implementation 'curse.maven:RedstoneFlux-270789:2920436' // 2.1.1.1
   implementation 'curse.maven:CodeChickenLib-242818:2779848' // 3.2.3.358-universal
   implementation 'curse.maven:TheOneProbe-245211:2667280' //
