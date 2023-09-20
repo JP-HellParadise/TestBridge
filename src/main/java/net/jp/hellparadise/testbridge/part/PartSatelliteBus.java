@@ -130,8 +130,6 @@ public class PartSatelliteBus extends PartSharedItemBus implements GuiSatelliteH
         return 1;
     }
 
-
-
     @Override
     public boolean onPartActivate(final EntityPlayer player, final EnumHand hand, final Vec3d posIn) {
         if (Platform.isServer()) {
@@ -169,10 +167,7 @@ public class PartSatelliteBus extends PartSharedItemBus implements GuiSatelliteH
 
     @Override
     public void setSatelliteName(@Nonnull String __satName) {
-        if (satPartName.equals(__satName)) return;
         this.satPartName = __satName;
-        ensureAllSatelliteStatus();
-        this.getTile().markDirty();
     }
 
     @Override

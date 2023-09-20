@@ -9,7 +9,7 @@ import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.Tooltip;
 import com.cleanroommc.modularui.screen.viewport.GuiContext;
 import com.cleanroommc.modularui.value.sync.GuiSyncManager;
-import com.cleanroommc.modularui.value.sync.SyncHandlers;
+import com.cleanroommc.modularui.value.sync.StringSyncValue;
 import com.cleanroommc.modularui.widget.Widget;
 import com.cleanroommc.modularui.widgets.layout.Column;
 import com.cleanroommc.modularui.widgets.layout.Row;
@@ -20,6 +20,7 @@ import net.jp.hellparadise.testbridge.client.TB_Textures;
 import net.jp.hellparadise.testbridge.helpers.interfaces.SatelliteInfo;
 import net.jp.hellparadise.testbridge.network.guis.GuiHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -42,17 +43,23 @@ public interface GuiSatelliteHolder extends IGuiHolder, SatelliteInfo {
                     .child(new TextFieldWidget() {
                             @Override
                             public void onRemoveFocus(GuiContext context) {
-                                if (isExist(this.getText())) {
-                                    response[0] = IKey.lang("Failed").get();
-                                    indicator.overlay(TB_Textures.UI_CROSS.asIcon());
-                                    return;
-                                }
-                                response[0] = IKey.lang("Success").get();
-                                indicator.overlay(TB_Textures.UI_TICK.asIcon());
-                                super.onRemoveFocus(context);
+                                boolean isExist = isExist(this.getText());
+                                response[0] = IKey.lang(isExist ?
+                                        "gui.popup.select.failed" : "gui.popup.select.success").get();
+                                indicator.overlay((isExist ?
+                                        TB_Textures.UI_CROSS : TB_Textures.UI_TICK)
+                                        .asIcon());
+                                if (!isExist) super.onRemoveFocus(context);
                             }
                         }
-                        .value(SyncHandlers.string(this::getSatelliteName, this::setSatelliteName))
+                        .value(new StringSyncValue(this::getSatelliteName, this::setSatelliteName) {
+                            @Override
+                            public void readOnServer(int id, PacketBuffer buf) {
+                                super.readOnServer(id, buf);
+                                ensureAllSatelliteStatus();
+                                if (getContainer() != null) getContainer().markDirty();
+                            }
+                        })
                         .size(106, 18)))
                 .child(
                     new Column().coverChildrenHeight()

@@ -69,10 +69,7 @@ public class ResultPipe extends CoreRoutedPipe implements GuiSatelliteHolder, IC
 
     @Override
     public void setSatelliteName(@Nonnull String resultPipeName) {
-        if (this.resultPipeName.equals(resultPipeName)) return;
         this.resultPipeName = resultPipeName;
-        this.ensureAllSatelliteStatus();
-        this.markTileDirty();
     }
 
     // called only on server shutdown
