@@ -1,3 +1,6 @@
+## Archived
+No time to maintain and I don't want to fix incompatible issue regard AE2 and LP.
+
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/KorewaLidesu/TestBridge?label=github%20release&logo=github&style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/releases/latest)
 [![CurseForge](https://azusahideout.ml/badge/testbridge)](https://www.curseforge.com/minecraft/mc-mods/testbridge/files)
 [![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/KorewaLidesu/TestBridge/main_build.yml?label=test%20build&logo=github&style=for-the-badge)](https://github.com/KorewaLidesu/TestBridge/actions/workflows/main_build.yml)
